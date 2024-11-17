@@ -1,0 +1,12 @@
+{
+  "name": "watkinsdemo",
+  "productName": "Watkins Database Manager",
+  "version": "1.0.0",
+  "description": "Frontend remote management software for Watkins High School",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Josh Meyer",
+  "license": "MIT"
+}

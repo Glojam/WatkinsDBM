@@ -1,4 +1,26 @@
+html { 
+  height:100%; 
+}
+
+body {
+  /* Centers body and fills page w/o making ugly scrollbar */
+  position:absolute; top:0; bottom:0; right:0; left:0; 
+}
+
 table {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
+}
+
+input {
+  width: 15rem;
+}
+
+#formHalf {
+  padding-top: 0.8rem;
+  vertical-align: text-top;
+}
+
+.header {
+  height: 0.8rem;
 }

@@ -7,14 +7,14 @@
     <title>Watkins Database Manager</title>
 </head>
 <body>
-    <table border="1">
-        <tr>
+    <table>
+        <tr class="header">
             <td colspan="2" style="background-color: yellow; text-align: center;">
                 <h2>Watkins Database Manager</h2>
             </td>
         </tr>
         <tr>
-            <td>
+            <td id="formHalf">
                 <form>
                     <label for="firstName">First Name:</label><br>
                     <input type="text" id="firstName" name="firstName" placeholder="Leave blank for all first names"><br><br>
@@ -34,14 +34,18 @@
                     <label for="position">Position:</label><br>
                     <input type="text" id="position" name="position" placeholder="Leave blank for all positions" value="Forward"><br><br>
                     
-                    <button type="button">New Data Input</button>
+                    <button type="button">Search</button>
                     <button type="button">Help</button>
-                    <button type="button">View Database</button>
+                    <button type="button">Switch to Goalkeepers</button>
+                    <br>
+                    <p>0 changes to 0 rows
+                    <br>
+                    <button type="button">Publish Changes to Database</button>
                 </form>
             </td>
             <td>
-                <table border="1">
-                    <tr>
+                <table>
+                    <tr class="header">
                         <td colspan="10" style="background-color: yellow; text-align: center;">Viewing: Players</td>
                     </tr>
                     <tr>

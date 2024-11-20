@@ -19,8 +19,22 @@ input {
 #formHalf {
   padding-top: 0.8rem;
   vertical-align: text-top;
+  width: 15rem;
+}
+
+#dataTable {
+    border: 0.2rem solid;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.tabElement {
+    border: 0.1rem solid;
+    height: 10px;
+    margin: 0px;
+    padding: 5px;
 }
 
 .header {
-  height: 0.8rem;
+  height: 0.2rem;
 }

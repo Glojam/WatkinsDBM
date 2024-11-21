@@ -1,5 +1,6 @@
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const { electron } = require('process');
 
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -13,6 +14,7 @@ function createMainWindow() {
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
     mainWindow.maximize();
     mainWindow.show();
+    if (isDev) { mainWindow.webContents.openDevTools(); }
 }
 
 app.whenReady().then(() => {
@@ -25,6 +27,7 @@ app.whenReady().then(() => {
     })
 });
 
-app.on('window-all-closed', () => { // This is necessary for Mac support
+app.on('window-all-closed', () => {
+    // This is a quirk of Mac window behavior that is standard practice to implement
     if (!isMac) { app.quit(); }
 })

@@ -17,6 +17,8 @@ function createMainWindow() {
     mainWindow.show();
     if (isDev) { mainWindow.webContents.openDevTools(); }
 
+    // TODO this is a test; move this to sqlservice.js
+    // Authentication information should NEVER be stored
     (async () => {
         try {
             // make sure that any items are correctly URL encoded in the connection string
@@ -37,9 +39,6 @@ app.whenReady().then(() => {
             createMainWindow();
         }
     })
-
-    // TODO this is a test; move this to sqlservice.js
-    // Authentication information should NEVER be stored
 });
 
 app.on('window-all-closed', () => {

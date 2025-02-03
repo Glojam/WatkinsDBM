@@ -26,10 +26,11 @@ app.whenReady().then(() => {
             createMainWindow();
         }
     })
-    console.log("3attempt!");
+
+    // TODO this is a test; move this to sqlservice.js
+    // Authentication information should NEVER be stored in-app!
     (async () => {
         try {
-            console.log("attempt!");
             // make sure that any items are correctly URL encoded in the connection string
             await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
             const result = await sql.query`select * from Players`;

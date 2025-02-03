@@ -1,6 +1,7 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { electron } = require('process');
+const sql = require('mssql')
 
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -25,6 +26,18 @@ app.whenReady().then(() => {
             createMainWindow();
         }
     })
+    console.log("3attempt!");
+    (async () => {
+        try {
+            console.log("attempt!");
+            // make sure that any items are correctly URL encoded in the connection string
+            await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
+            const result = await sql.query`select * from Players`;
+            console.dir(result);
+        } catch (err) {
+            console.log(err);
+        }
+    })()
 });
 
 app.on('window-all-closed', () => {

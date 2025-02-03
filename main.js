@@ -10,10 +10,7 @@ function createMainWindow() {
         title: 'Watkins Database Manager',
         show: false,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true,
-            enableRemoteModule: false,
-            nodeIntegration: false
+            preload: path.join(__dirname, 'preload.js')
           }          
     });
 
@@ -24,8 +21,8 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
+    ipcMain.handle('getData', getSpecificData)
     createMainWindow();
-
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createMainWindow();
@@ -48,7 +45,7 @@ async function getSpecificData() {
                // console.dir(result);
                 resolve(result)
             } catch (err) {
-                reject("Something went wrong")
+                reject('Something went wrong')
                 console.log(err);
             }
         }, 2000); // Simulating an async operation with a timeout

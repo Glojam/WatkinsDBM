@@ -1,9 +1,5 @@
-// preload.js
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron/renderer')
 
-contextBridge.exposeInMainWorld("electron", {
-    ipcRenderer: ipcRenderer,
-    onResponse: (fn) => {
-        ipcRenderer.on("tasks.return", (event, ...args) => fn(...args));
-    }
-});
+contextBridge.exposeInMainWorld('electronAPI', {
+  getData: () => ipcRenderer.invoke('getData')
+})

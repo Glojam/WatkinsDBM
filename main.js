@@ -1,7 +1,8 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const sql = require('mssql')
-
+const fs = require('fs');
+const readline = require('readline');
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
@@ -40,7 +41,7 @@ async function getSpecificData() {
         setTimeout(async () => {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
-                await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
+                await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=sqlpassword!;Encrypt=true;TrustServerCertificate=true');
                 const result = await sql.query`select * from Players`;
                // console.dir(result);
                 resolve(result)
@@ -56,3 +57,75 @@ ipcMain.on('getData', async (event, arg) => {
     const data = await getSpecificData();
     event.reply('sendData', data);
 });
+
+//function to execute on button click for file upload button
+function upload(file){
+    // MSSQL Configuration
+    const config = {
+        user: 'SA',
+        password: 'sqlpassword!',
+        server: 'localhost',
+        database: 'Watkins',
+        options: {
+            encrypt: true, // Change to true if using Azure
+            trustServerCertificate: true,
+        },
+    };
+    
+    // File path
+    const filePath = file; // Change this to your actual file
+    
+    // Function to parse and upload data
+    async function uploadData() {
+        const pool = await sql.connect(config);
+        const rl = readline.createInterface({
+            input: fs.createReadStream(filePath),
+            output: process.stdout,
+            terminal: false
+        });
+    
+        let isHeader = true; // Skip header row
+    
+        for await (const line of rl) {
+            if (isHeader) {
+                isHeader = false;
+                continue;
+            }
+    
+            const fields = line.split('|').map(f => f.trim());
+    
+            if (fields.length < 5) {
+                console.warn('Skipping invalid line:', line);
+                continue;
+            }
+    
+            const [Jersey, Goals, Assists, Shots, MinutesPlayed] = fields.map(Number);
+    
+            try {
+                await pool.request()
+                    .input('Jersey', sql.Int, Jersey)
+                    .input('Goals', sql.Int, Goals)
+                    .input('Assists', sql.Int, Assists)
+                    .input('Shots', sql.Int, Shots)
+                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .query(`
+                        INSERT INTO Players (jersey, goals, assists, shots, minutes)
+                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed)
+                    `);
+    
+                console.log(`Inserted: Jersey #${Jersey}`);
+            } catch (err) {
+                console.error('Database error:', err.message);
+            }
+        }
+    
+        await pool.close();
+        console.log('Upload complete.');
+    }
+    
+    // Execute the function
+    uploadData().catch(err => console.error('Error:', err));
+    }
+    ipcMain.handle('upload-file', async (event, file) => {
+        return upload(file);
+    });

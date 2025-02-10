@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
@@ -41,7 +41,7 @@ async function getSpecificData() {
         setTimeout(async () => {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
-                await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=sqlpassword!;Encrypt=true;TrustServerCertificate=true');
+                await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
                 const result = await sql.query`select * from Players`;
                // console.dir(result);
                 resolve(result)
@@ -60,10 +60,14 @@ ipcMain.on('getData', async (event, arg) => {
 
 //function to execute on button click for file upload button
 function upload(file){
+    // Get all selected files
+    // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
+    const fileOutputs = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
+    
     // MSSQL Configuration
     const config = {
         user: 'SA',
-        password: 'sqlpassword!',
+        password: 'Sqlpassword!',
         server: 'localhost',
         database: 'Watkins',
         options: {
@@ -72,14 +76,11 @@ function upload(file){
         },
     };
     
-    // File path
-    const filePath = file; // Change this to your actual file
-    
     // Function to parse and upload data
     async function uploadData() {
         const pool = await sql.connect(config);
         const rl = readline.createInterface({
-            input: fs.createReadStream(filePath),
+            input: fs.createReadStream(fileOutputs[0]), // TODO: this only actually accepts the first file. Should loop and upload all verified files.
             output: process.stdout,
             terminal: false
         });
@@ -125,7 +126,7 @@ function upload(file){
     
     // Execute the function
     uploadData().catch(err => console.error('Error:', err));
-    }
-    ipcMain.handle('upload-file', async (event, file) => {
-        return upload(file);
-    });
+}
+ipcMain.handle('upload-file', async (event, file) => {
+    return upload(file);
+});

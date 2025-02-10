@@ -14,24 +14,10 @@ document.getElementById('searchButton').addEventListener('click', async () => {
 });
 // listener and action for button to upload files to database
 document.getElementById('update').addEventListener('click', async () => {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "text/plain";
-  input.style.display = "none";
-  input.addEventListener("change", function () {
-      if (input.files.length > 0) {
-          alert("Selected file: " + input.files[0].name);
-          console.log(input.files[0].path)
-          handleUpload(input.files[0].path)
-      }
-  });
-  document.body.appendChild(input);
-  input.click();
-  document.body.removeChild(input);
-  console.log(input);
+  handleUpload()
 });
-async function handleUpload(input) {
-  const filePath = input; // Replace with actual file input
-  const response = await window.electronAPI.upload(filePath);
+async function handleUpload() {
+  //const filePath = input; // Replace with actual file input
+  const response = await window.electronAPI.upload();
   console.log(response);
 }

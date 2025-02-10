@@ -12,6 +12,7 @@
   "dependencies": {
     "electron": "^33.2.0",
     "mssql": "^11.0.1",
+    "path": "^0.12.7",
     "tedious": "^18.6.1"
   }
 }

@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  getData: () => ipcRenderer.invoke('getData'),
+  getData: (args) => ipcRenderer.invoke('getData', args),
   upload: () => ipcRenderer.invoke('upload-file'),
 })

@@ -1,6 +1,16 @@
 document.getElementById("searchButton").addEventListener("click", async () => {
-  const data = await window.electronAPI.getData();
-  console.log(data);
+  
+  // Look through the search fields, and compile the strings into a filtering list
+  // For convienience it is assumed empty string = "any"
+  let args = {}
+  args["first name"] = document.getElementById("firstName").value
+  args["last name"] = document.getElementById("lastName").value
+  args["year"] = document.getElementById("teamYear").value
+  args["opponent"] = document.getElementById("opponent").value
+  args["division"] = document.getElementById("division").value
+  args["position"] = document.getElementById("position").value
+
+  const data = await window.electronAPI.getData(args);
 
   var table = document.getElementById("dataTable");
 

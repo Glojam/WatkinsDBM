@@ -36,13 +36,30 @@ app.on('window-all-closed', () => {
     if (!isMac) { app.quit(); }
 })
 
-async function getSpecificData() {
+// TODO: pass a 'table' parameter inside args to specify tables aside from Players
+// For some reason Event gets passed regardless even though it isnt specified.
+async function getSpecificData(event, args) {
+    let query = "SELECT * FROM Players"
+    let isEmpty = true
+    // TODO: Add protections against SQL injection here
+    for(let row of Object.entries(args)) { // 0: name, 1: value
+        if (row[1] === '') { continue; }
+        if (isEmpty) {
+            isEmpty = false;
+            query += " WHERE "
+        } else {
+            query += " AND "
+        }
+        query += `[${row[0]}]='${row[1]}'`
+    }
+    query += ";"
+
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
                 await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
-                const result = await sql.query`select * from Players`;
+                const result = await sql.query(query);
                // console.dir(result);
                 resolve(result)
             } catch (err) {
@@ -53,13 +70,13 @@ async function getSpecificData() {
     });
 }
   
-ipcMain.on('getData', async (event, arg) => {
-    const data = await getSpecificData();
+ipcMain.on('getData', async (event, args) => {
+    const data = await getSpecificData(args);
     event.reply('sendData', data);
 });
 
 //function to execute on button click for file upload button
-function upload(file){
+function upload() {
     // Get all selected files
     // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
     const fileOutputs = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })

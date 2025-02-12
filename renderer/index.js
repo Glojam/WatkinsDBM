@@ -1,10 +1,8 @@
-// VERY TEMPORARY
-//listener and actions for search button
-document.getElementById('searchButton').addEventListener('click', async () => {
+document.getElementById("searchButton").addEventListener("click", async () => {
   const data = await window.electronAPI.getData();
   console.log(data);
 
-  var table = document.getElementById('dataTable');
+  var table = document.getElementById("dataTable");
 
   // Remove all previous data rows, but keep the headers
   while (table.rows.length > 2) {
@@ -23,7 +21,7 @@ document.getElementById('searchButton').addEventListener('click', async () => {
           if (i < numColumns) {
               var cell = newRow.insertCell(i);
               cell.innerHTML = value !== null ? value : ''; // Ensure no null values
-              cell.className ="tabElement"
+              cell.className = "tabElement"
           }
           i++;
       }

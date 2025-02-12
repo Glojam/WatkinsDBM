@@ -33,7 +33,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       }
   });
 });
-// listener and action for button to upload files to database
+// listener and action for help button
 document.getElementById("helpButton").addEventListener('click', async () => {
   alert(
     "Search Fields: Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all last names\n" + 

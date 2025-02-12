@@ -6,6 +6,18 @@ const readline = require('readline');
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
+// MSSQL Configuration
+const config = {
+    user: "SA",
+    password: "Sqlpassword!",
+    server: "localhost",
+    database: "Watkins",
+    options: {
+        encrypt: true, // Change to true if using Azure
+        trustServerCertificate: true,
+    },
+};
+
 function createMainWindow() {
     const mainWindow = new BrowserWindow({
         title: 'Watkins Database Manager',
@@ -59,7 +71,7 @@ async function getSpecificData(event, args) {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
                 // TODO standardize connection string (this format is ugly, use global config instead)
-                await sql.connect("Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true");
+                await sql.connect(config);
                 const result = await sql.query(query);
                 resolve(result);
             } catch (err) {
@@ -81,18 +93,6 @@ function upload() {
     // Get all selected files
     // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
     const fileOutputs = dialog.showOpenDialogSync({ properties: ["openFile", "multiSelections"] });
-    
-    // MSSQL Configuration
-    const config = {
-        user: "SA",
-        password: "Sqlpassword!",
-        server: "localhost",
-        database: "Watkins",
-        options: {
-            encrypt: true, // Change to true if using Azure
-            trustServerCertificate: true,
-        },
-    };
     
     // Function to parse and upload data
     async function uploadData() {

@@ -1,5 +1,4 @@
-document.getElementById("searchButton").addEventListener("searchClick", async () => {
-  
+document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
   // For convenience it is assumed empty string = "any"
   let args = {};
@@ -44,7 +43,7 @@ document.getElementById("searchButton").addEventListener("searchClick", async ()
   });
 });
 // listener and action for help button
-document.getElementById("helpButton").addEventListener("helpClick", async () => {
+document.getElementById("helpButton").addEventListener("click", async () => {
   alert(
     "Search Fields: Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all last names\n" + 
     "i.e. Only the search fields that you have specified values within will be search upon & highlighted\n" +
@@ -65,7 +64,7 @@ document.getElementById("helpButton").addEventListener("helpClick", async () => 
   );
 });
 // listener and action for button to upload files to database
-document.getElementById('update').addEventListener('updateClick', async () => {
+document.getElementById("click").addEventListener("click", async () => {
   handleUpload();
 });
 async function handleUpload() {

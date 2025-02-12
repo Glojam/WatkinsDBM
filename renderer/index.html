@@ -8,85 +8,77 @@
 </head>
 <body>
     <!--JS scripts should load in Body to prevent rendering delays.-->
-    <table>
-        <tr class="header">
-            <td colspan="2" style="background-color: yellow; text-align: center;">
-                <h2>Watkins Database Manager</h2>
-            </td>
-        </tr>
-        <tr>
-            <td id="formHalf">
-                <div id="formContainer">
-                    <form>
-                        <label for="firstName">First Name:</label><br>
-                        <input type="text" id="firstName" name="firstName" placeholder="Leave blank for all first names"><br><br>
-                        
-                        <label for="lastName">Last Name:</label><br>
-                        <input type="text" id="lastName" name="lastName" placeholder="Leave blank for all last names"><br><br>
-                        
-                        <label for="teamYear">Team Year:</label><br>
-                        <input type="text" id="teamYear" name="teamYear" placeholder="Leave blank for all years" value="2023-2024"><br><br>
-                        
-                        <label for="opponent">Opponent:</label><br>
-                        <input type="text" id="opponent" name="opponent" placeholder="Leave blank for all opponents"><br><br>
-                        
-                        <label for="division">Division:</label><br>
-                        <input type="text" id="division" name="division" placeholder="Leave blank for all divisions"><br><br>
-                        
-                        <label for="position">Position:</label><br>
-                        <input type="text" id="position" name="position" placeholder="Leave blank for all positions" value="Forward"><br><br>
-                        
-                        <button type="button" id="searchButton">Search</button>
-                        <button type="button">Help</button>
-                        <button type="button">Switch Table</button>
-                        <br>
-                        <p>0 changes to 0 rows</p>
-                        <br>
-                        <button type="button" id="update">Publish Changes to Database</button>
-                    </form>
-                </div>
-            </td>
-            <td>
-                <div id="tableContainer">
-                    <table id="dataTable">
-                        <tr class="header">
-                            <td colspan="26" style="background-color: yellow; text-align: center;">Viewing: Players</td>
-                        </tr>
-                        <tr>
-                            <td class="tabElement">Opponent</td>
-                            <td class="tabElement">Date</td>
-                            <td class="tabElement">Field</td>
-                            <td class="tabElement">Outcome</td>
-                            <td class="tabElement">Half Score</td>
-                            <td class="tabElement">Half Score Opponent</td>
-                            <td class="tabElement">Final Score</td>
-                            <td class="tabElement">Final Score Opponent</td>
-                            <td class="tabElement">First Name</td>
-                            <td class="tabElement">Last Name</td>
-                            <td class="tabElement">Year</td>
-                            <td class="tabElement">Jersey</td>
-                            <td class="tabElement">Position</td>
-                            <td class="tabElement">Varsity</td>
-                            <td class="tabElement">Played</td>
-                            <td class="tabElement">Started</td>
-                            <td class="tabElement">MOTM Award></td>
-                            <td class="tabElement">Sportsmanship Award</td>
-                            <td class="tabElement">Minuetes</td>
-                            <td class="tabElement">Goals</td>
-                            <td class="tabElement">Assissts</td>
-                            <td class="tabElement">Points</td>
-                            <td class="tabElement">Shots</td>
-                            <td class="tabElement">Shots on Goal</td>
-                            <td class="tabElement">Yellows</td>
-                            <td class="tabElement">Reds</td>
-                        </tr>
-                        <!--Empty row required for correct sizing-->
-                        <tr></tr>
-                    </table>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div id="mainContainer">
+        <div id="formHalf">
+            <div id="formContainer">
+                <form>
+                    <label for="firstName">First Name:</label><br>
+                    <input type="text" id="firstName" name="firstName" placeholder="Leave blank for all first names"><br><br>
+                    
+                    <label for="lastName">Last Name:</label><br>
+                    <input type="text" id="lastName" name="lastName" placeholder="Leave blank for all last names"><br><br>
+                    
+                    <label for="teamYear">Team Year:</label><br>
+                    <input type="text" id="teamYear" name="teamYear" placeholder="Leave blank for all years" value="2023-2024"><br><br>
+                    
+                    <label for="opponent">Opponent:</label><br>
+                    <input type="text" id="opponent" name="opponent" placeholder="Leave blank for all opponents"><br><br>
+                    
+                    <label for="division">Division:</label><br>
+                    <input type="text" id="division" name="division" placeholder="Leave blank for all divisions"><br><br>
+                    
+                    <label for="position">Position:</label><br>
+                    <input type="text" id="position" name="position" placeholder="Leave blank for all positions" value="Forward"><br><br>
+                    
+                    <button type="button" id="searchButton">Search</button>
+                    <button type="button">Help</button>
+                    <button type="button">Switch Table</button>
+                    <br>
+                    <p>0 changes to 0 rows</p>
+                    <br>
+                    <button type="button" id="update">Publish Changes to Database</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tableContainer">
+            <table id="dataTable">
+                <tr class="header">
+                    <td colspan="26" style="background-color: yellow; text-align: center;">Viewing: Players</td>
+                </tr>
+                <tr>
+                    <td class="tabElement">Opponent</td>
+                    <td class="tabElement">Date</td>
+                    <td class="tabElement">Field</td>
+                    <td class="tabElement">Outcome</td>
+                    <td class="tabElement">Half Score</td>
+                    <td class="tabElement">Half Score Opponent</td>
+                    <td class="tabElement">Final Score</td>
+                    <td class="tabElement">Final Score Opponent</td>
+                    <td class="tabElement">First Name</td>
+                    <td class="tabElement">Last Name</td>
+                    <td class="tabElement">Year</td>
+                    <td class="tabElement">Jersey</td>
+                    <td class="tabElement">Position</td>
+                    <td class="tabElement">Varsity</td>
+                    <td class="tabElement">Played</td>
+                    <td class="tabElement">Started</td>
+                    <td class="tabElement">MOTM Award</td>
+                    <td class="tabElement">Sportsmanship Award</td>
+                    <td class="tabElement">Minuetes</td>
+                    <td class="tabElement">Goals</td>
+                    <td class="tabElement">Assissts</td>
+                    <td class="tabElement">Points</td>
+                    <td class="tabElement">Shots</td>
+                    <td class="tabElement">Shots on Goal</td>
+                    <td class="tabElement">Yellows</td>
+                    <td class="tabElement">Reds</td>
+                </tr>
+                <!--Empty row required for correct sizing-->
+                <tr></tr>
+            </table>
+        </div>
+    </div>
     <script src="index.js"></script> 
 </body>
 </html>

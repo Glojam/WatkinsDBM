@@ -1,29 +1,33 @@
-html { 
-  height: 100%; 
-}
-
-body {
-  /* Centers body and fills page w/o making ugly scrollbar */
-  position: absolute; top: 0; bottom: 0; right: 0; left: 0; 
-}
-
-table {
-  width: 100%;
+html {
   height: 100%;
 }
 
-input {
-  width: 15rem;
+body {
+  font-family: Verdana, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevents the body from scrolling */
+}
+
+#mainContainer {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
 }
 
 #formHalf {
   padding-top: 0.8rem;
   vertical-align: text-top;
   width: 15rem;
+  flex-shrink: 0; /* Prevents the form from shrinking */
 }
 
 #formContainer {
   height: 100%;
+  padding: 0.3rem;
   overflow-y: auto; /* Vertical scroll for form */
 }
 
@@ -32,22 +36,27 @@ input {
   border-spacing: 0;
   border-collapse: collapse;
   height: 100%;
+  flex-grow: 1; /* Table takes the remaining space */
   overflow-x: auto; /* Horizontal scroll for table */
+  overflow-y: auto; /* Vertical scroll if needed */
+  max-height: 100%; /* Ensures the table fills the remaining height */
 }
 
 #dataTable {
-  border: 0.1rem solid;
+  width: 100%;
   border-spacing: 0;
   border-collapse: collapse;
+  table-layout: auto; /* Allow auto-sizing of columns based on content */
 }
 
 .tabElement {
+  font-size: 0.8em;
   border: 0.1rem solid;
-  height: 10px;
-  margin: 0px;
   padding: 5px;
+  word-wrap: break-word; /* Prevent text overflow by wrapping it */
+  white-space: normal; /* Allow content to wrap and not overflow */
 }
 
 .header {
-  height: 0.2rem;
+  height: .01rem;
 }

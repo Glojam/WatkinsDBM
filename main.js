@@ -22,7 +22,7 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
-    ipcMain.handle('getData', getSpecificData)
+    ipcMain.handle('getData', getSpecificData);
     createMainWindow();
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -39,54 +39,55 @@ app.on('window-all-closed', () => {
 // TODO: pass a 'table' parameter inside args to specify tables aside from Players
 // For some reason Event gets passed regardless even though it isnt specified.
 async function getSpecificData(event, args) {
-    let query = "SELECT * FROM Players"
-    let isEmpty = true
+    let query = "SELECT * FROM Players";
+    let isEmpty = true;
     // TODO: Add protections against SQL injection here
     for(let row of Object.entries(args)) { // 0: name, 1: value
-        if (row[1] === '') { continue; }
+        if (row[1] === "") { continue; }
         if (isEmpty) {
             isEmpty = false;
-            query += " WHERE "
+            query += " WHERE ";
         } else {
-            query += " AND "
+            query += " AND ";
         }
-        query += `[${row[0]}]='${row[1]}'`
+        query += `[${row[0]}]='${row[1]}'`;
     }
-    query += ";"
+    query += ";";
 
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
-                await sql.connect('Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true');
+                // TODO standardize connection string (this format is ugly, use global config instead)
+                await sql.connect("Server=localhost,1433;Database=Watkins;User Id=SA;Password=Sqlpassword!;Encrypt=true;TrustServerCertificate=true");
                 const result = await sql.query(query);
-               // console.dir(result);
-                resolve(result)
+                resolve(result);
             } catch (err) {
-                reject('Something went wrong')
+                // TODO error popup
+                reject("Something went wrong");
                 console.log(err);
             }
         }, 2000); // Simulating an async operation with a timeout
     });
 }
   
-ipcMain.on('getData', async (event, args) => {
+ipcMain.on("getData", async (event, args) => {
     const data = await getSpecificData(args);
-    event.reply('sendData', data);
+    event.reply("sendData", data);
 });
 
 //function to execute on button click for file upload button
 function upload() {
     // Get all selected files
     // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
-    const fileOutputs = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
+    const fileOutputs = dialog.showOpenDialogSync({ properties: ["openFile", "multiSelections"] });
     
     // MSSQL Configuration
     const config = {
-        user: 'SA',
-        password: 'Sqlpassword!',
-        server: 'localhost',
-        database: 'Watkins',
+        user: "SA",
+        password: "Sqlpassword!",
+        server: "localhost",
+        database: "Watkins",
         options: {
             encrypt: true, // Change to true if using Azure
             trustServerCertificate: true,
@@ -113,7 +114,7 @@ function upload() {
             const fields = line.split('|').map(f => f.trim());
     
             if (fields.length < 5) {
-                console.warn('Skipping invalid line:', line);
+                console.warn("Skipping invalid line", line);
                 continue;
             }
     
@@ -121,11 +122,11 @@ function upload() {
     
             try {
                 await pool.request()
-                    .input('Jersey', sql.Int, Jersey)
-                    .input('Goals', sql.Int, Goals)
-                    .input('Assists', sql.Int, Assists)
-                    .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input("Jersey", sql.Int, Jersey)
+                    .input("Goals", sql.Int, Goals)
+                    .input("Assists", sql.Int, Assists)
+                    .input("Shots", sql.Int, Shots)
+                    .input("MinutesPlayed", sql.Int, MinutesPlayed)
                     .query(`
                         INSERT INTO Players (jersey, goals, assists, shots, minutes)
                         VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed)
@@ -133,17 +134,17 @@ function upload() {
     
                 console.log(`Inserted: Jersey #${Jersey}`);
             } catch (err) {
-                console.error('Database error:', err.message);
+                console.error("Database error:", err.message);
             }
         }
     
         await pool.close();
-        console.log('Upload complete.');
+        console.log("Upload complete.");
     }
     
     // Execute the function
-    uploadData().catch(err => console.error('Error:', err));
+    uploadData().catch(err => console.error("Error:", err));
 }
-ipcMain.handle('upload-file', async (event, file) => {
+ipcMain.handle("upload-file", async (event, file) => {
     return upload(file);
 });

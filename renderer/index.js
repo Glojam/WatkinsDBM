@@ -1,14 +1,14 @@
-document.getElementById("searchButton").addEventListener("click", async () => {
+document.getElementById("searchButton").addEventListener("searchClick", async () => {
   
   // Look through the search fields, and compile the strings into a filtering list
-  // For convienience it is assumed empty string = "any"
-  let args = {}
-  args["first name"] = document.getElementById("firstName").value
-  args["last name"] = document.getElementById("lastName").value
-  args["year"] = document.getElementById("teamYear").value
-  args["opponent"] = document.getElementById("opponent").value
-  args["division"] = document.getElementById("division").value
-  args["position"] = document.getElementById("position").value
+  // For convenience it is assumed empty string = "any"
+  let args = {};
+  args["first name"] = document.getElementById("firstName").value;
+  args["last name"] = document.getElementById("lastName").value;
+  args["year"] = document.getElementById("teamYear").value;
+  args["opponent"] = document.getElementById("opponent").value;
+  args["division"] = document.getElementById("division").value;
+  args["position"] = document.getElementById("position").value;
 
   const data = await window.electronAPI.getData(args);
 
@@ -30,21 +30,21 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       for (const [key, value] of Object.entries(record)) {
           if (i < numColumns) {
               var cell = newRow.insertCell(i);
-              cell.innerHTML = value !== null ? value : ''; // Ensure no null values
-              cell.className = "tabElement"
+              cell.innerHTML = value !== null ? value : ""; // Ensure no null values
+              cell.className = "tabElement";
           }
           i++;
       }
 
       // Fill any remaining columns with empty cells
       while (i < numColumns) {
-          newRow.insertCell(i).innerHTML = '';
+          newRow.insertCell(i).innerHTML = "";
           i++;
       }
   });
 });
 // listener and action for help button
-document.getElementById("helpButton").addEventListener('click', async () => {
+document.getElementById("helpButton").addEventListener("helpClick", async () => {
   alert(
     "Search Fields: Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all last names\n" + 
     "i.e. Only the search fields that you have specified values within will be search upon & highlighted\n" +
@@ -65,8 +65,8 @@ document.getElementById("helpButton").addEventListener('click', async () => {
   );
 });
 // listener and action for button to upload files to database
-document.getElementById('update').addEventListener('click', async () => {
-  handleUpload()
+document.getElementById('update').addEventListener('updateClick', async () => {
+  handleUpload();
 });
 async function handleUpload() {
   //const filePath = input; // Replace with actual file input

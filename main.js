@@ -2,7 +2,7 @@ const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const { buildMenu } = require('./menu')
 const sql = require('mssql')
-const { upload, fetch } = require('./sqlservice')
+const { bulkUpload, fetch, update } = require('./sqlservice')
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
@@ -18,7 +18,7 @@ function createMainWindow() {
         icon: './resources/icon.png'
     });
 
-    Menu.setApplicationMenu(buildMenu(mainWindow, upload));
+    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload));
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
     mainWindow.maximize();
     mainWindow.show();
@@ -46,5 +46,5 @@ ipcMain.on("getData", async (event, args) => {
 });
 
 ipcMain.handle("upload-file", async (event) => {
-    return upload();
+    return bulkUpload();
 });

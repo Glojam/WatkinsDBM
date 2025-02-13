@@ -2,6 +2,10 @@ const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
 
+// Primary keys list, necessary for UPDATE sql command to run as efficiently as possible w/ no mistakes
+// Strings must exactly match the property names as stored in the database
+const playersKeys = ["opponent", "date", "first name", "last name", "year", "varsity"];
+
 // MSSQL Configuration
 const config = {
     user: "SA",
@@ -14,8 +18,21 @@ const config = {
     },
 };
 
-// TODO: pass a 'table' parameter inside args to specify tables aside from Players
-// For some reason Event gets passed regardless even though it isnt specified.
+/**
+ * Updates existing data within the database.
+ * @param {Electron.IpcRendererEvent} event Electron IPC event.
+ * @param {Object} args                     Object containing a list of fields to update.
+ */
+exports.update = async (event, args) => {
+
+}
+
+/**
+ * Pulls data from the database given some filtering options.
+ * @param {Electron.IpcRendererEvent} event Electron IPC event.
+ * @param {Object} args                     Object containing a list of fields to filter from.
+ * @return {Promise}
+ */
 exports.fetch = async (event, args) => {
     let query = "SELECT * FROM Players";
     let isEmpty = true;
@@ -49,8 +66,10 @@ exports.fetch = async (event, args) => {
     });
 }
 
-//function to execute on button click for file upload button
-exports.upload = () => {
+/**
+ * Requests the user to select |-delimited CSV files, and imports the data to the database.
+ */
+exports.bulkUpload = () => {
     // Get all selected files
     // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
     const fileOutputs = dialog.showOpenDialogSync({ properties: ["openFile", "multiSelections"] });

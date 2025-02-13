@@ -1,5 +1,5 @@
 const minYear = "1970-01-01"
-const maxYear = new Date().getFullYear() + "-12-31"
+const maxYear = new Date().getFullYear() + "-12-31" // By default, max year is current year
 
 document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
@@ -13,11 +13,9 @@ document.getElementById("searchButton").addEventListener("click", async () => {
   args["position"] = document.getElementById("position").value;
 
   const data = await window.electronAPI.getData(args);
-
+  console.log(data)
   var table = document.getElementById("dataTable");
-
   clearWindow();
-
   // Get number of columns from the header row
   var numColumns = table.rows[0].cells.length;
 
@@ -30,6 +28,8 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       for (const [key, value] of Object.entries(record)) {
           if (i < numColumns) {
               var cell = newRow.insertCell(i);
+
+              // Check if special formatting is needed
               if (key == "date" && value !== null) {
                 const date = new Date(value);
                 const dateString = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
@@ -44,8 +44,12 @@ document.getElementById("searchButton").addEventListener("click", async () => {
                 cell.appendChild(inputElement);
                 //cell.innerHTML = <input type="date" name="Date" value={dateString} min={minYear} max={maxYear}/>;
               } else {
+                cell.contentEditable = true;
                 cell.innerHTML = value !== null ? value : ""; // Ensure no null values
               }
+
+              cell.style.borderTopStyle = "dotted";
+              cell.style.borderBottomStyle = "dotted";
               cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
           }
           i++;

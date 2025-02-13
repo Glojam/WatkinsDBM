@@ -158,11 +158,13 @@ exports.bulkUpload = () => {
                 console.log(`Inserted: Jersey #${Jersey}`);
             } catch (err) {
                 console.error("Database error:", err.message);
+                dialog.showErrorBox(null, {message: "The database server experienced an error during query:\n"+err.message})
             }
         }
     
         await pool.close();
         console.log("Upload complete.");
+        dialog.showMessageBox(null, {message: "File upload sucessful."})
     }
     
     // Execute the function

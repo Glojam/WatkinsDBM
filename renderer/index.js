@@ -1,6 +1,7 @@
 document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
   // For convenience it is assumed empty string = "any"
+  clearWindow();
   let args = {};
   args["first name"] = document.getElementById("firstName").value;
   args["last name"] = document.getElementById("lastName").value;
@@ -42,6 +43,18 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       }
   });
 });
+
+document.getElementById("clearButton").addEventListener("click", async () => {
+  clearWindow()
+});
+
+function clearWindow() {
+  var table = document.getElementById("dataTable");
+  var rowCount = table.rows.length;
+  for (var i = 2; i < rowCount; i++) {
+    table.deleteRow(2);
+  }
+}
 
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification

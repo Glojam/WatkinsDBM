@@ -1,7 +1,7 @@
 const { app, Menu, ipcRenderer } = require('electron');
 const isMac = process.platform === 'darwin'
 
-function buildTemplate(window, upload) {
+exports.buildTemplate = (window, upload) => {
     return Menu.buildFromTemplate([
         // { role: 'appMenu' }
         ...(isMac
@@ -108,5 +108,3 @@ function buildTemplate(window, upload) {
         }
     ]);
 }
-
-exports.buildMenu = buildTemplate;

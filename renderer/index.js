@@ -17,7 +17,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
   // Get number of columns from the header row
   var numColumns = table.rows[0].cells.length;
-
+  console.log(data.recordsets[0][0].date)
   // Loop through all records and add rows
   var rowNum = 2
   data.recordsets[0].forEach(record => {

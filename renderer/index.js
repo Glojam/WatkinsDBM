@@ -13,21 +13,21 @@ document.getElementById("searchButton").addEventListener("click", async () => {
   args["position"] = document.getElementById("position").value;
 
   const data = await window.electronAPI.getData(args);
-  console.log(data)
-  var table = document.getElementById("dataTable");
+
+  let table = document.getElementById("dataTable");
   clearWindow();
   // Get number of columns from the header row
-  var numColumns = table.rows[0].cells.length;
+  let numColumns = table.rows[0].cells.length;
 
   // Loop through all records and add rows
-  var rowNum = 2
+  let rowNum = 2
   data.recordsets[0].forEach(record => {
-      var newRow = table.insertRow(-1); // Append new row at the end
+    let newRow = table.insertRow(-1); // Append new row at the end
 
-      var i = 0;
+    let i = 0;
       for (const [key, value] of Object.entries(record)) {
           if (i < numColumns) {
-              var cell = newRow.insertCell(i);
+            let cell = newRow.insertCell(i);
 
               // Check if special formatting is needed
               if (key == "date" && value !== null) {
@@ -48,6 +48,17 @@ document.getElementById("searchButton").addEventListener("click", async () => {
                 cell.innerHTML = value !== null ? value : ""; // Ensure no null values
               }
 
+              cell.addEventListener("input", () => {
+                cell.parentNode.setAttribute("changed", "true");  
+              })
+
+              var inputElement = cell.querySelector('input');
+              if (inputElement) {
+                cell.setAttribute("ogInfo", inputElement.value);
+              } else {
+                cell.setAttribute("ogInfo", cell.innerHTML);
+              }   
+
               cell.style.borderTopStyle = "dotted";
               cell.style.borderBottomStyle = "dotted";
               cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
@@ -64,14 +75,47 @@ document.getElementById("searchButton").addEventListener("click", async () => {
   });
 });
 
+document.getElementById("updateButton").addEventListener("click", async () => {
+  let modifiedRows = [];
+  let table = document.getElementById("dataTable");
+  
+  for (let i = 0; i < table.rows.length; i++) {
+    let row = table.rows[i];
+    if (row.getAttribute("changed") === "true") {
+      let updatedRow = [];
+      let oldRow = [];
+      for (let j = 0; j < row.cells.length; j++) {
+        let cell = row.cells[j];
+        // Check if the cell contains an input element
+        var inputElement = cell.querySelector('input');
+        if (inputElement) {
+          updatedRow.push(inputElement.value);
+        } else {
+          updatedRow.push(cell.innerHTML);
+        }
+        oldRow.push(cell.getAttribute("ogInfo"));  
+      }
+      modifiedRows.push([updatedRow, oldRow]);
+    }
+  }
+
+  if (modifiedRows.length == 0) { 
+    alert("No changes to push.");
+    return;
+  }
+  console.log(modifiedRows)
+  //const success = await window.electronAPI.updateData(modifiedRows);
+  //alert(success)
+});
+
 document.getElementById("clearButton").addEventListener("click", async () => {
   clearWindow()
 });
 
 function clearWindow() {
-  var table = document.getElementById("dataTable");
-  var rowCount = table.rows.length;
-  for (var i = 2; i < rowCount; i++) {
+  let table = document.getElementById("dataTable");
+  let rowCount = table.rows.length;
+  for (let i = 2; i < rowCount; i++) {
     table.deleteRow(2);
   }
 }

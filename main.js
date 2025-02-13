@@ -40,9 +40,14 @@ app.on('window-all-closed', () => {
     if (!isMac) { app.quit(); }
 })
   
-ipcMain.on("getData", async (event, args) => {
+ipcMain.on("get-data", async (event, args) => {
     const data = await fetch(args);
-    event.reply("sendData", data);
+    event.reply("reply-get", data);
+});
+
+ipcMain.on("update-data", async (event, args) => {
+    const data = await update(args);
+    event.reply("reply-update", data);
 });
 
 ipcMain.handle("upload-file", async (event) => {

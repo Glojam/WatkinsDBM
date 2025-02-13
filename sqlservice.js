@@ -1,3 +1,4 @@
+const { dialog } = require('electron');
 const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
@@ -5,6 +6,34 @@ const readline = require('readline');
 // Primary keys list, necessary for UPDATE sql command to run as efficiently as possible w/ no mistakes
 // Strings must exactly match the property names as stored in the database
 const playersKeys = ["opponent", "date", "first name", "last name", "year", "varsity"];
+const playersCols = [
+    "opponent",
+    "date",
+    "field",
+    "outcome",
+    "halfScore",
+    "halfScoreOpponent",
+    "finalScore",
+    "finalScoreOpponent",
+    "firstName",
+    "lastName",
+    "year",
+    "jersey",
+    "position",
+    "varsity",
+    "played",
+    "started",
+    "motmAward",
+    "sportsmanshipAward",
+    "minutes",
+    "goals",
+    "assists",
+    "points",
+    "shots",
+    "shotsOnGoal",
+    "yellows",
+    "reds"
+  ];
 
 // MSSQL Configuration
 const config = {
@@ -18,18 +47,32 @@ const config = {
     },
 };
 
+// SELECT * FROM Players WHERE 1=0
+
 /**
  * Updates existing data within the database.
- * @param {Electron.IpcRendererEvent} event Electron IPC event.
+ * @param {Electron.IpcMainEvent} event Electron IPC event.
  * @param {Object} args                     Object containing a list of fields to update.
  */
-exports.update = async (event, args) => {
-
+exports.update = async (event, rowNames, modifiedRowList) => {
+    function getQueryClause(listPair) {
+        let query = "UPDATE Players SET ";
+        for (let i = 0; i < listPair[0].length; i++) {
+            query += `${playersCols[i]}='${listpair[0][i]}'`
+            if (i < listPair[0].length-1) query += ',';
+        }
+        query += " WHERE ";
+        for (let i = 0; i < listPair[0].length; i++) {
+            query += `${playersCols[i]}='${listpair[0][i]}'`
+            if (i < listPair[0].length-1) query += ',';
+        }
+        query += ";";
+    }
 }
 
 /**
  * Pulls data from the database given some filtering options.
- * @param {Electron.IpcRendererEvent} event Electron IPC event.
+ * @param {Electron.IpcMainEvent} event Electron IPC event.
  * @param {Object} args                     Object containing a list of fields to filter from.
  * @return {Promise}
  */

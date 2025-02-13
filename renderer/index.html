@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Open Sans" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
     <title>Watkins Database Manager</title>
 </head>
@@ -12,6 +14,7 @@
         <div id="formHalf">
             <div id="formContainer">
                 <form>
+                    <h2>Viewing: Players</h2>
                     <label for="firstName">First Name:</label><br>
                     <input type="text" id="firstName" name="firstName" placeholder="Leave blank for all first names"><br><br>
                     
@@ -43,36 +46,33 @@
 
         <div id="tableContainer">
             <table id="dataTable">
-                <tr class="header">
-                    <td colspan="26" style="background-color: yellow; text-align: center;">Viewing: Players</td>
-                </tr>
                 <tr>
-                    <td class="tabElement">Opponent</td>
-                    <td class="tabElement">Date</td>
-                    <td class="tabElement">Field</td>
-                    <td class="tabElement">Outcome</td>
-                    <td class="tabElement">Half Score</td>
-                    <td class="tabElement">Half Score Opponent</td>
-                    <td class="tabElement">Final Score</td>
-                    <td class="tabElement">Final Score Opponent</td>
-                    <td class="tabElement">First Name</td>
-                    <td class="tabElement">Last Name</td>
-                    <td class="tabElement">Year</td>
-                    <td class="tabElement">Jersey</td>
-                    <td class="tabElement">Position</td>
-                    <td class="tabElement">Varsity</td>
-                    <td class="tabElement">Played</td>
-                    <td class="tabElement">Started</td>
-                    <td class="tabElement">MOTM Award</td>
-                    <td class="tabElement">Sportsmanship Award</td>
-                    <td class="tabElement">Minutes</td>
-                    <td class="tabElement">Goals</td>
-                    <td class="tabElement">Assissts</td>
-                    <td class="tabElement">Points</td>
-                    <td class="tabElement">Shots</td>
-                    <td class="tabElement">Shots on Goal</td>
-                    <td class="tabElement">Yellows</td>
-                    <td class="tabElement">Reds</td>
+                    <td class="tabElement tabElementBolded">Opponent</td>
+                    <td class="tabElement tabElementBolded">Date</td>
+                    <td class="tabElement tabElementBolded">Field</td>
+                    <td class="tabElement tabElementBolded">Outcome</td>
+                    <td class="tabElement tabElementBolded">Half Score</td>
+                    <td class="tabElement tabElementBolded">Half Score Opponent</td>
+                    <td class="tabElement tabElementBolded">Final Score</td>
+                    <td class="tabElement tabElementBolded">Final Score Opponent</td>
+                    <td class="tabElement tabElementBolded">First Name</td>
+                    <td class="tabElement tabElementBolded">Last Name</td>
+                    <td class="tabElement tabElementBolded">Year</td>
+                    <td class="tabElement tabElementBolded">Jersey</td>
+                    <td class="tabElement tabElementBolded">Position</td>
+                    <td class="tabElement tabElementBolded">Varsity</td>
+                    <td class="tabElement tabElementBolded">Played</td>
+                    <td class="tabElement tabElementBolded">Started</td>
+                    <td class="tabElement tabElementBolded">MOTM Award</td>
+                    <td class="tabElement tabElementBolded">Sportsmanship Award</td>
+                    <td class="tabElement tabElementBolded">Minutes</td>
+                    <td class="tabElement tabElementBolded">Goals</td>
+                    <td class="tabElement tabElementBolded">Assissts</td>
+                    <td class="tabElement tabElementBolded">Points</td>
+                    <td class="tabElement tabElementBolded">Shots</td>
+                    <td class="tabElement tabElementBolded">Shots on Goal</td>
+                    <td class="tabElement tabElementBolded">Yellows</td>
+                    <td class="tabElement tabElementBolded">Reds</td>
                 </tr>
                 <!--Empty row required for correct sizing-->
                 <tr></tr>

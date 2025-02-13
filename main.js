@@ -11,8 +11,10 @@ function createMainWindow() {
         title: 'Watkins Database Manager',
         show: false,
         webPreferences: {
+            worldSafeExecuteJavaScript: true, 
+            contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
-          }          
+        }          
     });
 
     Menu.setApplicationMenu(buildMenu(mainWindow, upload));

@@ -1,7 +1,6 @@
 document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
   // For convenience it is assumed empty string = "any"
-  clearWindow();
   let args = {};
   args["first name"] = document.getElementById("firstName").value;
   args["last name"] = document.getElementById("lastName").value;
@@ -14,15 +13,13 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
   var table = document.getElementById("dataTable");
 
-  // Remove all previous data rows, but keep the headers
-  while (table.rows.length > 2) {
-      table.deleteRow(2);
-  }
+  clearWindow();
 
   // Get number of columns from the header row
-  var numColumns = table.rows[1].cells.length;
+  var numColumns = table.rows[0].cells.length;
 
   // Loop through all records and add rows
+  var rowNum = 2
   data.recordsets[0].forEach(record => {
       var newRow = table.insertRow(-1); // Append new row at the end
 
@@ -31,7 +28,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
           if (i < numColumns) {
               var cell = newRow.insertCell(i);
               cell.innerHTML = value !== null ? value : ""; // Ensure no null values
-              cell.className = "tabElement";
+              cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
           }
           i++;
       }
@@ -41,6 +38,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
           newRow.insertCell(i).innerHTML = "";
           i++;
       }
+      rowNum++;
   });
 });
 

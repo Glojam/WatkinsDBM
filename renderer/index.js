@@ -1,3 +1,6 @@
+const minYear = "1970-01-01"
+const maxYear = new Date().getFullYear() + "-12-31"
+
 document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
   // For convenience it is assumed empty string = "any"
@@ -17,7 +20,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
   // Get number of columns from the header row
   var numColumns = table.rows[0].cells.length;
-  console.log(data.recordsets[0][0].date)
+
   // Loop through all records and add rows
   var rowNum = 2
   data.recordsets[0].forEach(record => {
@@ -27,7 +30,22 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       for (const [key, value] of Object.entries(record)) {
           if (i < numColumns) {
               var cell = newRow.insertCell(i);
-              cell.innerHTML = value !== null ? value : ""; // Ensure no null values
+              if (key == "date" && value !== null) {
+                const date = new Date(value);
+                const dateString = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+
+                const inputElement = document.createElement('input');
+                inputElement.type = 'date';
+                inputElement.name = 'Date';
+                inputElement.value = dateString;
+                inputElement.min = minYear;
+                inputElement.max = maxYear;
+                
+                cell.appendChild(inputElement);
+                //cell.innerHTML = <input type="date" name="Date" value={dateString} min={minYear} max={maxYear}/>;
+              } else {
+                cell.innerHTML = value !== null ? value : ""; // Ensure no null values
+              }
               cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
           }
           i++;

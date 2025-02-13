@@ -1,5 +1,6 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { buildMenu } = require('./menu')
 const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
@@ -27,6 +28,7 @@ function createMainWindow() {
           }          
     });
 
+    Menu.setApplicationMenu(buildMenu(mainWindow, upload));
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
     mainWindow.maximize();
     mainWindow.show();
@@ -148,3 +150,5 @@ function upload() {
 ipcMain.handle("upload-file", async (event, file) => {
     return upload(file);
 });
+
+exports.upload = upload;

@@ -71,6 +71,10 @@ body {
   height: .01rem;
 }
 
+.button {
+  background-color: #f5d230;
+}
+
  /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 14px;

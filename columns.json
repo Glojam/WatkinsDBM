@@ -1,0 +1,33 @@
+{
+    "players": {
+        "primary_keys": ["opponent", "date", "first name", "last name", "year", "varsity"],
+        "columns": [
+            "opponent",
+            "date",
+            "field",
+            "outcome",
+            "halfScore",
+            "halfScoreOpponent",
+            "finalScore",
+            "finalScoreOpponent",
+            "firstName",
+            "lastName",
+            "year",
+            "jersey",
+            "position",
+            "varsity",
+            "played",
+            "started",
+            "motmAward",
+            "sportsmanshipAward",
+            "minutes",
+            "goals",
+            "assists",
+            "points",
+            "shots",
+            "shotsOnGoal",
+            "yellows",
+            "reds"
+          ]
+    }
+}

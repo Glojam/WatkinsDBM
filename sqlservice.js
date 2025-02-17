@@ -3,38 +3,6 @@ const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
 
-// Primary keys list, necessary for UPDATE sql command to run as efficiently as possible w/ no mistakes
-// Strings must exactly match the property names as stored in the database
-const playersKeys = ["opponent", "date", "first name", "last name", "year", "varsity"];
-const playersCols = [
-    "opponent",
-    "date",
-    "field",
-    "outcome",
-    "halfScore",
-    "halfScoreOpponent",
-    "finalScore",
-    "finalScoreOpponent",
-    "firstName",
-    "lastName",
-    "year",
-    "jersey",
-    "position",
-    "varsity",
-    "played",
-    "started",
-    "motmAward",
-    "sportsmanshipAward",
-    "minutes",
-    "goals",
-    "assists",
-    "points",
-    "shots",
-    "shotsOnGoal",
-    "yellows",
-    "reds"
-  ];
-
 // MSSQL Configuration
 const config = {
     user: "SA",
@@ -96,7 +64,6 @@ exports.fetch = async (event, args) => {
         setTimeout(async () => {
             try {
                 // make sure that any items are correctly URL encoded in the connection string
-                // TODO standardize connection string (this format is ugly, use global config instead)
                 await sql.connect(config);
                 const result = await sql.query(query);
                 resolve(result);

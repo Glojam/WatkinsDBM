@@ -1,5 +1,15 @@
-const minYear = "1970-01-01"
-const maxYear = new Date().getFullYear() + "-12-31" // By default, max year is current year
+const minYear = "1970-01-01";
+const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
+
+let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
+let currentWorkingTable = "Players"; // To keep track of the current working table (CWT)
+let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
+
+window.electronAPI.onGetColumns((data) => {
+  console.log("hello");
+  columnAssociations = data;
+  console.log(data);
+})
 
 document.getElementById("searchButton").addEventListener("click", async () => {
   // Look through the search fields, and compile the strings into a filtering list
@@ -49,6 +59,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
               }
 
               cell.addEventListener("input", () => {
+                unsavedChanges = true;
                 cell.parentNode.setAttribute("changed", "true");  
               })
 
@@ -110,6 +121,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
 
 document.getElementById("clearButton").addEventListener("click", async () => {
   clearWindow()
+  unsavedChanges = false;
 });
 
 function clearWindow() {

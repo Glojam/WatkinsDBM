@@ -32,6 +32,9 @@ function createMainWindow() {
         mainWindow.webContents.send('get-cols', columnAssociations);
     });
    
+    mainWindow.webContents.on('did-fail-load', () => {
+        mainWindow.webContents.send('get-cols', columnAssociations);
+    });
 }
 
 app.whenReady().then(() => {

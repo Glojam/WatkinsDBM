@@ -2,6 +2,10 @@ const { dialog } = require('electron');
 const sql = require('mssql')
 const fs = require('fs');
 const readline = require('readline');
+const { table } = require('console');
+const columnAssociations = require('./columns.json');
+
+const queryTimeout = 1500 // Milliseconds; time allotted for queries before timeout
 
 // MSSQL Configuration
 const config = {
@@ -15,40 +19,63 @@ const config = {
     },
 };
 
-// SELECT * FROM Players WHERE 1=0
-
 /**
  * Updates existing data within the database.
- * @param {Electron.IpcMainEvent} event Electron IPC event.
- * @param {Object} args                     Object containing a list of fields to update.
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {string} tableName            The table to query
+ * @param {Object} rowsList             List of list pairs (modified and unmodified data, in that order)
+ * @return {Promise<any>}               Promise containing data or error
  */
-exports.update = async (event, rowNames, modifiedRowList) => {
-    function getQueryClause(listPair) {
-        let query = "UPDATE Players SET ";
-        for (let i = 0; i < listPair[0].length; i++) {
-            query += `${playersCols[i]}='${listpair[0][i]}'`
-            if (i < listPair[0].length-1) query += ',';
+exports.update = async (event, tableName, rowsList) => {
+    function getQueryClause(listPair) { // this func is unfinished, ignore
+        let updatedKeys = Object.keys(listPair.updated);
+        let oldKeys = Object.keys(listPair.old);
+        let query = `UPDATE ${tableName} SET `;
+        let index = 0;
+        for (let key of updatedKeys) {
+            query += `[${key}]='${listPair.updated[key]}'`
+            if (index < updatedKeys.length-1) query += ',';
+            index++;
         }
         query += " WHERE ";
-        for (let i = 0; i < listPair[0].length; i++) {
-            query += `${playersCols[i]}='${listpair[0][i]}'`
-            if (i < listPair[0].length-1) query += ',';
+        index = 0;
+        for (let key of oldKeys) {
+            query += `[${key}]='${listPair.old[key]}'`
+            if (index < oldKeys.length-1) query += ' AND ';
+            index++;
         }
         query += ";";
+        return query;
     }
+
+    return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+            try {
+                const pool = await sql.connect(config);
+                for (const listPair of rowsList) {
+                    await pool.request().query(getQueryClause(listPair));
+                }
+                await pool.close();
+                resolve(true);
+            } catch (err) {
+                reject("Something went wrong");
+                console.log(err);
+            }
+        }, queryTimeout);
+    });   
 }
 
 /**
- * Pulls data from the database given some filtering options.
- * @param {Electron.IpcMainEvent} event Electron IPC event.
- * @param {Object} args                     Object containing a list of fields to filter from.
- * @return {Promise}
+ * Pulls data from the database given some filtering options
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {Object} args                 Object containing a list of fields to filter from
+ * @return {Promise<any>}               Promise containing data or error
  */
 exports.fetch = async (event, args) => {
     let query = "SELECT * FROM Players";
     let isEmpty = true;
     // TODO: Add protections against SQL injection here
-    for(let row of Object.entries(args)) { // 0: name, 1: value
+    for (let row of Object.entries(args)) { // 0: name, 1: value
         if (row[1] === "") { continue; }
         if (isEmpty) {
             isEmpty = false;
@@ -63,7 +90,6 @@ exports.fetch = async (event, args) => {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
             try {
-                // make sure that any items are correctly URL encoded in the connection string
                 await sql.connect(config);
                 const result = await sql.query(query);
                 resolve(result);
@@ -72,17 +98,26 @@ exports.fetch = async (event, args) => {
                 reject("Something went wrong");
                 console.log(err);
             }
-        }, 2000); // Simulating an async operation with a timeout
+        }, queryTimeout); // Simulating an async operation with a timeout
     });
 }
 
 /**
- * Requests the user to select |-delimited CSV files, and imports the data to the database.
+ * Requests the user to select |-delimited CSV files, and imports the data to the database
  */
 exports.bulkUpload = () => {
     // Get all selected files
     // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
-    const fileOutputs = dialog.showOpenDialogSync({ properties: ["openFile", "multiSelections"] });
+    const fileOutputs = dialog.showOpenDialogSync(
+        { 
+            title: "Import Files",
+            buttonLabel: "Import",
+            filters: [
+                { name: "CSV Files", extensions: ["csv"] },
+            ],
+            properties: ["openFile", "multiSelections"] 
+        }
+    );
     
     // Function to parse and upload data
     async function uploadData() {

@@ -37,7 +37,7 @@
                     <button type="button" id="clearButton">Clear</button>
                     <button type="button" id ="switchTable">Switch Table</button>
                     <br>
-                    <p>0 changes to 0 rows</p>
+                    <p id="changeMeter">0 unsaved changes</p>
                     <br>
                     <button type="button" id="updateButton">Publish Changes to Database</button>
                 </form>
@@ -46,33 +46,8 @@
 
         <div id="tableContainer">
             <table id="dataTable">
-                <tr>
-                    <td class="tabElement tabElementBolded">Opponent</td>
-                    <td class="tabElement tabElementBolded">Date</td>
-                    <td class="tabElement tabElementBolded">Field</td>
-                    <td class="tabElement tabElementBolded">Outcome</td>
-                    <td class="tabElement tabElementBolded">Half Score</td>
-                    <td class="tabElement tabElementBolded">Half Score (Opponent)</td>
-                    <td class="tabElement tabElementBolded">Final Score</td>
-                    <td class="tabElement tabElementBolded">Final Score (Opponent)</td>
-                    <td class="tabElement tabElementBolded">First Name</td>
-                    <td class="tabElement tabElementBolded">Last Name</td>
-                    <td class="tabElement tabElementBolded">Year</td>
-                    <td class="tabElement tabElementBolded">Jersey</td>
-                    <td class="tabElement tabElementBolded">Position</td>
-                    <td class="tabElement tabElementBolded">Varsity</td>
-                    <td class="tabElement tabElementBolded">Played</td>
-                    <td class="tabElement tabElementBolded">Started</td>
-                    <td class="tabElement tabElementBolded">MOTM Award</td>
-                    <td class="tabElement tabElementBolded">Sportsmanship Award</td>
-                    <td class="tabElement tabElementBolded">Minutes</td>
-                    <td class="tabElement tabElementBolded">Goals</td>
-                    <td class="tabElement tabElementBolded">Assists</td>
-                    <td class="tabElement tabElementBolded">Points</td>
-                    <td class="tabElement tabElementBolded">Shots</td>
-                    <td class="tabElement tabElementBolded">Shots on Goal</td>
-                    <td class="tabElement tabElementBolded">Yellows</td>
-                    <td class="tabElement tabElementBolded">Reds</td>
+                <tr id="topRow">
+                    <!--class=tabElement tabElementBolded-->
                 </tr>
                 <!--Empty row required for correct sizing-->
                 <tr></tr>

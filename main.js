@@ -12,7 +12,7 @@ function createMainWindow() {
         title: 'Watkins Database Manager',
         show: false,
         webPreferences: {
-            worldSafeExecuteJavaScript: true, 
+            worldSafeExecuteJavaScript: true,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         },
@@ -31,7 +31,7 @@ function createMainWindow() {
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('get-cols', columnAssociations);
     });
-   
+
     mainWindow.webContents.on('did-fail-load', () => {
         mainWindow.webContents.send('get-cols', columnAssociations);
     });
@@ -39,6 +39,7 @@ function createMainWindow() {
 
 app.whenReady().then(() => {
     ipcMain.handle('get-data', fetch);
+    ipcMain.handle('update-data', update);
 
     //ipcMain.handle('get-cols', () => {return columnAssociations})
     createMainWindow();
@@ -53,11 +54,6 @@ app.on('window-all-closed', () => {
     // This is a quirk of Mac window behavior that is standard practice to implement
     if (!isMac) { app.quit(); }
 })
-
-ipcMain.on("update-data", async (event, args) => {
-    const data = await update(args);
-    event.reply("reply-update", data);
-});
 
 ipcMain.handle("upload-file", async (event) => {
     return bulkUpload();

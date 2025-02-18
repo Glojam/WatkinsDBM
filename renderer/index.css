@@ -40,13 +40,15 @@ body {
   overflow-x: auto; /* Horizontal scroll for table */
   overflow-y: auto; /* Vertical scroll if needed */
   max-height: 100%;
+  position: relative;
 }
 
 #dataTable {
+  position: relative; /* Ensure the table maintains its context for the fixed header */
   width: 100%;
   border-spacing: 0;
   border-collapse: collapse;
-  table-layout: auto; /* Auto-sizing columns based on content */
+  table-layout: auto;
 }
 
 #viewingText {
@@ -64,6 +66,13 @@ body {
   font-weight: bold;
   box-shadow: 0 0 0.1em#888888;
   padding: 0.5em;
+}
+
+#topRow {
+  position: sticky;
+  top: 0; /* Stick it to the top */
+  background-color: #f1f1f1;
+  z-index: 1; /* Makes top row stays above other content */
 }
 
 input {
@@ -85,6 +94,30 @@ input:focus {
 
 label {
   font-weight: bold;
+}
+
+button {
+  background-color: rgb(255,210,64); 
+  box-shadow: 0 0 0.1em#888888;
+  border: 0px;
+  color: black;
+  padding: 0.2em;
+  margin: 0.1em;
+  border-radius: 0.2em;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.3em;
+}
+
+button:hover {
+  background-color: rgb(255, 232, 156);
+}
+
+button:active {
+  background-color: rgb(182, 152, 55);
 }
 
 .loader {
@@ -143,30 +176,6 @@ label {
 
 .header {
   height: .01rem;
-}
-
-button {
-  background-color: rgb(255,210,64); 
-  box-shadow: 0 0 0.1em#888888;
-  border: 0px;
-  color: black;
-  padding: 0.2em;
-  margin: 0.1em;
-  border-radius: 0.2em;
-  text-align: center;
-  font-weight: bold;
-  width: 100%;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 1.3em;
-}
-
-button:hover {
-  background-color: rgb(255, 232, 156);
-}
-
-button:active {
-  background-color: rgb(182, 152, 55);
 }
 
  /* Custom scrollbar */

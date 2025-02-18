@@ -1,4 +1,4 @@
-const { app, Menu, ipcRenderer } = require('electron');
+const { app, Menu, ipcRenderer, nativeImage } = require('electron');
 const isMac = process.platform === 'darwin'
 
 exports.buildMenu = (window, upload) => {
@@ -90,14 +90,28 @@ exports.buildMenu = (window, upload) => {
             { role: 'zoomIn' },
             { role: 'zoomOut' },
             { type: 'separator' },
+            { 
+              label: 'Themes',
+              submenu: [
+                { 
+                  label: 'Light',
+                  type: 'radio',
+                },
+                { 
+                  label: 'Dark',
+                  type: 'radio',
+                },
+              ]
+            },
+            { type: 'separator' },
             { role: 'togglefullscreen' }
           ]
         },
         {
           label: 'Help',
+          icon: nativeImage.createFromPath('./resources/icon.png'),
           submenu: [
             { 
-                role: 'Getting Started',
                 label: 'Getting Started',
                 click: () => window.webContents.send('show-help'),
             },

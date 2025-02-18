@@ -31,7 +31,8 @@ body {
 }
 
 #tableContainer {
-  border: 0.2rem solid;
+  box-shadow: 0 0 0.4em#888888;
+  border: 0.2rem outset;
   border-spacing: 0;
   border-collapse: collapse;
   margin: 0.5em;
@@ -65,15 +66,6 @@ body {
   padding: 0.5em;
 }
 
-.tabElement {
-  font-size: 0.8em;
-  border: 0.1rem solid;
-  padding: 5px;
-  word-wrap: break-word;
-  white-space: normal;
-  transition: color 0.5s ease, background-color 0.5s ease, border-color 0.5s ease;
-}
-
 input {
   margin: 0.5em;
   border-radius: 0.2em;
@@ -95,25 +87,57 @@ label {
   font-weight: bold;
 }
 
+.loader {
+  border: 16px solid #1a1a1a;
+  border-top: 16px solid rgb(255,210,64);
+  border-radius: 50%;
+  box-shadow: 0px 0px 2em#464646;
+  width: 120px;
+  height: 120px;
+  animation: spin 0.8s ease-in-out infinite;
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%), scaleZ(50%, -50%);
+  display: none;
+  z-index: 100;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.tabElement {
+  font-size: 0.8em;
+  text-align: center;
+  border: 0.15rem solid white;
+  padding: 5px;
+  word-wrap: break-word;
+  white-space: normal;
+  transition: color 0.5s ease, background-color 0.5s ease;
+}
+
 .tabElementModified {
   color: rgb(241, 228, 46);
   background-color: #706715 !important;
-  border-color: black;
+  border-color: white;
 }
 
 .tabElementBolded {
   font-weight: bold;
   background-color: rgb(255,210,64);
+  border-color: white;
   font-size: .9em;
 }
 
 .tabElementAlt {
   background-color: rgba(235, 235, 235);
-  transition: color 0.5s ease, background-color 0.5s ease, border-color 0.5s ease !important;
+  transition: color 0.5s ease, background-color 0.5s ease !important;
 }
 
 .tabElement:hover {
-  outline: 4px solid #f5d230;
+  outline: 4px solid rgb(255,210,64);
   outline-offset: -2px; /* Pulls the outline closer to the cell */
 }
 
@@ -139,12 +163,10 @@ button {
 
 button:hover {
   background-color: rgb(255, 232, 156);
-  transition: color 0.1s ease;
 }
 
 button:active {
   background-color: rgb(182, 152, 55);
-  transition: color 0.1s ease;
 }
 
  /* Custom scrollbar */

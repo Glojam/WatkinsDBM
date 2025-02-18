@@ -21,87 +21,96 @@ function addColumns() {
   }
 }
 
+function showLoader() {
+  document.getElementById("loader").style.display = "block";
+}
+
+function hideLoader() {
+  document.getElementById("loader").style.display = "none";
+}
+
 document.getElementById("searchButton").addEventListener("click", async () => {
-  // Look through the search fields, and compile the strings into a filtering list
-  // For convenience it is assumed empty string = "any"
-  let args = {};
-  args["first name"] = document.getElementById("firstName").value;
-  args["last name"] = document.getElementById("lastName").value;
-  args["year"] = document.getElementById("teamYear").value;
-  args["opponent"] = document.getElementById("opponent").value;
-  args["division"] = document.getElementById("division").value;
-  args["position"] = document.getElementById("position").value;
+  showLoader();
+  try {
+    let args = {};
+    args["first name"] = document.getElementById("firstName").value;
+    args["last name"] = document.getElementById("lastName").value;
+    args["year"] = document.getElementById("teamYear").value;
+    args["opponent"] = document.getElementById("opponent").value;
+    args["division"] = document.getElementById("division").value;
+    args["position"] = document.getElementById("position").value;
+    clearWindow();
+    addColumns();
+    const data = await window.electronAPI.getData(args);
+    let me = 0/0;
+    let table = document.getElementById("dataTable");
 
-  const data = await window.electronAPI.getData(args);
+    let numColumns = columnAssociations[currentWorkingTable].columns.length;
+    let rowNum = 2
+    data.recordsets[0].forEach(record => {
+      let newRow = table.insertRow(-1); 
+      let i = 0;
+      for (const [key, value] of Object.entries(record)) {
+        if (i > numColumns) { continue; }
+        let cell = newRow.insertCell(i);
 
-  let table = document.getElementById("dataTable");
-  clearWindow();
-  let numColumns = columnAssociations[currentWorkingTable].columns.length;
+        if (key == "date" && value !== null) {
+          const date = new Date(value);
+          const dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
-  // Loop through all records and add rows
-  let rowNum = 2
-  data.recordsets[0].forEach(record => {
-    let newRow = table.insertRow(-1); // Append new row at the end
+          const inputElement = document.createElement('input');
+          inputElement.type = 'date';
+          inputElement.name = 'Date';
+          inputElement.value = dateString;
+          inputElement.min = minYear;
+          inputElement.max = maxYear;
 
-    let i = 0;
-    for (const [key, value] of Object.entries(record)) {
-      if (i > numColumns) { continue; }
-      let cell = newRow.insertCell(i);
-
-      // Check if special formatting is needed
-      if (key == "date" && value !== null) {
-        const date = new Date(value);
-        const dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-
-        const inputElement = document.createElement('input');
-        inputElement.type = 'date';
-        inputElement.name = 'Date';
-        inputElement.value = dateString;
-        inputElement.min = minYear;
-        inputElement.max = maxYear;
-
-        cell.appendChild(inputElement);
-      } else {
-        cell.contentEditable = true;
-        cell.innerHTML = value !== null ? value : ""; // Ensure no null values
-      }
-
-      cell.addEventListener("input", () => {
-        let inputElement = cell.querySelector('input');
-        let innerVal;
-        if (inputElement) {
-          innerVal = inputElement.value;
+          cell.appendChild(inputElement);
         } else {
-          innerVal = cell.innerHTML;
+          cell.contentEditable = true;
+          cell.innerHTML = value !== null ? value : "";
         }
-        let prevValue = cell.getAttribute("changed");
-        cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true"); // Optimization for later
-        if (prevValue !== cell.getAttribute("changed")) {
-          cell.classList.toggle("tabElementModified");
-        }
-        calcUnsavedChanges()
-      })
 
-      let inputElement = cell.querySelector('input');
-      if (inputElement) {
-        cell.setAttribute("ogInfo", inputElement.value);
-      } else {
-        cell.setAttribute("ogInfo", cell.innerHTML);
+        cell.addEventListener("input", () => {
+          let inputElement = cell.querySelector('input');
+          let innerVal;
+          if (inputElement) {
+            innerVal = inputElement.value;
+          } else {
+            innerVal = cell.innerHTML;
+          }
+          let prevValue = cell.getAttribute("changed");
+          cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true");
+          if (prevValue !== cell.getAttribute("changed")) {
+            cell.classList.toggle("tabElementModified");
+          }
+          calcUnsavedChanges()
+        })
+
+        let inputElement = cell.querySelector('input');
+        if (inputElement) {
+          cell.setAttribute("ogInfo", inputElement.value);
+        } else {
+          cell.setAttribute("ogInfo", cell.innerHTML);
+        }
+
+        cell.style.borderTopStyle = "dotted";
+        cell.style.borderBottomStyle = "dotted";
+        cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
+        i++;
       }
-
-      cell.style.borderTopStyle = "dotted";
-      cell.style.borderBottomStyle = "dotted";
-      cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
-      i++;
-    }
-
-    // Fill any remaining columns with empty cells
-    while (i < numColumns) {
-      newRow.insertCell(i).innerHTML = "";
-      i++;
-    }
-    rowNum++;
-  });
+      
+      while (i < numColumns) {
+        newRow.insertCell(i).innerHTML = "";
+        i++;
+      }
+      rowNum++;
+    });
+  } catch (error) {
+    alert("An error occured while fetching: \n" + error);
+  } finally {
+    hideLoader();
+  }
 });
 
 document.getElementById("updateButton").addEventListener("click", async () => {
@@ -156,7 +165,6 @@ document.getElementById("updateButton").addEventListener("click", async () => {
 
 document.getElementById("clearButton").addEventListener("click", async () => {
   clearWindow()
-  calcUnsavedChanges()
 });
 
 function calcUnsavedChanges() {
@@ -183,7 +191,7 @@ function calcUnsavedChanges() {
       numChanges++;
     }
   }
-  changeMeter.innerHTML = numChanges + " unsaved changes.";
+  changeMeter.innerHTML = numChanges + " unsaved change" + (numChanges == 1 ? "." : "s.");
 }
 
 function clearWindow() {
@@ -192,27 +200,33 @@ function clearWindow() {
   for (let i = 2; i < rowCount; i++) {
     table.deleteRow(2);
   }
+  while (topRow.cells.length > 1) { topRow.deleteCell(0); }
+  topRow.cells[0].innerHTML = "No selection."
+  calcUnsavedChanges() // Always happens in tandem
 }
 
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification
 window.electronAPI.onShowHelp(() => {
   alert(
-    "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all last names\n" +
-    "i.e. Only the search fields that you have specified values within will be search upon & highlighted\n" +
-    "ex. Inputing \"John\" in the First Name search field and selecting the year range \"2023-2024\" will show all data records having the first name of John in the 2023-2024 season.\n" +
-    "—————————————————————————————————————————————————————————————————————————————————————————————————\n" +
-    "Search Button:  Displays database entries into table based on inputs\n" +
-    "—————————————————————————————————————————————————————————————————————————————————————————————————\n" +
-    "Help Button:  Displays this popup with descriptions of the app's interface\n" +
-    "—————————————————————————————————————————————————————————————————————————————————————————————————\n" +
+    "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all\n" +
+    "i.e., each search field filters the output by what you enter.\n" +    
+    "————————————————————————————————————————————\n" +
+    "Search:  Makes a new selection based on search field criteria.\n" +
+    "————————————————————————————————————————————\n" +
+    "Clear:  Removes all rows from the selection, but does not affect the database.\n" +
+    "————————————————————————————————————————————\n" +
     "Switch Table:  Displays a popup where you can choose a different table to display. Options are:\n" +
     "• Players  (stats about offensive & defensive players in a single game)\n" +
     "• Goalkeepers  (stats about goalkeepers in a single game)\n" +
     "• Players Total  (totals stats for offensive & defensive players in a season)\n" +
     "• Goalkeepers  Total (totals stats for goalkeepers in a season)\n" +
     "• Team Record  (general details regarding each game played [score, outcome, etc.])\n" +
-    "—————————————————————————————————————————————————————————————————————————————————————————————————\n" +
-    "Upload File:  Used to select a MaxPreps-generated file whose data values will be added into the database."
+    "————————————————————————————————————————————\n" +
+    "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
+    "————————————————————————————————————————————\n" +
+    "File Options (Top-left menu):\n" + 
+    "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
+    "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n"
   );
 })

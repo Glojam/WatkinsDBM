@@ -3,8 +3,6 @@ const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
 
-const queryTimeout = 1500; // Milliseconds; time allotted for queries before timeout
-
 // MSSQL Configuration
 const config = {
     user: 'SA',

@@ -61,12 +61,12 @@ ipcMain.handle("upload-file", async (event) => {
     return bulkUpload();
 });
 
-ipcMain.handle("show-message", async (event, type, message, hint) => {
+ipcMain.handle("show-message", async (event, type, message, hint = "", title = "") => {
     if (type == "confirmation") {
         let res = dialog.showMessageBox(mainWindow, {
             'type': 'question',
             'detail': hint,
-            'title': 'Confirmation',
+            'title': title,
             'message': message,
             'buttons': [
                 'Yes',
@@ -76,6 +76,13 @@ ipcMain.handle("show-message", async (event, type, message, hint) => {
             return result.response === 0;
         });
         return await res;
+    } else if (type == "info") {
+        dialog.showMessageBox(mainWindow, {
+            'type': 'info',
+            'detail': hint,
+            'title': title,
+            'message': message,
+        })
     }
     return true;
 });

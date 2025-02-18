@@ -35,7 +35,8 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     let success = await window.electronAPI.showPrompt(
       "confirmation", 
       `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
-      "This action cannot be undone."
+      "This action cannot be undone.",
+      "Confirmation"
     );    
     if (!success) { return; }
   }
@@ -116,7 +117,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
       rowNum++;
     });
   } catch (error) {
-    alert("An error occured while fetching: \n" + error);
+    console.log("Error occured while fetching")
   } finally {
     hideLoader();
   }
@@ -124,7 +125,12 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
 document.getElementById("updateButton").addEventListener("click", async () => {
   if (!unsavedChanges) {
-    alert("No unsaved changes to publish.");
+    window.electronAPI.showPrompt(
+      "info", 
+      "No changes to publish.",
+      "",
+      "Publish"
+    );    
     return;
   }
 
@@ -163,13 +169,25 @@ document.getElementById("updateButton").addEventListener("click", async () => {
   }
 
   if (modifiedRows.length == 0) {
-    alert("No changes to push.");
+    window.electronAPI.showPrompt(
+      "info", 
+      "No changes to publish.",
+      "",
+      "Publish"
+    );  
     return;
   }
 
   console.log(modifiedRows);
   let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
-  alert(success)
+  if (success == true) {
+    window.electronAPI.showPrompt(
+      "info", 
+      `'${columnAssociations[currentWorkingTable].name}' has been updated`,
+      modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
+      "Publish"
+    ); 
+  } 
 });
 
 document.getElementById("clearButton").addEventListener("click", async () => {
@@ -178,7 +196,8 @@ document.getElementById("clearButton").addEventListener("click", async () => {
     let success = await window.electronAPI.showPrompt(
       "confirmation", 
       `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
-      "This action cannot be undone."
+      "This action cannot be undone.",
+      "Confirmation"
     );
     if (!success) { return; }
   }
@@ -227,7 +246,9 @@ function clearWindow() {
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification
 window.electronAPI.onShowHelp(() => {
-  alert(
+  window.electronAPI.showPrompt(
+    "info", 
+    "How to Use",
     "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all\n" +
     "i.e., each search field filters the output by what you enter.\n" +    
     "————————————————————————————————————————————\n" +
@@ -246,6 +267,7 @@ window.electronAPI.onShowHelp(() => {
     "————————————————————————————————————————————\n" +
     "File Options (Top-left menu):\n" + 
     "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
-    "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n"
-  );
+    "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
+    "Help"
+  ); 
 })

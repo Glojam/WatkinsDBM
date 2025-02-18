@@ -54,8 +54,12 @@ exports.update = async (event, tableName, rowsList) => {
         }
         return true;
     } catch (err) {
-        console.log(err);
-        throw new Error('Something went wrong');
+        dialog.showMessageBox(null, {
+            'type': 'error',
+            'detail': err.toString(),
+            'title': 'SQL Error',
+            'message': 'Query failed: An internal server error occured.'
+        });
     }
 };
 
@@ -90,8 +94,12 @@ exports.fetch = async (event, args) => {
         const result = await pool.request().query(query);
         return result;
     } catch (err) {
-        console.log(err);
-        throw new Error('Something went wrong');
+        dialog.showMessageBox(null, {
+            'type': 'error',
+            'detail': err.toString(),
+            'title': 'SQL Error',
+            'message': 'Query failed: An internal server error occured.'
+        });
     }
 };
 
@@ -148,9 +156,11 @@ exports.bulkUpload = () => {
 
                 console.log(`Inserted: Jersey #${Jersey}`);
             } catch (err) {
-                console.error('Database error:', err.message);
-                dialog.showErrorBox(null, {
-                    message: 'The database server experienced an error during query:\n' + err.message,
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
                 });
             }
         }

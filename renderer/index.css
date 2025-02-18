@@ -19,7 +19,6 @@ body {
 }
 
 #formHalf {
-  padding-top: 0.8rem;
   vertical-align: text-top;
   width: 15rem;
   flex-shrink: 0; /* Prevents the form from shrinking */
@@ -35,7 +34,7 @@ body {
   border: 0.2rem solid;
   border-spacing: 0;
   border-collapse: collapse;
-  height: 100%;
+  margin: 0.5em;
   flex-grow: 1; /* Table takes the remaining space */
   overflow-x: auto; /* Horizontal scroll for table */
   overflow-y: auto; /* Vertical scroll if needed */
@@ -49,6 +48,23 @@ body {
   table-layout: auto; /* Auto-sizing columns based on content */
 }
 
+#viewingText {
+  background-color: black;
+  color: white;
+  border-radius: 0.2em;
+  text-align: center;
+  box-shadow: 0 0 0.1em#888888;
+  padding: 0.5em;
+}
+
+#changeMeter {
+  color: black;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 0 0.1em#888888;
+  padding: 0.5em;
+}
+
 .tabElement {
   font-size: 0.8em;
   border: 0.1rem solid;
@@ -56,6 +72,27 @@ body {
   word-wrap: break-word;
   white-space: normal;
   transition: color 0.5s ease, background-color 0.5s ease, border-color 0.5s ease;
+}
+
+input {
+  margin: 0.5em;
+  border-radius: 0.2em;
+  width: 90%;
+  outline: 2px solid rgb(255,210,64);
+  border: 0;
+  background-color: #e2e2e2;
+  outline-offset: 3px;
+  padding: 0.2em;
+  transition: 0.1s;
+}
+
+input:focus {
+  outline-offset: 5px;
+  background-color: #fff
+}
+
+label {
+  font-weight: bold;
 }
 
 .tabElementModified {
@@ -66,8 +103,7 @@ body {
 
 .tabElementBolded {
   font-weight: bold;
-  background-color: #f1ad37;
-  background: linear-gradient(0deg, rgba(217,186,94,1) 0%, rgba(255,210,64,1) 100%);
+  background-color: rgb(255,210,64);
   font-size: .9em;
 }
 
@@ -85,9 +121,30 @@ body {
   height: .01rem;
 }
 
-.button {
-  background: rgb(217,186,94);
-  background: linear-gradient(0deg, rgba(217,186,94,1) 0%, rgba(255,221,83,1) 39%, rgba(255,247,207,1) 48%, rgba(255,221,83,1) 57%, rgba(255,210,64,1) 100%);
+button {
+  background-color: rgb(255,210,64); 
+  box-shadow: 0 0 0.1em#888888;
+  border: 0px;
+  color: black;
+  padding: 0.2em;
+  margin: 0.1em;
+  border-radius: 0.2em;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.3em;
+}
+
+button:hover {
+  background-color: rgb(255, 232, 156);
+  transition: color 0.1s ease;
+}
+
+button:active {
+  background-color: rgb(182, 152, 55);
+  transition: color 0.1s ease;
 }
 
  /* Custom scrollbar */

@@ -109,7 +109,6 @@ exports.buildMenu = (window, upload) => {
         },
         {
           label: 'Help',
-          icon: nativeImage.createFromPath('./resources/icon.png'),
           submenu: [
             { 
                 label: 'Getting Started',

@@ -30,6 +30,15 @@ function hideLoader() {
 }
 
 document.getElementById("searchButton").addEventListener("click", async () => {
+  let numUnsavedChanged = calcUnsavedChanges()
+  if (unsavedChanges) {
+    let success = await window.electronAPI.showPrompt(
+      "confirmation", 
+      `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
+      "This action cannot be undone."
+    );    
+    if (!success) { return; }
+  }
   showLoader();
   try {
     let args = {};
@@ -164,6 +173,15 @@ document.getElementById("updateButton").addEventListener("click", async () => {
 });
 
 document.getElementById("clearButton").addEventListener("click", async () => {
+  let numUnsavedChanged = calcUnsavedChanges()
+  if (unsavedChanges) {
+    let success = await window.electronAPI.showPrompt(
+      "confirmation", 
+      `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
+      "This action cannot be undone."
+    );
+    if (!success) { return; }
+  }
   clearWindow()
 });
 
@@ -192,6 +210,7 @@ function calcUnsavedChanges() {
     }
   }
   changeMeter.innerHTML = numChanges + " unsaved change" + (numChanges == 1 ? "." : "s.");
+  return numChanges;
 }
 
 function clearWindow() {

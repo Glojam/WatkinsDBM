@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
 const { buildMenu } = require('./menu')
 const sql = require('mssql')
 const { bulkUpload, fetch, update } = require('./sqlservice')
@@ -7,8 +7,10 @@ const columnAssociations = require('./columns.json')
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
+var mainWindow;
+
 function createMainWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         title: 'Watkins Database Manager',
         show: false,
         webPreferences: {
@@ -57,4 +59,23 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("upload-file", async (event) => {
     return bulkUpload();
+});
+
+ipcMain.handle("show-message", async (event, type, message, hint) => {
+    if (type == "confirmation") {
+        let res = dialog.showMessageBox(mainWindow, {
+            'type': 'question',
+            'detail': hint,
+            'title': 'Confirmation',
+            'message': message,
+            'buttons': [
+                'Yes',
+                'No'
+            ]
+        }).then((result) => {
+            return result.response === 0;
+        });
+        return await res;
+    }
+    return true;
 });

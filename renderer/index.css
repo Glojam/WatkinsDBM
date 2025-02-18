@@ -28,7 +28,7 @@ body {
 #formContainer {
   height: 100%;
   padding: 0.3rem;
-  overflow-y: auto; /* Vertical scroll for form */
+  overflow-y: auto;
 }
 
 #tableContainer {
@@ -39,32 +39,46 @@ body {
   flex-grow: 1; /* Table takes the remaining space */
   overflow-x: auto; /* Horizontal scroll for table */
   overflow-y: auto; /* Vertical scroll if needed */
-  max-height: 100%; /* Ensures the table fills the remaining height */
+  max-height: 100%;
 }
 
 #dataTable {
   width: 100%;
   border-spacing: 0;
   border-collapse: collapse;
-  table-layout: auto; /* Allow auto-sizing of columns based on content */
+  table-layout: auto; /* Auto-sizing columns based on content */
 }
 
 .tabElement {
   font-size: 0.8em;
   border: 0.1rem solid;
   padding: 5px;
-  word-wrap: break-word; /* Prevent text overflow by wrapping it */
-  white-space: normal; /* Allow content to wrap and not overflow */
+  word-wrap: break-word;
+  white-space: normal;
+  transition: color 0.5s ease, background-color 0.5s ease, border-color 0.5s ease;
+}
+
+.tabElementModified {
+  color: rgb(241, 228, 46);
+  background-color: #706715 !important;
+  border-color: black;
 }
 
 .tabElementBolded {
   font-weight: bold;
-  background-color: #f5d230;
+  background-color: #f1ad37;
+  background: linear-gradient(0deg, rgba(217,186,94,1) 0%, rgba(255,210,64,1) 100%);
   font-size: .9em;
 }
 
 .tabElementAlt {
   background-color: rgba(235, 235, 235);
+  transition: color 0.5s ease, background-color 0.5s ease, border-color 0.5s ease !important;
+}
+
+.tabElement:hover {
+  outline: 4px solid #f5d230;
+  outline-offset: -2px; /* Pulls the outline closer to the cell */
 }
 
 .header {
@@ -72,21 +86,25 @@ body {
 }
 
 .button {
-  background-color: #f5d230;
+  background: rgb(217,186,94);
+  background: linear-gradient(0deg, rgba(217,186,94,1) 0%, rgba(255,221,83,1) 39%, rgba(255,247,207,1) 48%, rgba(255,221,83,1) 57%, rgba(255,210,64,1) 100%);
 }
 
  /* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 14px;
-}
-::-webkit-scrollbar-track, ::-webkit-scrollbar-corner {
-  background: white;
-}
-::-webkit-scrollbar-thumb {
-  background: #dbc358;
-  border-radius: 10px;
-   box-shadow: inset 0 0 5px 5px white, inset 0 0 0 4px black;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #f5d230;
-} 
+::-webkit-scrollbar-track
+ {
+   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+   background-color: #F5F5F5;
+ }
+ 
+::-webkit-scrollbar
+ {
+   width: 10px;
+   background-color: #F5F5F5;
+ }
+ 
+::-webkit-scrollbar-thumb
+ {
+   background-color: #000000;
+   border: 2px solid #555555;
+ }

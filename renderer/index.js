@@ -74,7 +74,11 @@ document.getElementById("searchButton").addEventListener("click", async () => {
         } else {
           innerVal = cell.innerHTML;
         }
+        let prevValue = cell.getAttribute("changed");
         cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true"); // Optimization for later
+        if (prevValue !== cell.getAttribute("changed")) {
+          cell.classList.toggle("tabElementModified");
+        }
         calcUnsavedChanges()
       })
 

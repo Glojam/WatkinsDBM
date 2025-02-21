@@ -16,22 +16,22 @@
                 <form>
                     <h2 id="viewingText">Viewing: Players</h2>
                     <label for="firstName">First Name:</label><br>
-                    <input type="text" id="firstName" name="firstName" placeholder="Leave blank for all first names"><br>
+                    <input type="text" id="firstName" class="dataInput" name="firstName" placeholder="Leave blank for all first names"><br>
                     
                     <label for="lastName">Last Name:</label><br>
-                    <input type="text" id="lastName" name="lastName" placeholder="Leave blank for all last names"><br>
+                    <input type="text" id="lastName" class="dataInput" name="lastName" placeholder="Leave blank for all last names"><br>
                     
                     <label for="teamYear">Team Year:</label><br>
-                    <input type="text" id="teamYear" name="teamYear" placeholder="Leave blank for all years"><br>
+                    <input type="text" id="teamYear" class="dataInput" name="teamYear" placeholder="Leave blank for all years"><br>
                     
                     <label for="opponent">Opponent:</label><br>
-                    <input type="text" id="opponent" name="opponent" placeholder="Leave blank for all opponents"><br>
+                    <input type="text" id="opponent" class="dataInput" name="opponent" placeholder="Leave blank for all opponents"><br>
                     
                     <label for="division">Division:</label><br>
-                    <input type="text" id="division" name="division" placeholder="Leave blank for all divisions"><br>
+                    <input type="text" id="division" class="dataInput" name="division" placeholder="Leave blank for all divisions"><br>
                     
                     <label for="position">Position:</label><br>
-                    <input type="text" id="position" name="position" placeholder="Leave blank for all positions"><br><br>
+                    <input type="text" id="position" class="dataInput" name="position" placeholder="Leave blank for all positions"><br><br>
                     
                     <button type="button" id="searchButton">Search</button>
                     <button type="button" id="clearButton">Clear</button>
@@ -54,6 +54,30 @@
             </table>
         </div>
     </div>
+    <div id="popupChangeTable" class="popup">
+        <div class="popup-content">
+            <span class="close" id="closePopup">&times;</span>
+            <h3>Select a Table to Change To:</h3>
+            <form id="switchTableForm">
+                <input type="radio" name="tableOption" value="players">
+                <label>Players</label><br>
+
+                <input type="radio" name="tableOption" value="goalkeepers">
+                <label>Goalkeepers</label><br>
+
+                <input type="radio" name="tableOption" value="playersTotal">
+                <label>Players Total</label><br>
+
+                <input type="radio" name="tableOption" value="goalkeepersTotal">
+                <label>Goalkeepers Total</label><br>
+
+                <input type="radio" name="tableOption" value="teamRecord">
+                <label>Team Record</label><br><br>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+      </div>
     <script src="index.js"></script> 
 </body>
 </html>

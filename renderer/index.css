@@ -75,7 +75,7 @@ body {
   z-index: 1; /* Makes top row stays above other content */
 }
 
-input {
+.dataInput {
   margin: 0.5em;
   border-radius: 0.2em;
   width: 90%;
@@ -139,6 +139,34 @@ button:active {
 @keyframes spin {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.popup{
+  display: none; /* Hidden by default */
+  position: absolute;
+  border: 2px solid #000;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  margin-top: -10%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(204, 204, 204, 0.4);
+}
+
+.popupContent {
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 500px;
+  border-radius: 5px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .tabElement {

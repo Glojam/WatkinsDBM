@@ -204,6 +204,33 @@ document.getElementById("clearButton").addEventListener("click", async () => {
   clearWindow()
 });
 
+// Display form to switch table on screen
+document.getElementById("switchTable").addEventListener("click", async () => {
+  const changeTable = document.getElementById('popupChangeTable');
+
+  changeTable.style.display = 'block';
+
+  // Close the switch table form when the 'x' on the popup is clicked
+  document.getElementById("closePopup").addEventListener("click", async () => {
+    changeTable.style.display = 'none';
+  });
+
+  // Handle form submission
+  document.getElementById("switchTableForm").addEventListener('submit', (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="tableOption"]:checked');
+    if (selectedOption) {
+      currentWorkingTable = selectedOption.value;
+      console.log(currentWorkingTable);
+      alert(`You selected: ${selectedOption.value}`);
+    } else {
+      alert('No option selected.');
+    }
+    changeTable.style.display = 'none';
+  });
+
+});
+
 function calcUnsavedChanges() {
   unsavedChanges = false; // Assume false, then try and prove it is true
   let table = document.getElementById("dataTable");

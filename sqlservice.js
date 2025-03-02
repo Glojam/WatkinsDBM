@@ -9,6 +9,7 @@ const config = {
     user: passwords.user,
     password: passwords.password,
     server: passwords.server,
+    port: passwords.port,
     database: 'Watkins',
     options: {
         encrypt: true, // Change to true if using Azure

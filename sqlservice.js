@@ -62,6 +62,7 @@ exports.update = async (event, tableName, rowsList) => {
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
         });
+        return false;
     }
 };
 
@@ -102,6 +103,7 @@ exports.fetch = async (event, args) => {
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
         });
+        return false;
     }
 };
 

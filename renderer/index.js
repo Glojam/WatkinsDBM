@@ -6,42 +6,43 @@ let currentWorkingTable = "players"; // To keep track of the current working tab
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
 
 window.electronAPI.onGetColumns((data) => {
-  columnAssociations = data;
-  addColumns()
+    columnAssociations = data;
+    addColumns()
 })
 
 function addColumns() {
-  let numCols = columnAssociations[currentWorkingTable].columns.length;
-  let topRow = document.getElementById("topRow");
-  while (topRow.cells.length > 0) { topRow.deleteCell(0); }
-  for (let c = 0; c < numCols; c++) {
-    let newCol = topRow.insertCell(-1); // Append to back
-    newCol.innerHTML = columnAssociations[currentWorkingTable].display_names[c];
-    newCol.className = "tabElement tabElementBolded";
-  }
+    let numCols = columnAssociations[currentWorkingTable].columns.length;
+    let topRow = document.getElementById("topRow");
+    while (topRow.cells.length > 0) { topRow.deleteCell(0); }
+    for (let c = 0; c < numCols; c++) {
+        let newCol = topRow.insertCell(-1); // Append to back
+        newCol.innerHTML = columnAssociations[currentWorkingTable].display_names[c];
+        newCol.className = "tabElement tabElementBolded";
+    }
 }
 
 function showLoader() {
-  document.getElementById("loader").style.display = "block";
+    document.getElementById("loader").style.display = "block";
 }
 
 function hideLoader() {
-  document.getElementById("loader").style.display = "none";
+    document.getElementById("loader").style.display = "none";
 }
 
 document.getElementById("searchButton").addEventListener("click", async () => {
-  let numUnsavedChanged = calcUnsavedChanges()
-  if (unsavedChanges) {
-    let success = await window.electronAPI.showPrompt(
-      "confirmation", 
-      `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
-      "This action cannot be undone.",
-      "Confirmation"
-    );    
-    if (!success) { return; }
-  }
-  showLoader();
-  try {
+    let numUnsavedChanged = calcUnsavedChanges()
+    if (unsavedChanges) {
+        let success = await window.electronAPI.showPrompt(
+            "confirmation",
+            `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
+            "This action cannot be undone.",
+            "Confirmation"
+        );
+        if (!success) { return; }
+    }
+    
+    showLoader();
+    
     let args = {};
     args["first name"] = document.getElementById("firstName").value;
     args["last name"] = document.getElementById("lastName").value;
@@ -49,252 +50,249 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     args["opponent"] = document.getElementById("opponent").value;
     args["division"] = document.getElementById("division").value;
     args["position"] = document.getElementById("position").value;
+    
     clearWindow();
     addColumns();
     const data = await window.electronAPI.getData(args);
-    let me = 0/0;
-    let table = document.getElementById("dataTable");
+    hideLoader();
+    if (!data) { return; } // Error msg is thrown on main side
 
+    let table = document.getElementById("dataTable");
     let numColumns = columnAssociations[currentWorkingTable].columns.length;
     let rowNum = 2
     data.recordsets[0].forEach(record => {
-      let newRow = table.insertRow(-1); 
-      let i = 0;
-      for (const [key, value] of Object.entries(record)) {
-        if (i > numColumns) { continue; }
-        let cell = newRow.insertCell(i);
+        let newRow = table.insertRow(-1);
+        let i = 0;
+        for (const [key, value] of Object.entries(record)) {
+            if (i > numColumns) { continue; }
+            let cell = newRow.insertCell(i);
 
-        if (key == "date" && value !== null) {
-          const date = new Date(value);
-          const dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+            if (key == "date" && value !== null) {
+                const date = new Date(value);
+                const dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
-          const inputElement = document.createElement('input');
-          inputElement.type = 'date';
-          inputElement.name = 'Date';
-          inputElement.value = dateString;
-          inputElement.min = minYear;
-          inputElement.max = maxYear;
+                const inputElement = document.createElement('input');
+                inputElement.type = 'date';
+                inputElement.name = 'Date';
+                inputElement.value = dateString;
+                inputElement.min = minYear;
+                inputElement.max = maxYear;
 
-          cell.appendChild(inputElement);
-        } else {
-          cell.contentEditable = true;
-          cell.innerHTML = value !== null ? value : "";
+                cell.appendChild(inputElement);
+            } else {
+                cell.contentEditable = true;
+                cell.innerHTML = value !== null ? value : "";
+            }
+
+            cell.addEventListener("input", () => {
+                let inputElement = cell.querySelector('input');
+                let innerVal;
+                if (inputElement) {
+                    innerVal = inputElement.value;
+                } else {
+                    innerVal = cell.innerHTML;
+                }
+                let prevValue = cell.getAttribute("changed");
+                cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true");
+                if (prevValue !== cell.getAttribute("changed")) {
+                    cell.classList.toggle("tabElementModified");
+                }
+                calcUnsavedChanges()
+            })
+
+            let inputElement = cell.querySelector('input');
+            if (inputElement) {
+                cell.setAttribute("ogInfo", inputElement.value);
+            } else {
+                cell.setAttribute("ogInfo", cell.innerHTML);
+            }
+
+            cell.style.borderTopStyle = "dotted";
+            cell.style.borderBottomStyle = "dotted";
+            cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
+            i++;
         }
 
-        cell.addEventListener("input", () => {
-          let inputElement = cell.querySelector('input');
-          let innerVal;
-          if (inputElement) {
-            innerVal = inputElement.value;
-          } else {
-            innerVal = cell.innerHTML;
-          }
-          let prevValue = cell.getAttribute("changed");
-          cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true");
-          if (prevValue !== cell.getAttribute("changed")) {
-            cell.classList.toggle("tabElementModified");
-          }
-          calcUnsavedChanges()
-        })
-
-        let inputElement = cell.querySelector('input');
-        if (inputElement) {
-          cell.setAttribute("ogInfo", inputElement.value);
-        } else {
-          cell.setAttribute("ogInfo", cell.innerHTML);
+        while (i < numColumns) {
+            newRow.insertCell(i).innerHTML = "";
+            i++;
         }
-
-        cell.style.borderTopStyle = "dotted";
-        cell.style.borderBottomStyle = "dotted";
-        cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
-        i++;
-      }
-      
-      while (i < numColumns) {
-        newRow.insertCell(i).innerHTML = "";
-        i++;
-      }
-      rowNum++;
+        rowNum++;
     });
-  } catch (error) {
-    console.log("Error occured while fetching")
-  } finally {
-    hideLoader();
-  }
 });
 
 document.getElementById("updateButton").addEventListener("click", async () => {
-  if (!unsavedChanges) {
-    window.electronAPI.showPrompt(
-      "info", 
-      "No changes to publish.",
-      "",
-      "Publish"
-    );    
-    return;
-  }
-
-  let modifiedRows = [];
-  let table = document.getElementById("dataTable");
-
-  for (let i = 1; i < table.rows.length; i++) {
-    let row = table.rows[i];
-    let updatedRow = {};
-    let oldRow = {};
-    let rowHasChanges = false;
-    for (let j = 0; j < row.cells.length; j++) {
-      let cell = row.cells[j];
-      // Check if the cell contains an input element
-      let contents;
-      let inputElement = cell.querySelector('input');
-      if (inputElement) {
-        contents = inputElement.value;
-      } else {
-        contents = cell.innerHTML;
-      }
-
-      // Fill out the data for this row if changes exist
-      let colName = columnAssociations[currentWorkingTable].columns[j];
-      if (cell.getAttribute("ogInfo") !== contents) { 
-        rowHasChanges = true; 
-        updatedRow[colName] = contents;
-      }
-      if (columnAssociations[currentWorkingTable].primary_keys.includes(colName)) {
-        oldRow[colName] = cell.getAttribute("ogInfo");
-      }
+    if (!unsavedChanges) {
+        window.electronAPI.showPrompt(
+            "info",
+            "No changes to publish.",
+            "",
+            "Publish"
+        );
+        return;
     }
-    if (rowHasChanges) {
-      modifiedRows.push({updated: updatedRow, old: oldRow});
+
+    let modifiedRows = [];
+    let table = document.getElementById("dataTable");
+
+    for (let i = 1; i < table.rows.length; i++) {
+        let row = table.rows[i];
+        let updatedRow = {};
+        let oldRow = {};
+        let rowHasChanges = false;
+        for (let j = 0; j < row.cells.length; j++) {
+            let cell = row.cells[j];
+            // Check if the cell contains an input element
+            let contents;
+            let inputElement = cell.querySelector('input');
+            if (inputElement) {
+                contents = inputElement.value;
+            } else {
+                contents = cell.innerHTML;
+            }
+
+            // Fill out the data for this row if changes exist
+            let colName = columnAssociations[currentWorkingTable].columns[j];
+            if (cell.getAttribute("ogInfo") !== contents) {
+                rowHasChanges = true;
+                updatedRow[colName] = contents;
+            }
+            if (columnAssociations[currentWorkingTable].primary_keys.includes(colName)) {
+                oldRow[colName] = cell.getAttribute("ogInfo");
+            }
+        }
+        if (rowHasChanges) {
+            modifiedRows.push({ updated: updatedRow, old: oldRow });
+        }
     }
-  }
 
-  if (modifiedRows.length == 0) {
-    window.electronAPI.showPrompt(
-      "info", 
-      "No changes to publish.",
-      "",
-      "Publish"
-    );  
-    return;
-  }
+    if (modifiedRows.length == 0) {
+        window.electronAPI.showPrompt(
+            "info",
+            "No changes to publish.",
+            "",
+            "Publish"
+        );
+        return;
+    }
 
-  console.log(modifiedRows);
-  let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
-  if (success == true) {
-    window.electronAPI.showPrompt(
-      "info", 
-      `'${columnAssociations[currentWorkingTable].name}' has been updated`,
-      modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
-      "Publish"
-    ); 
-  } 
+    console.log(modifiedRows);
+    let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
+    if (success == true) {
+        window.electronAPI.showPrompt(
+            "info",
+            `'${columnAssociations[currentWorkingTable].name}' has been updated`,
+            modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
+            "Publish"
+        );
+    }
 });
 
 document.getElementById("clearButton").addEventListener("click", async () => {
-  let numUnsavedChanged = calcUnsavedChanges()
-  if (unsavedChanges) {
-    let success = await window.electronAPI.showPrompt(
-      "confirmation", 
-      `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
-      "This action cannot be undone.",
-      "Confirmation"
-    );
-    if (!success) { return; }
-  }
-  clearWindow()
+    let numUnsavedChanged = calcUnsavedChanges()
+    if (unsavedChanges) {
+        let success = await window.electronAPI.showPrompt(
+            "confirmation",
+            `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
+            "This action cannot be undone.",
+            "Confirmation"
+        );
+        if (!success) { return; }
+    }
+    clearWindow()
 });
 
 // Display form to switch table on screen
 document.getElementById("switchTable").addEventListener("click", async () => {
-  const changeTable = document.getElementById('popupChangeTable');
+    const changeTable = document.getElementById('popupChangeTable');
 
-  changeTable.style.display = 'block';
+    changeTable.style.display = 'block';
 
-  // Close the switch table form when the 'x' on the popup is clicked
-  document.getElementById("closePopup").addEventListener("click", async () => {
-    changeTable.style.display = 'none';
-  });
+    // Close the switch table form when the 'x' on the popup is clicked
+    document.getElementById("closePopup").addEventListener("click", async () => {
+        changeTable.style.display = 'none';
+    });
 
-  // Handle form submission
-  document.getElementById("switchTableForm").addEventListener('submit', (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="tableOption"]:checked');
-    if (selectedOption) {
-      currentWorkingTable = selectedOption.value;
-      console.log(currentWorkingTable);
-      alert(`You selected: ${selectedOption.value}`);
-    } else {
-      alert('No option selected.');
-    }
-    changeTable.style.display = 'none';
-  });
+    // Handle form submission
+    document.getElementById("switchTableForm").addEventListener('submit', (event) => {
+        event.preventDefault();
+        const selectedOption = document.querySelector('input[name="tableOption"]:checked');
+        if (selectedOption) {
+            currentWorkingTable = selectedOption.value;
+            console.log(currentWorkingTable);
+            alert(`You selected: ${selectedOption.value}`);
+        } else {
+            alert('No option selected.');
+        }
+        changeTable.style.display = 'none';
+    });
 
 });
 
 function calcUnsavedChanges() {
-  unsavedChanges = false; // Assume false, then try and prove it is true
-  let table = document.getElementById("dataTable");
-  let changeMeter = document.getElementById("changeMeter");
+    unsavedChanges = false; // Assume false, then try and prove it is true
+    let table = document.getElementById("dataTable");
+    let changeMeter = document.getElementById("changeMeter");
 
-  let numChanges = 0;
-  for (let i = 1; i < table.rows.length; i++) {
-    let row = table.rows[i];
-    for (let j = 0; j < row.cells.length; j++) {
-      let cell = row.cells[j];
-      if (cell.getAttribute("changed") !== "true") { continue; }
-      // Check if the cell contains an input element
-      let contents;
-      let inputElement = cell.querySelector('input');
-      if (inputElement) {
-        contents = inputElement.value;
-      } else {
-        contents = cell.innerHTML;
-      }
-      if (cell.getAttribute("ogInfo") === contents) { continue; }
-      unsavedChanges = true;
-      numChanges++;
+    let numChanges = 0;
+    for (let i = 1; i < table.rows.length; i++) {
+        let row = table.rows[i];
+        for (let j = 0; j < row.cells.length; j++) {
+            let cell = row.cells[j];
+            if (cell.getAttribute("changed") !== "true") { continue; }
+            // Check if the cell contains an input element
+            let contents;
+            let inputElement = cell.querySelector('input');
+            if (inputElement) {
+                contents = inputElement.value;
+            } else {
+                contents = cell.innerHTML;
+            }
+            if (cell.getAttribute("ogInfo") === contents) { continue; }
+            unsavedChanges = true;
+            numChanges++;
+        }
     }
-  }
-  changeMeter.innerHTML = numChanges + " unsaved change" + (numChanges == 1 ? "." : "s.");
-  return numChanges;
+    changeMeter.innerHTML = numChanges + " unsaved change" + (numChanges == 1 ? "." : "s.");
+    return numChanges;
 }
 
 function clearWindow() {
-  let table = document.getElementById("dataTable");
-  let rowCount = table.rows.length;
-  for (let i = 2; i < rowCount; i++) {
-    table.deleteRow(2);
-  }
-  while (topRow.cells.length > 1) { topRow.deleteCell(0); }
-  topRow.cells[0].innerHTML = "No selection."
-  calcUnsavedChanges() // Always happens in tandem
+    let table = document.getElementById("dataTable");
+    let rowCount = table.rows.length;
+    for (let i = 2; i < rowCount; i++) {
+        table.deleteRow(2);
+    }
+    while (topRow.cells.length > 1) { topRow.deleteCell(0); }
+    topRow.cells[0].innerHTML = "No selection."
+    calcUnsavedChanges() // Always happens in tandem
 }
 
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification
 window.electronAPI.onShowHelp(() => {
-  window.electronAPI.showPrompt(
-    "info", 
-    "How to Use",
-    "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all\n" +
-    "i.e., each search field filters the output by what you enter.\n" +    
-    "————————————————————————————————————————————\n" +
-    "Search:  Makes a new selection based on search field criteria.\n" +
-    "————————————————————————————————————————————\n" +
-    "Clear:  Removes all rows from the selection, but does not affect the database.\n" +
-    "————————————————————————————————————————————\n" +
-    "Switch Table:  Displays a popup where you can choose a different table to display. Options are:\n" +
-    "• Players  (stats about offensive & defensive players in a single game)\n" +
-    "• Goalkeepers  (stats about goalkeepers in a single game)\n" +
-    "• Players Total  (totals stats for offensive & defensive players in a season)\n" +
-    "• Goalkeepers  Total (totals stats for goalkeepers in a season)\n" +
-    "• Team Record  (general details regarding each game played [score, outcome, etc.])\n" +
-    "————————————————————————————————————————————\n" +
-    "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
-    "————————————————————————————————————————————\n" +
-    "File Options (Top-left menu):\n" + 
-    "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
-    "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
-    "Help"
-  ); 
+    window.electronAPI.showPrompt(
+        "info",
+        "How to Use",
+        "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all\n" +
+        "i.e., each search field filters the output by what you enter.\n" +
+        "————————————————————————————————————————————\n" +
+        "Search:  Makes a new selection based on search field criteria.\n" +
+        "————————————————————————————————————————————\n" +
+        "Clear:  Removes all rows from the selection, but does not affect the database.\n" +
+        "————————————————————————————————————————————\n" +
+        "Switch Table:  Displays a popup where you can choose a different table to display. Options are:\n" +
+        "• Players  (stats about offensive & defensive players in a single game)\n" +
+        "• Goalkeepers  (stats about goalkeepers in a single game)\n" +
+        "• Players Total  (totals stats for offensive & defensive players in a season)\n" +
+        "• Goalkeepers  Total (totals stats for goalkeepers in a season)\n" +
+        "• Team Record  (general details regarding each game played [score, outcome, etc.])\n" +
+        "————————————————————————————————————————————\n" +
+        "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
+        "————————————————————————————————————————————\n" +
+        "File Options (Top-left menu):\n" +
+        "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
+        "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
+        "Help"
+    );
 })

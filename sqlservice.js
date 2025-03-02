@@ -113,7 +113,7 @@ exports.bulkUpload = () => {
     const fileOutputs = dialog.showOpenDialogSync({
         title: 'Import Files',
         buttonLabel: 'Import',
-        filters: [{ name: 'CSV Files', extensions: ['csv'] }],
+        filters: [{ name: 'Text Files', extensions: ['txt'] }],
         properties: ['openFile', 'multiSelections'],
     });
 
@@ -127,7 +127,9 @@ exports.bulkUpload = () => {
         });
 
         let isHeader = true; // Skip header row
-
+        const MarkerScore = 9999;
+        var finalScore = 0;
+        var finalScoreOpp = 0;
         for await (const line of rl) {
             if (isHeader) {
                 isHeader = false;
@@ -141,8 +143,19 @@ exports.bulkUpload = () => {
                 continue;
             }
 
-            const [Jersey, Goals, Assists, Shots, MinutesPlayed] = fields.map(Number);
-
+            const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst] = fields.map(Number);
+            if (!isNaN(Goals)){
+                var Points = (Goals * 2) + Assists;
+                finalScore += Goals;
+                finalScoreOpp +=GoalsAgainst;
+                var Played;
+                if(MinutesPlayed != 0){
+                    Played = 1;
+                }
+                else{
+                    Played = 0;
+                }
+            }
             try {
                 await pool.request()
                     .input('Jersey', sql.Int, Jersey)
@@ -150,9 +163,12 @@ exports.bulkUpload = () => {
                     .input('Assists', sql.Int, Assists)
                     .input('Shots', sql.Int, Shots)
                     .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input('Points', sql.Int, Points)
+                    .input('Played', sql.Int, Played)
+                    .input('MarkerScore', sql.Int, MarkerScore)
                     .query(`
-                        INSERT INTO Players (jersey, goals, assists, shots, minutes)
-                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed)
+                        INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent")
+                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore)
                     `);
 
                 console.log(`Inserted: Jersey #${Jersey}`);
@@ -165,7 +181,36 @@ exports.bulkUpload = () => {
                 });
             }
         }
-
+            try {
+                await pool.request()
+                    .input('FinalScore', sql.Int, finalScore)
+                    .query(`
+                        UPDATE Players
+                        SET "final score" = @FinalScore WHERE "final score" = 9999;
+                    `);
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
+            try {
+                await pool.request()
+                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+                .query(`
+                    UPDATE Players
+                    SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
+                    `)
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
         console.log('Upload complete.');
         dialog.showMessageBox(null, { message: 'File upload successful.' });
     }

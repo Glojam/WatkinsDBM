@@ -2,12 +2,13 @@ const { dialog } = require('electron');
 const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
+const passwords = require('./passwords.json')
 
 // MSSQL Configuration
 const config = {
-    user: 'SA',
-    password: 'Sqlpassword!',
-    server: 'localhost',
+    user: passwords.user,
+    password: passwords.password,
+    server: passwords.server,
     database: 'Watkins',
     options: {
         encrypt: true, // Change to true if using Azure

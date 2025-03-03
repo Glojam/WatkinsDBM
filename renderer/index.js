@@ -53,7 +53,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     
     clearWindow();
     addColumns();
-    const data = await window.electronAPI.getData(args);
+    const data = await window.electronAPI.getData(currentWorkingTable, args);
     hideLoader();
     if (!data) { return; } // Error msg is thrown on main side
 

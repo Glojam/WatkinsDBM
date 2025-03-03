@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('elec
 const { buildMenu } = require('./menu')
 const sql = require('mssql')
 const prompt = require('electron-prompt');
-const { bulkUpload, fetch, update } = require('./sqlservice')
+const { bulkUpload, fetch, insert, update } = require('./sqlservice')
 const columnAssociations = require('./columns.json')
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -43,6 +43,7 @@ function createMainWindow() {
 app.whenReady().then(() => {
     ipcMain.handle('get-data', fetch);
     ipcMain.handle('update-data', update);
+    ipcMain.handle('insert-data', insert);
 
     //ipcMain.handle('get-cols', () => {return columnAssociations})
     createMainWindow();

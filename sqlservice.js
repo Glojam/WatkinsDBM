@@ -70,6 +70,44 @@ exports.update = async (event, tableName, rowsList) => {
 };
 
 /**
+ * Inserts rows into a table
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {string} tableName            The table to query
+ * @param {Object} rowsList             List of list of data
+ * @return {Promise<any>}               Promise containing data or error
+ */
+exports.insert = async (event, tableName, rowsList) => {
+    function getQueryClause(thisRow) {
+        let query = `INSERT INTO ${tableName} VALUES (`;
+        let rowKeys = Object.keys(thisRow);
+        let i = 0;
+        for (let key of rowKeys) {
+            query += `'${thisRow[key]}'`;
+            if (i < rowKeys.length - 1) query += ',';
+            i++;
+        }
+        query += ');';
+        return query;
+    }
+
+    try {
+        const pool = await poolPromise;
+        for (const listPair of rowsList) {
+            await pool.request().query(getQueryClause(listPair));
+        }
+        return true;
+    } catch (err) {
+        dialog.showMessageBox(null, {
+            'type': 'error',
+            'detail': err.toString(),
+            'title': 'SQL Error',
+            'message': 'Query failed: An internal server error occured.'
+        });
+        return false;
+    }
+};
+
+/**
  * Pulls data from the database given some filtering options.
  * @param {Electron.IpcMainEvent} event Electron IPC event
  * @param {string} tableName            The table to query
@@ -108,7 +146,6 @@ exports.fetch = async (event, tableName, args) => {
 
     try {
         const pool = await poolPromise;
-        console.log(query);
         const result = await pool.request().query(query);
         return result;
     } catch (err) {

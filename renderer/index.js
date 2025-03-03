@@ -137,6 +137,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
     let buttonRow = table.insertRow(-1);
     buttonRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+    buttonRow.setAttribute("buffer", "true");
     buttonRow.addEventListener("click", addMoreRows);
 });
 
@@ -152,10 +153,12 @@ document.getElementById("updateButton").addEventListener("click", async () => {
     }
 
     let modifiedRows = [];
+    let addedRows = [];
     let table = document.getElementById("dataTable");
 
     for (let i = 1; i < table.rows.length; i++) {
         let row = table.rows[i];
+        if (row.getAttribute("buffer") === "true") { break; }
         let updatedRow = {};
         let oldRow = {};
         let rowHasChanges = false;
@@ -185,7 +188,32 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         }
     }
 
-    if (modifiedRows.length == 0) {
+    for (i = table.rows.length; i > 0; i--) {
+        row = table.rows[i-1];
+        if (row.getAttribute("buffer") === "true") { break; }
+        let addedRow = {};
+        for (let j = 0; j < row.cells.length; j++) {
+            if (columnAssociations[currentWorkingTable].join_jersey && (row.cells.length-j) <= 3) { break; }
+            let cell = row.cells[j];
+            let contents;
+            let inputElement = cell.querySelector('input');
+            if (inputElement) {
+                contents = inputElement.value;
+            } else {
+                contents = cell.innerHTML;
+            }
+
+            // Fill out the data for this row if changes exist
+            // Changes dont need to be tracked for added cells
+            let colName = columnAssociations[currentWorkingTable].columns[j];
+            addedRow[colName] = contents;
+        }
+        addedRows.push(addedRow);
+    }
+
+    console.log(addedRows);
+
+    if (modifiedRows.length == 0 || addedRows.length == 0) {
         window.electronAPI.showPrompt(
             "info",
             "No changes to publish.",
@@ -195,15 +223,27 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         return;
     }
 
-    console.log(modifiedRows);
-    let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
-    if (success == true) {
-        window.electronAPI.showPrompt(
-            "info",
-            `'${columnAssociations[currentWorkingTable].name}' has been updated`,
-            modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
-            "Publish"
-        );
+    if (modifiedRows.length > 0) {
+        let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
+        if (success == true) {
+            window.electronAPI.showPrompt(
+                "info",
+                `'${columnAssociations[currentWorkingTable].name}' has been updated`,
+                modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
+                "Publish"
+            );
+        }
+    } 
+    if (addedRows.length > 0) {
+        let success = await window.electronAPI.insert(currentWorkingTable, addedRows);
+        if (success == true) {
+            window.electronAPI.showPrompt(
+                "info",
+                `'${columnAssociations[currentWorkingTable].name}' has been updated`,
+                modifiedRows.length + ` row${addedRows.length == 1 ? " was" : "s were"} inserted.`,
+                "Publish"
+            );
+        }
     }
 });
 
@@ -241,14 +281,16 @@ addMoreRows = async () => {
         for (let c = 0; c < cMax; c++) {
             let newCell = newRow.insertCell(-1);
             
-            let colName;
+            let innerHTML;
             if (columnAssociations[currentWorkingTable].join_jersey && (cMax - c) <= 3) {
-                newCell.innerHTML = columnAssociations["association"].defaults[columnAssociations["association"].columns[4 - (cMax - c)]];
+                innerHTML = columnAssociations["association"].defaults[columnAssociations["association"].columns[4 - (cMax - c)]];
             } else {
-                newCell.innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
+                innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
             }
+            newCell.innerHTML = (innerHTML !== undefined) ? innerHTML : '';
 
             styleCell(newCell, r);
+            newCell.contentEditable = true;
         }
     }
 

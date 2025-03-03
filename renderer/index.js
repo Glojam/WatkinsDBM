@@ -4,7 +4,7 @@ const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is 
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
-
+let unsavedInsert = false;
 window.electronAPI.onGetColumns((data) => {
     columnAssociations = data;
     addColumns()
@@ -142,7 +142,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 });
 
 document.getElementById("updateButton").addEventListener("click", async () => {
-    if (!unsavedChanges) {
+    if (!unsavedChanges && !unsavedInsert) {
         window.electronAPI.showPrompt(
             "info",
             "No changes to publish.",
@@ -151,7 +151,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         );
         return;
     }
-
+    unsavedInsert = false;
     let modifiedRows = [];
     let addedRows = [];
     let table = document.getElementById("dataTable");
@@ -270,7 +270,7 @@ addMoreRows = async () => {
     );
     if (!numNewRows) { return; }
     numNewRows = Math.min(numNewRows, 50);
-
+    unsavedInsert = true;
     let add = 0;
     if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
     let table = document.getElementById("dataTable");

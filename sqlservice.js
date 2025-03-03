@@ -2,8 +2,8 @@ const { dialog } = require('electron');
 const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
-const passwords = require('./passwords.json')
-
+const passwords = require('./passwords.json');
+const path = require('path');
 // MSSQL Configuration
 const config = {
     user: passwords.user,
@@ -133,6 +133,10 @@ exports.bulkUpload = () => {
         const MarkerScore = 9999;
         var finalScore = 0;
         var finalScoreOpp = 0;
+        var fileName = path.basename(fileOutputs[0]);
+        var opponentMatch = fileName.match(/^WMHS vs (.+)\.txt$/);
+        var finalOutcome;
+        var markerOutcome = 'M'
         for await (const line of rl) {
             if (isHeader) {
                 isHeader = false;
@@ -140,7 +144,6 @@ exports.bulkUpload = () => {
             }
 
             const fields = line.split('|').map((f) => f.trim());
-
             if (fields.length < 5) {
                 console.warn('Skipping invalid line', line);
                 continue;
@@ -169,9 +172,11 @@ exports.bulkUpload = () => {
                     .input('Points', sql.Int, Points)
                     .input('Played', sql.Int, Played)
                     .input('MarkerScore', sql.Int, MarkerScore)
+                    .input('OpponentMatch',sql.VarChar,opponentMatch[1])
+                    .input('MarkerOutcome',sql.Char, markerOutcome)
                     .query(`
-                        INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent")
-                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore)
+                        INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent",opponent, outcome, date)
+                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE())
                     `);
 
                 console.log(`Inserted: Jersey #${Jersey}`);
@@ -184,6 +189,15 @@ exports.bulkUpload = () => {
                 });
             }
         }
+            if(finalScore < finalScoreOpp){
+                finalOutcome = 'L';
+            }
+            else if(finalScore > finalScoreOpp){
+                finalOutcome = 'W';
+            }
+            else{
+                finalOutcome = 'T';
+            }
             try {
                 await pool.request()
                     .input('FinalScore', sql.Int, finalScore)
@@ -205,6 +219,21 @@ exports.bulkUpload = () => {
                 .query(`
                     UPDATE Players
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
+                    `)
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
+            try {
+                await pool.request()
+                .input('FinalOutcome', sql.Char, finalOutcome)
+                .query(`
+                    UPDATE Players
+                    SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     `)
             } catch (err) {
                 dialog.showMessageBox(null, {

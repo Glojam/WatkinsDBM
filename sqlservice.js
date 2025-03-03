@@ -5,6 +5,8 @@ const readline = require('readline');
 const passwords = require('./passwords.json');
 const path = require('path');
 const { table } = require('console');
+const columnAssociations = require('./columns.json')
+
 // MSSQL Configuration
 const config = {
     user: passwords.user,
@@ -75,7 +77,17 @@ exports.update = async (event, tableName, rowsList) => {
  * @return {Promise<any>}               Promise containing data or error
  */
 exports.fetch = async (event, tableName, args) => {
-    let query = `SELECT * FROM ${tableName}`;
+    let query;
+    if (columnAssociations[tableName].join_jersey) {
+        query = `SELECT p.*,a.[first name],a.[last name],a.[year]
+                FROM ${tableName} p
+                INNER JOIN Association a
+                ON p.season = a.season
+                AND p.jersey = a.jersey`
+    } else {
+        query = `SELECT * FROM ${tableName}`;
+    }
+
     let isEmpty = true;
 
     // TODO: Add protections against SQL injection here
@@ -96,6 +108,7 @@ exports.fetch = async (event, tableName, args) => {
 
     try {
         const pool = await poolPromise;
+        console.log(query);
         const result = await pool.request().query(query);
         return result;
     } catch (err) {

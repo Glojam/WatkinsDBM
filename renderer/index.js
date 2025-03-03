@@ -14,9 +14,17 @@ function addColumns() {
     let numCols = columnAssociations[currentWorkingTable].columns.length;
     let topRow = document.getElementById("topRow");
     while (topRow.cells.length > 0) { topRow.deleteCell(0); }
-    for (let c = 0; c < numCols; c++) {
+    let cMax = numCols;
+    if (columnAssociations[currentWorkingTable].join_jersey) { cMax += 3; }
+    for (let c = 0; c < cMax; c++) {
         let newCol = topRow.insertCell(-1); // Append to back
-        newCol.innerHTML = columnAssociations[currentWorkingTable].display_names[c];
+        let innerHTML;
+        if (cMax - c <= 3 && columnAssociations[currentWorkingTable].join_jersey) {
+            innerHTML = columnAssociations["association"].display_names[4 - (cMax - c)];
+        } else {
+            innerHTML = columnAssociations[currentWorkingTable].display_names[c];
+        }
+        newCol.innerHTML = innerHTML;
         newCol.className = "tabElement tabElementBolded";
     }
 }
@@ -27,6 +35,12 @@ function showLoader() {
 
 function hideLoader() {
     document.getElementById("loader").style.display = "none";
+}
+
+function styleCell(cell, rowNum) {
+    cell.style.borderTopStyle = "dotted";
+    cell.style.borderBottomStyle = "dotted";
+    cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
 }
 
 document.getElementById("searchButton").addEventListener("click", async () => {
@@ -54,11 +68,14 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     clearWindow();
     addColumns();
     const data = await window.electronAPI.getData(currentWorkingTable, args);
+    console.log(data);
     hideLoader();
     if (!data) { return; } // Error msg is thrown on main side
+    let add = 0;
+    if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
 
     let table = document.getElementById("dataTable");
-    let numColumns = columnAssociations[currentWorkingTable].columns.length;
+    let numColumns = columnAssociations[currentWorkingTable].columns.length + add;
     let rowNum = 2
     data.recordsets[0].forEach(record => {
         let newRow = table.insertRow(-1);
@@ -106,10 +123,8 @@ document.getElementById("searchButton").addEventListener("click", async () => {
             } else {
                 cell.setAttribute("ogInfo", cell.innerHTML);
             }
-
-            cell.style.borderTopStyle = "dotted";
-            cell.style.borderBottomStyle = "dotted";
-            cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
+            
+            styleCell(cell, rowNum);
             i++;
         }
 
@@ -119,6 +134,10 @@ document.getElementById("searchButton").addEventListener("click", async () => {
         }
         rowNum++;
     });
+
+    let buttonRow = table.insertRow(-1);
+    buttonRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+    buttonRow.addEventListener("click", addMoreRows);
 });
 
 document.getElementById("updateButton").addEventListener("click", async () => {
@@ -201,6 +220,39 @@ document.getElementById("clearButton").addEventListener("click", async () => {
     }
     clearWindow()
 });
+
+addMoreRows = async () => {
+    let numNewRows = await window.electronAPI.showPrompt(
+        "prompt",
+        "How many rows?",
+        "",
+        "Add Rows"
+    );
+    if (!numNewRows) { return; }
+    numNewRows = Math.min(numNewRows, 50);
+
+    let add = 0;
+    if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
+    let table = document.getElementById("dataTable");
+    let cMax = columnAssociations[currentWorkingTable].columns.length + add;
+    
+    for (let r = 0; r < numNewRows; r++) {
+        let newRow = table.insertRow(-1);
+        for (let c = 0; c < cMax; c++) {
+            let newCell = newRow.insertCell(-1);
+            
+            let colName;
+            if (columnAssociations[currentWorkingTable].join_jersey && (cMax - c) <= 3) {
+                newCell.innerHTML = columnAssociations["association"].defaults[columnAssociations["association"].columns[4 - (cMax - c)]];
+            } else {
+                newCell.innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
+            }
+
+            styleCell(newCell, r);
+        }
+    }
+
+};
 
 // Display form to switch table on screen
 document.getElementById("switchTable").addEventListener("click", async () => {

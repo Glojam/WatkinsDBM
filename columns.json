@@ -4,6 +4,7 @@
         "primary_keys": ["opponent","jersey","date"],
         "columns": ["date","opponent", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "jersey", "played", "started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds","season"],
         "display_names": ["Date","Opponent", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds","Season"],
+        "defaults": {"jersey": 0, "opponent": "NA", "date": "1970-01-01", "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },
@@ -18,7 +19,7 @@
     "playersTotal": {
         "name": "Players Total",
         "primary_keys": ["jersey"],
-        "columns": [ "jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
+        "columns": ["jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
         "display_names": [ "Jersey", "Position", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
@@ -41,6 +42,7 @@
         "name": "Associations",
         "primary_keys": ["jersey", "season"],
         "columns": ["jersey", "first name", "last name", "year", "season"],
-        "display_names": ["Jersey", "First Name", "Last Name", "Year", "Season"]
+        "display_names": ["Jersey", "First Name", "Last Name", "Year", "Season"],
+        "defaults": {"jersey": 0, "season": 2025}
     }
 }

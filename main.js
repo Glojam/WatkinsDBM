@@ -2,6 +2,7 @@ const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
 const { buildMenu } = require('./menu')
 const sql = require('mssql')
+const prompt = require('electron-prompt');
 const { bulkUpload, fetch, update } = require('./sqlservice')
 const columnAssociations = require('./columns.json')
 const isDev = process.env.NODE_ENV !== 'production';
@@ -83,6 +84,21 @@ ipcMain.handle("show-message", async (event, type, message, hint = "", title = "
             'title': title,
             'message': message,
         })
+    } else if (type == "prompt") {
+        let res = prompt({
+            title: title,
+            label: message,
+            value: '',
+            inputAttrs: {
+                type: 'number', requird: 'true'
+            },
+            type: 'input'
+        }, mainWindow)
+        .then((r) => {
+            return r !== null ? r : false;
+        })
+        .catch(console.error);
+        return await res;
     }
     return true;
 });

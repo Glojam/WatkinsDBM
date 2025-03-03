@@ -138,7 +138,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     let buttonRow = table.insertRow(-1);
     buttonRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
     buttonRow.setAttribute("buffer", "true");
-    buttonRow.addEventListener("click", addMoreRows);
+    document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
 });
 
 document.getElementById("updateButton").addEventListener("click", async () => {

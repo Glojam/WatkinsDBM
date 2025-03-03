@@ -1,33 +1,33 @@
 {
     "players": {
         "name": "Players",
-        "primary_keys": ["opponent","jersey", "year"],
-        "columns": ["opponent", "date", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "year", "jersey", "played", "started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
-        "display_names": ["Opponent", "Date", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Year", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
+        "primary_keys": ["opponent","jersey"],
+        "columns": ["opponent", "date", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "jersey", "played", "started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
+        "display_names": ["Opponent", "Date", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },
     "goalkeepers": {
         "name": "Goalkeepers",
-        "primary_keys": ["opponent","jersey", "year"],
-        "columns": ["opponent", "date", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "year", "jersey", "played", "started", "motm award", "sportsmanship award", "minutes", "goals against", "goals against average", "saves", "saves average", "shutouts", "yellows", "reds"],
-        "display_names": ["Opponent", "Date", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Year", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Goals Against Average", "Saves", "Saves Average", "Shutouts", "Yellows", "Reds"],
+        "primary_keys": ["opponent","jersey"],
+        "columns": ["opponent", "date", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "jersey", "played", "started", "motm award", "sportsmanship award", "minutes", "goals against", "goals against average", "saves", "saves average", "shutouts", "yellows", "reds"],
+        "display_names": ["Opponent", "Date", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Goals Against Average", "Saves", "Saves Average", "Shutouts", "Yellows", "Reds"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },
     "playersTotal": {
         "name": "Players Total",
-        "primary_keys": ["jersey", "year"],
-        "columns": ["year", "jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
-        "display_names": ["Year", "Jersey", "Position", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
+        "primary_keys": ["jersey"],
+        "columns": [ "jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
+        "display_names": [ "Jersey", "Position", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },
     "goalkeepersTotal": {
         "name": "Goalkeepers Total",
-        "primary_keys": ["jersey", "year"],
-        "columns": ["year", "jersey", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals against", "goals against average", "saves", "saves average", "shutouts", "yellows", "reds"],
-        "display_names": ["Year", "Jersey", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Goals Against Average", "Saves", "Saves Average", "Shutouts", "Yellows", "Reds"],
+        "primary_keys": ["jersey"],
+        "columns": ["jersey", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals against", "goals against average", "saves", "saves average", "shutouts", "yellows", "reds"],
+        "display_names": ["Jersey", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Goals Against Average", "Saves", "Saves Average", "Shutouts", "Yellows", "Reds"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },

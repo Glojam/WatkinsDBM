@@ -150,7 +150,7 @@ button:active {
   margin-right: -50%;
   margin-top: -10%;
   overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(204, 204, 204, 0.4);
+  background-color: rgba(204, 204, 204);
 }
 
 .popupContent {

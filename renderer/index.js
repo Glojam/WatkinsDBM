@@ -276,20 +276,20 @@ window.electronAPI.onShowHelp(() => {
         "How to Use",
         "Search Fields:  Used to search for specific lines of data that have the matching criteria specified or can be left blank to display all\n" +
         "i.e., each search field filters the output by what you enter.\n" +
-        "————————————————————————————————————————————\n" +
+        "————————————————————————————————————\n" +
         "Search:  Makes a new selection based on search field criteria.\n" +
-        "————————————————————————————————————————————\n" +
+        "————————————————————————————————————\n" +
         "Clear:  Removes all rows from the selection, but does not affect the database.\n" +
-        "————————————————————————————————————————————\n" +
+        "————————————————————————————————————\n" +
         "Switch Table:  Displays a popup where you can choose a different table to display. Options are:\n" +
         "• Players  (stats about offensive & defensive players in a single game)\n" +
         "• Goalkeepers  (stats about goalkeepers in a single game)\n" +
         "• Players Total  (totals stats for offensive & defensive players in a season)\n" +
         "• Goalkeepers  Total (totals stats for goalkeepers in a season)\n" +
         "• Team Record  (general details regarding each game played [score, outcome, etc.])\n" +
-        "————————————————————————————————————————————\n" +
+        "————————————————————————————————————\n" +
         "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
-        "————————————————————————————————————————————\n" +
+        "————————————————————————————————————\n" +
         "File Options (Top-left menu):\n" +
         "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
         "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",

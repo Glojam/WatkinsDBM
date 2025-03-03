@@ -4,6 +4,7 @@ const fs = require('fs');
 const readline = require('readline');
 const passwords = require('./passwords.json');
 const path = require('path');
+const { table } = require('console');
 // MSSQL Configuration
 const config = {
     user: passwords.user,
@@ -69,11 +70,12 @@ exports.update = async (event, tableName, rowsList) => {
 /**
  * Pulls data from the database given some filtering options.
  * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {string} tableName            The table to query
  * @param {Object} args                 Object containing a list of fields to filter from
  * @return {Promise<any>}               Promise containing data or error
  */
-exports.fetch = async (event, args) => {
-    let query = 'SELECT * FROM Players';
+exports.fetch = async (event, tableName, args) => {
+    let query = `SELECT * FROM ${tableName}`;
     let isEmpty = true;
 
     // TODO: Add protections against SQL injection here

@@ -128,7 +128,7 @@ exports.bulkUpload = () => {
             output: process.stdout,
             terminal: false,
         });
-
+            
         let isHeader = true; // Skip header row
         const MarkerScore = 9999;
         var finalScore = 0;
@@ -138,14 +138,15 @@ exports.bulkUpload = () => {
         var finalOutcome;
         var markerOutcome = 'M'
         for await (const line of rl) {
-            if (isHeader) {
-                isHeader = false;
-                continue;
-            }
+
 
             const fields = line.split('|').map((f) => f.trim());
             if (fields.length < 5) {
                 console.warn('Skipping invalid line', line);
+                continue;
+            }
+            if (isHeader) {
+                isHeader = false;
                 continue;
             }
 

@@ -218,7 +218,8 @@ document.getElementById("switchTableForm").addEventListener('submit', (event) =>
     const selectedOption = document.querySelector('input[name="tableOption"]:checked');
     if (selectedOption) {
         currentWorkingTable = selectedOption.value;
-        alert(`You selected: ${selectedOption.value}`);
+        alert(`You selected: ${columnAssociations[currentWorkingTable].name}`);
+        document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name
     } else {
          alert('No option selected.');
     }

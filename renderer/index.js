@@ -396,4 +396,11 @@ window.electronAPI.onShowHelp(() => {
         "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
         "Help"
     );
-})
+});
+
+window.electronAPI.onExportToPDF(() => {
+    // Extract table HTML & send to main process
+    const tableElement = document.querySelector("#dataTable");
+    const tableHTML = tableElement.outerHTML;
+    window.electronAPI.sendExportToPDF(tableHTML);
+});

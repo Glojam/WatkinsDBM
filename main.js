@@ -2,6 +2,7 @@ const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
 const { buildMenu } = require('./menu')
 const sql = require('mssql')
+const fs = require('fs');
 const prompt = require('electron-prompt');
 const { bulkUpload, fetch, insert, update } = require('./sqlservice')
 const columnAssociations = require('./columns.json')
@@ -61,6 +62,59 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("upload-file", async (event) => {
     return bulkUpload();
+});
+
+ipcMain.on('export-to-pdf', async (event, tableHTML) => {
+    const pdfPath = await dialog.showSaveDialog({
+        title: 'Save PDF',
+        defaultPath: 'exported_page.pdf',
+        filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+    });
+
+    if (pdfPath.canceled) return;
+
+    // Create an off-screen window
+    let printWindow = new BrowserWindow({
+        show: false,  // Hidden window
+        webPreferences: { offscreen: true } // No UI needed
+    });
+
+    // Generate a full HTML document for the table
+    const tableHTMLPage = `
+        <html>
+        <head>
+            <title>Table Export</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            </style>
+        </head>
+        <body>
+            ${tableHTML}
+        </body>
+        </html>
+    `;
+
+    printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(tableHTMLPage)}`);
+
+    printWindow.webContents.once('did-finish-load', () => {
+        printWindow.webContents.printToPDF({ 
+            landscape: true,
+            marginsType: 1,
+            printBackground: true,
+            pageSize: { width: 12, height: 17 }
+        }).then(data => {
+            fs.writeFile(pdfPath.filePath, data, (err) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+            });
+        }).catch(err => {
+            console.error(err);
+        });
+    });
 });
 
 ipcMain.handle("show-message", async (event, type, message, hint = "", title = "") => {

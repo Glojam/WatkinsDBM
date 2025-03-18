@@ -32,7 +32,7 @@ exports.buildMenu = (window, upload) => {
         { // TODO (possibly)
           role: 'Export Selection',
           label: 'Export Selection',
-          click: (any) => (any),
+          click: () => {window.webContents.send('export-to-pdf');}
         },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }

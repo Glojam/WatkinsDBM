@@ -295,6 +295,7 @@ addMoreRows = async () => {
         }
     }
 
+    calcUnsavedChanges();
 };
 
 // Display form to switch table on screen
@@ -355,6 +356,7 @@ function calcUnsavedChanges() {
             numChanges++;
         }
     }
+    if (unsavedInsert) { numChanges++; }
     changeMeter.innerHTML = numChanges + " unsaved change" + (numChanges == 1 ? "." : "s.");
     return numChanges;
 }
@@ -367,6 +369,7 @@ function clearWindow() {
     }
     while (topRow.cells.length > 1) { topRow.deleteCell(0); }
     topRow.cells[0].innerHTML = "No selection."
+    unsavedInsert = false;
     calcUnsavedChanges() // Always happens in tandem
 }
 

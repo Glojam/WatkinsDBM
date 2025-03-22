@@ -19,8 +19,8 @@
     "playersTotal": {
         "name": "Players Total",
         "primary_keys": ["jersey"],
-        "columns": ["jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds"],
-        "display_names": [ "Jersey", "Position", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds"],
+        "columns": ["jersey", "position", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds", "season"],
+        "display_names": [ "Jersey", "Position", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds", "Season"],
         "join_jersey": true,
         "readonly_cols": ["jersey"]
     },

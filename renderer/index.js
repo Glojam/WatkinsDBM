@@ -10,6 +10,11 @@ window.electronAPI.onGetColumns((data) => {
     addColumns()
 })
 
+/**
+ * Given current context (currentWorkingTable, etc) adds the top row headers.
+ * 
+ * Expects a clear page.
+ */
 function addColumns() {
     let numCols = columnAssociations[currentWorkingTable].columns.length;
     let topRow = document.getElementById("topRow");
@@ -29,20 +34,33 @@ function addColumns() {
     }
 }
 
+/**
+ * Shows the spinner loader.
+ */
 function showLoader() {
     document.getElementById("loader").style.display = "block";
 }
-
+/**
+ * Hides the spinner loader.
+ */
 function hideLoader() {
     document.getElementById("loader").style.display = "none";
 }
 
+/**
+ * Adds CSS styling to a grid cell
+ * @param {HTMLElement} cell    Cell to style.
+ * @param {number} rowNum       The row number of the cell, for alternating colors    
+ */
 function styleCell(cell, rowNum) {
     cell.style.borderTopStyle = "dotted";
     cell.style.borderBottomStyle = "dotted";
     cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
 }
 
+/**
+ * Deletes the DOM elements of new added rows
+ */
 function deleteAddedRows() {
     let table = document.getElementById("dataTable");
     for (i = table.rows.length; i > 0; i--) {
@@ -52,6 +70,9 @@ function deleteAddedRows() {
     }
 }
 
+/**
+ * Marks all cells as unchanged
+ */
 function resetAllCellChanges() {
     let table = document.getElementById("dataTable");
     // Delete cell changes in top row
@@ -78,6 +99,9 @@ function resetAllCellChanges() {
     deleteAddedRows();
 }
 
+/**
+ * Async prompt to ask user if they want to ignore saved changes
+ */
 async function ignoreUnsavedChanges() {
     let numUnsavedChanged = calcUnsavedChanges()
     if (unsavedChanges) {
@@ -92,6 +116,9 @@ async function ignoreUnsavedChanges() {
     return true;
 }
 
+/**
+ * Performs SQL SELECT on the DB given the left panel search fields
+ */
 document.getElementById("searchButton").addEventListener("click", async () => {
     let ignoreChanges = await ignoreUnsavedChanges();
     if (!ignoreChanges) { return; }
@@ -182,6 +209,10 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
 });
 
+/**
+ * Performs SQL UPDATE on the DB given the unsaved changes. 
+ * Performs SQL INSERT on the DB given any added rows.
+ */
 document.getElementById("updateButton").addEventListener("click", async () => {
     if (!unsavedChanges && !unsavedInsert) {
         window.electronAPI.showPrompt(
@@ -291,13 +322,18 @@ document.getElementById("updateButton").addEventListener("click", async () => {
     calcUnsavedChanges();
 });
 
+// Listener to clear rows
 document.getElementById("clearButton").addEventListener("click", async () => {
     let ignoreChanges = await ignoreUnsavedChanges();
     if (!ignoreChanges) { return; }
     clearWindow()
 });
 
-addMoreRows = async () => {
+/**
+ * Async. prompts the user to add rows, then appends extra row fields at the bottom of the table.
+ * These fields will be SQL INSERTed when the update button is pressed.
+ */
+async function addMoreRows() {
     let numNewRows = await window.electronAPI.showPrompt(
         "prompt",
         "How many rows?",
@@ -351,12 +387,6 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
     const selectedOption = document.querySelector('input[name="tableOption"]:checked');
     if (selectedOption) {
         currentWorkingTable = selectedOption.value;
-        window.electronAPI.showPrompt(
-            "info",
-            `You selected: ${columnAssociations[currentWorkingTable].name}`,
-            "",
-            "Table Change"
-        );
         document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name
     } else {
         window.electronAPI.showPrompt(
@@ -370,6 +400,11 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
     clearWindow();
 });
 
+/**
+ * Iterates through all grid cells, and keeps track of differences from original values via attributes to count changes.
+ * Added rows count as a single change, no matter how many.
+ * @returns {number}    Number of changes that were counted.
+ */
 function calcUnsavedChanges() {
     unsavedChanges = false; // Assume false, then try and prove it is true
     let table = document.getElementById("dataTable");
@@ -399,6 +434,9 @@ function calcUnsavedChanges() {
     return numChanges;
 }
 
+/**
+ * Deletes all rows in the current selection aside from the header.
+ */
 function clearWindow() {
     let table = document.getElementById("dataTable");
     let rowCount = table.rows.length;
@@ -440,6 +478,7 @@ window.electronAPI.onShowHelp(() => {
     );
 });
 
+// Listener to export the current selection to PDF
 window.electronAPI.onExportToPDF(() => {
     // Extract table HTML & send to main process
     const tableElement = document.querySelector("#dataTable");

@@ -88,7 +88,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
                 const date = new Date(value);
 
                 const dateString = date.toISOString().split('T')[0]
-                console.log(dateString)
+
                 const inputElement = document.createElement('input');
                 inputElement.type = 'date';
                 inputElement.name = 'Date';
@@ -214,7 +214,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
 
     console.log(addedRows);
 
-    if (modifiedRows.length == 0 || addedRows.length == 0) {
+    if (modifiedRows.length == 0 && addedRows.length == 0) {
         window.electronAPI.showPrompt(
             "info",
             "No changes to publish.",
@@ -224,27 +224,27 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         return;
     }
 
+    let updateString = "";
+
     if (modifiedRows.length > 0) {
         let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
         if (success == true) {
-            window.electronAPI.showPrompt(
-                "info",
-                `'${columnAssociations[currentWorkingTable].name}' has been updated`,
-                modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.`,
-                "Publish"
-            );
+            updateString = modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.\n`
         }
     } 
     if (addedRows.length > 0) {
         let success = await window.electronAPI.insert(currentWorkingTable, addedRows);
         if (success == true) {
-            window.electronAPI.showPrompt(
-                "info",
-                `'${columnAssociations[currentWorkingTable].name}' has been updated`,
-                modifiedRows.length + ` row${addedRows.length == 1 ? " was" : "s were"} inserted.`,
-                "Publish"
-            );
+            updateString += addedRows.length + ` new row${addedRows.length == 1 ? " was" : "s were"} added.`
         }
+    }
+    if (updateString !== "") {
+        window.electronAPI.showPrompt(
+            "info",
+            `'${columnAssociations[currentWorkingTable].name}' has been updated`,
+            updateString,
+            "Publish"
+        );
     }
 });
 

@@ -190,8 +190,7 @@ exports.bulkUpload = () => {
         var finalOutcome;
         var markerOutcome = 'M'
         for await (const line of rl) {
-
-
+            //updates player table
             const fields = line.split('|').map((f) => f.trim());
             if (fields.length < 5) {
                 console.warn('Skipping invalid line', line);
@@ -204,6 +203,7 @@ exports.bulkUpload = () => {
 
             const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst] = fields.map(Number);
             if (!isNaN(Goals)){
+
                 var Points = (Goals * 2) + Assists;
                 finalScore += Goals;
                 finalScoreOpp +=GoalsAgainst;
@@ -241,7 +241,45 @@ exports.bulkUpload = () => {
                     'message': 'Query failed: An internal server error occured.'
                 });
             }
-        }
+            //updates playersTotal table
+            try {
+                await pool.request()
+                    .input('Jersey', sql.Int, Jersey)
+                    .input('Goals', sql.Int, Goals)
+                    .input('Assists', sql.Int, Assists)
+                    .input('Shots', sql.Int, Shots)
+                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input('Points', sql.Int, Points)
+                    .input('Played', sql.Int, Played)
+                    .query(`
+                        MERGE INTO playersTotal AS target
+                        USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, 2025)) 
+                        AS source (jersey, goals, minutes, points, assists, shots, played, season)
+                        ON target.jersey = source.jersey AND target.season = source.season
+                        WHEN MATCHED THEN
+                            UPDATE SET 
+                                target.[games played] = target.[games played] + source.played,
+                                target.minutes = target.minutes + source.minutes,
+                                target.points = target.points + source.points,
+                                target.goals = target.goals + source.goals,
+                                target.assists = target.assists + source.assists,
+                                target.shots = target.shots + source.shots
+                        WHEN NOT MATCHED THEN
+                            INSERT (jersey, season, [games played], points, goals, assists, shots, minutes)
+                            VALUES (source.jersey, 2025, source.played, source.points, source.goals, source.assists, source.shots, source.minutes);
+                    `);
+            
+                console.log(`Inserted/Updated: Jersey #${Jersey}`);
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occurred.'
+                });
+            }
+            
+        }   
             if(finalScore < finalScoreOpp){
                 finalOutcome = 'L';
             }
@@ -251,6 +289,7 @@ exports.bulkUpload = () => {
             else{
                 finalOutcome = 'T';
             }
+            // these try statements might be able to be combind.
             try {
                 await pool.request()
                     .input('FinalScore', sql.Int, finalScore)
@@ -296,6 +335,8 @@ exports.bulkUpload = () => {
                     'message': 'Query failed: An internal server error occured.'
                 });
             }
+
+
         console.log('Upload complete.');
         dialog.showMessageBox(null, { message: 'File upload successful.' });
     }

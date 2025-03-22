@@ -86,8 +86,9 @@ document.getElementById("searchButton").addEventListener("click", async () => {
 
             if (key == "date" && value !== null) {
                 const date = new Date(value);
-                const dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
+                const dateString = date.toISOString().split('T')[0]
+                console.log(dateString)
                 const inputElement = document.createElement('input');
                 inputElement.type = 'date';
                 inputElement.name = 'Date';

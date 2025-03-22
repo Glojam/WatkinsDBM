@@ -44,7 +44,12 @@ function styleCell(cell, rowNum) {
 }
 
 function deleteAddedRows() {
-
+    let table = document.getElementById("dataTable");
+    for (i = table.rows.length; i > 0; i--) {
+        row = table.rows[i-1];
+        if (row.getAttribute("buffer") === "true") { break; }
+        table.deleteRow(i-1);
+    }
 }
 
 function resetAllCellChanges() {
@@ -73,7 +78,7 @@ function resetAllCellChanges() {
     deleteAddedRows();
 }
 
-document.getElementById("searchButton").addEventListener("click", async () => {
+async function ignoreUnsavedChanges() {
     let numUnsavedChanged = calcUnsavedChanges()
     if (unsavedChanges) {
         let success = await window.electronAPI.showPrompt(
@@ -82,9 +87,14 @@ document.getElementById("searchButton").addEventListener("click", async () => {
             "This action cannot be undone.",
             "Confirmation"
         );
-        if (!success) { return; }
+        return success;
     }
-    
+    return true;
+}
+
+document.getElementById("searchButton").addEventListener("click", async () => {
+    let ignoreChanges = await ignoreUnsavedChanges();
+    if (!ignoreChanges) { return; }
     showLoader();
     
     let args = {};
@@ -254,8 +264,8 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         return;
     }
 
+    showLoader();
     let updateString = "";
-
     if (modifiedRows.length > 0) {
         let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
         if (success == true) {
@@ -276,20 +286,14 @@ document.getElementById("updateButton").addEventListener("click", async () => {
             "Publish"
         );
     }
+    hideLoader();
     resetAllCellChanges();
+    calcUnsavedChanges();
 });
 
 document.getElementById("clearButton").addEventListener("click", async () => {
-    let numUnsavedChanged = calcUnsavedChanges()
-    if (unsavedChanges || unsavedInsert) {
-        let success = await window.electronAPI.showPrompt(
-            "confirmation",
-            `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
-            "This action cannot be undone.",
-            "Confirmation"
-        );
-        if (!success) { return; }
-    }
+    let ignoreChanges = await ignoreUnsavedChanges();
+    if (!ignoreChanges) { return; }
     clearWindow()
 });
 
@@ -331,6 +335,8 @@ addMoreRows = async () => {
 
 // Display form to switch table on screen
 document.getElementById("switchTable").addEventListener("click", async () => {
+    let ignoreChanges = await ignoreUnsavedChanges();
+    if (!ignoreChanges) { return; }
     document.getElementById('popupChangeTable').style.display = 'block';
 });
 
@@ -340,7 +346,7 @@ document.getElementById("closePopup").addEventListener("click", async () => {
 });
 
 // Handle form submission
-document.getElementById("switchTableForm").addEventListener('submit', (event) => {
+document.getElementById("switchTableForm").addEventListener('submit', async (event) => {
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="tableOption"]:checked');
     if (selectedOption) {
@@ -361,6 +367,7 @@ document.getElementById("switchTableForm").addEventListener('submit', (event) =>
         );
     }
     document.getElementById('popupChangeTable').style.display = 'none';
+    clearWindow();
 });
 
 function calcUnsavedChanges() {

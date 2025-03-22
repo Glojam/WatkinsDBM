@@ -43,6 +43,36 @@ function styleCell(cell, rowNum) {
     cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
 }
 
+function deleteAddedRows() {
+
+}
+
+function resetAllCellChanges() {
+    let table = document.getElementById("dataTable");
+    // Delete cell changes in top row
+    for (let i = 1; i < table.rows.length; i++) {
+        let row = table.rows[i];
+        if (row.getAttribute("buffer") === "true") { break; }
+        for (let j = 0; j < row.cells.length; j++) {
+            let cell = row.cells[j];
+            if (cell.getAttribute("changed") !== "true") { continue; }
+
+            let inputElement = cell.querySelector('input');
+            let innerVal;
+            if (inputElement) {
+                innerVal = inputElement.value;
+            } else {
+                innerVal = cell.innerHTML;
+            }
+
+            cell.setAttribute("ogInfo", innerVal);
+            cell.setAttribute("changed", false)
+            cell.classList.toggle("tabElementModified");
+        }
+    }
+    deleteAddedRows();
+}
+
 document.getElementById("searchButton").addEventListener("click", async () => {
     let numUnsavedChanged = calcUnsavedChanges()
     if (unsavedChanges) {
@@ -246,11 +276,12 @@ document.getElementById("updateButton").addEventListener("click", async () => {
             "Publish"
         );
     }
+    resetAllCellChanges();
 });
 
 document.getElementById("clearButton").addEventListener("click", async () => {
     let numUnsavedChanged = calcUnsavedChanges()
-    if (unsavedChanges) {
+    if (unsavedChanges || unsavedInsert) {
         let success = await window.electronAPI.showPrompt(
             "confirmation",
             `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,

@@ -113,7 +113,7 @@ function resetAllCellChanges() {
  */
 async function ignoreUnsavedChanges() {
     let numUnsavedChanged = calcUnsavedChanges()
-    if (unsavedChanges) {
+    if (unsavedChanges || unsavedInsert) {
         let success = await window.electronAPI.showPrompt(
             "confirmation",
             `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
@@ -383,6 +383,11 @@ document.getElementById("yellowsForm").addEventListener('submit', async (event) 
  * @param {any} value               Value to supply the cell
  */
 function createInnerHTMLforCell(cell, columnName, value) {
+    if (!value && columnName) {
+        def = columnAssociations[currentWorkingTable].defaults[columnName];
+        value = def ? def : value;
+        // todo stupid breaks on teamrecord
+    }
 
     let makeSelector = (options) => {
         var selectList = document.createElement("select");
@@ -413,22 +418,22 @@ function createInnerHTMLforCell(cell, columnName, value) {
         inputElement.max = maxYear;
 
         cell.appendChild(inputElement);
-    } else if (columnName == "field" && value !== null) {
+    } else if (columnName == "field") {
         let options = ["H", "A"];
         makeSelector(options);
-    } else if (columnName == "outcome" && value !== null) {
+    } else if (columnName == "outcome") {
         let options = ["W", "L"];
         makeSelector(options);
-    } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award") && value !== null) {
+    } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award")) {
         let options = ["true", "false"];
         makeSelector(options);
-    } else if (columnName == "year" && value !== null) {
+    } else if (columnName == "year") {
         let options = ["1", "2", "3", "4"];
         makeSelector(options);
-    } else if (columnName == "division" && value !== null) {
-        let options = ["D1","D2", "D3", "D4"];
+    } else if (columnName == "division") {
+        let options = ["D1", "D2", "D3", "D4"];
         makeSelector(options);
-    } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name") && value !== null) {
+    } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name")) {
         cell.contentEditable = true;
         cell.innerHTML = value !== null ? value : "";
     } else {
@@ -687,7 +692,7 @@ async function addMoreRows() {
             } else {
                 innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
             }
-            newCell.innerHTML = (innerHTML !== undefined) ? innerHTML : '';
+            createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '')
 
             styleCell(newCell, r);
             newCell.contentEditable = true;
@@ -726,6 +731,42 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
     }
     document.getElementById('popupChangeTable').style.display = 'none';
     clearWindow();
+});
+
+// Linear Functions for getting additional data on file input
+// Show first step on file upload
+window.electronAPI.getMoreInputs(() => {
+    document.getElementById('popupField').style.display = 'block';
+})
+
+// Handle form submission on step 1
+document.getElementById("fieldForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
+    if (selectedOption) {
+        // TODO: Add Data to Table
+
+        // Go to next step
+        document.getElementById('popupField').style.display = 'none';
+        document.getElementById('popupHalfScore').style.display = 'block';
+    } else {
+        window.electronAPI.showPrompt(
+            "info",
+            "Please select an option.",
+            "",
+            "Field Choice"
+        );
+    }
+});
+
+// Handle form submission on step 2
+document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Go to next step
+    document.getElementById('popupHalfScore').style.display = 'none';
+    //document.getElementById('popupStarted').style.display = 'block';
 });
 
 /**

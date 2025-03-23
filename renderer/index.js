@@ -156,9 +156,224 @@ document.getElementById("halfScoreForm").addEventListener('submit', async (event
     event.preventDefault();
     // TODO: Add Data to Table
 
+    // Build form for next step
+    let startedForm = document.getElementById("startedForm");
+    let innerHTML = '<p>Y/N</p>';
+
+    const data = await window.electronAPI.getData("association", {});
+
+    data.recordsets[0].forEach(record => {
+        for (const [key, value] of Object.entries(record)) {
+            if (key == "first name"){
+                innerHTML += '<input type="checkbox" name="startedOption" value="yes">';
+                innerHTML += '<input type="checkbox" name="startedOption" value="no" checked>';
+                innerHTML += '<label>';
+                innerHTML += value + " ";
+            }
+            if (key == "last name"){
+                innerHTML += value;
+                innerHTML += '</label><br>';
+            }
+        }
+    });
+
+    innerHTML += '<br><button type="submit">Submit</button>'
+    startedForm.innerHTML = innerHTML;
+
     // Go to next step
     document.getElementById('popupHalfScore').style.display = 'none';
-    //document.getElementById('popupStarted').style.display = 'block';
+    document.getElementById('popupStarted').style.display = 'block';
+});
+
+// Handle form submission on step 3
+document.getElementById("startedForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Build form for next step
+    let motmForm = document.getElementById("motmForm");
+    let innerHTML = '';
+
+    const data = await window.electronAPI.getData("association", {});
+
+    data.recordsets[0].forEach(record => {
+        for (const [key, value] of Object.entries(record)) {
+            if (key == "first name"){
+                innerHTML += '<input type="radio" name="motmOption" value="motmWinner">';
+                innerHTML += '<label>';
+                innerHTML += value + " ";
+            }
+            if (key == "last name"){
+                innerHTML += value;
+                innerHTML += '</label><br>';
+            }
+        }
+    });
+
+    innerHTML += '<br><button type="submit">Submit</button>'
+    motmForm.innerHTML = innerHTML;
+
+    // Go to next step
+    document.getElementById('popupStarted').style.display = 'none';
+    document.getElementById('popupMOTM').style.display = 'block';
+});
+
+// Handle form submission on step 4
+document.getElementById("motmForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="motmOption"]:checked');
+    if (selectedOption) {
+        // TODO: Add Data to Table
+
+        // Build form for next step
+        let sportsmanForm = document.getElementById("sportsmanForm");
+        let innerHTML = '';
+
+        const data = await window.electronAPI.getData("association", {});
+
+        data.recordsets[0].forEach(record => {
+            for (const [key, value] of Object.entries(record)) {
+                if (key == "first name"){
+                    innerHTML += '<input type="radio" name="sportsmanOption" value="sportsmanWinner">';
+                    innerHTML += '<label>';
+                    innerHTML += value + " ";
+                }
+                if (key == "last name"){
+                    innerHTML += value;
+                    innerHTML += '</label><br>';
+                }
+            }
+        });
+
+        innerHTML += '<br><button type="submit">Submit</button>'
+        sportsmanForm.innerHTML = innerHTML;
+
+        // Go to next step
+        document.getElementById('popupMOTM').style.display = 'none';
+        document.getElementById('popupSportsman').style.display = 'block';
+    } else {
+        window.electronAPI.showPrompt(
+            "info",
+            "Please select an option.",
+            "",
+            "MOTM Choice"
+        );
+    }
+});
+
+// Handle form submission on step 5
+document.getElementById("sportsmanForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
+    if (selectedOption) {
+        // TODO: Add Data to Table
+
+        // Build form for next step
+        let shotsGoalForm = document.getElementById("shotsGoalForm");
+        let innerHTML = '';
+
+        const data = await window.electronAPI.getData("association", {});
+
+        data.recordsets[0].forEach(record => {
+            for (const [key, value] of Object.entries(record)) {
+                if (key == "first name"){
+                    innerHTML += '<label>';
+                    innerHTML += value + " ";
+                }
+                if (key == "last name"){
+                    innerHTML += value;
+                    innerHTML += '</label><input type="number" name="shotsGoal" value="0" min="0" max="99"><br>';
+                }
+            }
+        });
+
+        innerHTML += '<br><button type="submit">Submit</button>'
+        shotsGoalForm.innerHTML = innerHTML;
+
+        // Go to next step
+        document.getElementById('popupSportsman').style.display = 'none';
+        document.getElementById('popupShotsGoal').style.display = 'block';
+    } else {
+        window.electronAPI.showPrompt(
+            "info",
+            "Please select an option.",
+            "",
+            "Sportsmanship Choice"
+        );
+    }
+});
+
+// Handle form submission on step 6
+document.getElementById("shotsGoalForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Build form for next step
+    let yellowsForm = document.getElementById("yellowsForm");
+    let innerHTML = '';
+
+    const data = await window.electronAPI.getData("association", {});
+
+    data.recordsets[0].forEach(record => {
+        for (const [key, value] of Object.entries(record)) {
+            if (key == "first name"){
+                innerHTML += '<label>';
+                innerHTML += value + " ";
+            }
+            if (key == "last name"){
+                innerHTML += value;
+                innerHTML += '</label><input type="number" name="yellows" value="0" min="0" max="99"><br>';
+            }
+        }
+    });
+
+    innerHTML += '<br><button type="submit">Submit</button>'
+    yellowsForm.innerHTML = innerHTML;
+
+    // Go to next step
+    document.getElementById('popupShotsGoal').style.display = 'none';
+    document.getElementById('popupYellows').style.display = 'block';
+});
+
+// Handle form submission on step 7
+document.getElementById("yellowsForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Build form for next step
+    let redsForm = document.getElementById("redsForm");
+    let innerHTML = '';
+
+    const data = await window.electronAPI.getData("association", {});
+
+    data.recordsets[0].forEach(record => {
+        for (const [key, value] of Object.entries(record)) {
+            if (key == "first name"){
+                innerHTML += '<label>';
+                innerHTML += value + " ";
+            }
+            if (key == "last name"){
+                innerHTML += value;
+                innerHTML += '</label><input type="number" name="reds" value="0" min="0" max="99"><br>';
+            }
+        }
+    });
+
+    innerHTML += '<br><button type="submit">Submit</button>'
+    redsForm.innerHTML = innerHTML;
+
+    // Go to next step
+    document.getElementById('popupYellows').style.display = 'none';
+    document.getElementById('popupReds').style.display = 'block';
+});
+
+// Handle form submission on step 8
+document.getElementById("yellowsForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Close popup
+    document.getElementById('popupReds').style.display = 'none';
 });
 
 /**

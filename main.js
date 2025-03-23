@@ -1,7 +1,6 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const { buildMenu } = require('./menu')
-const sql = require('mssql')
 const fs = require('fs');
 const prompt = require('electron-prompt');
 const { bulkUpload, fetch, insert, update } = require('./sqlservice')

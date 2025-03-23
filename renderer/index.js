@@ -125,42 +125,6 @@ async function ignoreUnsavedChanges() {
     return true;
 }
 
-// Linear Functions for getting additional data on file input
-// Show first step on file upload
-window.electronAPI.getMoreInputs(() => {
-    document.getElementById('popupField').style.display = 'block';
-})
-
-// Handle form submission on step 1
-document.getElementById("fieldForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
-    if (selectedOption) {
-        // TODO: Add Data to Table
-
-        // Go to next step
-        document.getElementById('popupField').style.display = 'none';
-        document.getElementById('popupHalfScore').style.display = 'block';
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "Please select an option.",
-            "",
-            "Field Choice"
-        );
-    }
-});
-
-// Handle form submission on step 2
-document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to Table
-
-    // Go to next step
-    document.getElementById('popupHalfScore').style.display = 'none';
-    //document.getElementById('popupStarted').style.display = 'block';
-});
-
 /**
  * Sets HTML to be some kind of special input or selector if appropriate
  * @param {HTMLElement} cell        Cell element to modify
@@ -472,7 +436,7 @@ async function addMoreRows() {
             } else {
                 innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
             }
-            newCell.innerHTML = (innerHTML !== undefined) ? innerHTML : '';
+            createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '')
 
             styleCell(newCell, r);
             newCell.contentEditable = true;
@@ -511,6 +475,42 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
     }
     document.getElementById('popupChangeTable').style.display = 'none';
     clearWindow();
+});
+
+// Linear Functions for getting additional data on file input
+// Show first step on file upload
+window.electronAPI.getMoreInputs(() => {
+    document.getElementById('popupField').style.display = 'block';
+})
+
+// Handle form submission on step 1
+document.getElementById("fieldForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
+    if (selectedOption) {
+        // TODO: Add Data to Table
+
+        // Go to next step
+        document.getElementById('popupField').style.display = 'none';
+        document.getElementById('popupHalfScore').style.display = 'block';
+    } else {
+        window.electronAPI.showPrompt(
+            "info",
+            "Please select an option.",
+            "",
+            "Field Choice"
+        );
+    }
+});
+
+// Handle form submission on step 2
+document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Go to next step
+    document.getElementById('popupHalfScore').style.display = 'none';
+    //document.getElementById('popupStarted').style.display = 'block';
 });
 
 /**

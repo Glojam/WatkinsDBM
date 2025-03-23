@@ -10,6 +10,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-image: url("../resources/background.png");
+    background-size: cover;
     /* Prevents the body from scrolling */
 }
 
@@ -37,6 +39,7 @@ body {
     border: 0.2rem outset;
     border-spacing: 0;
     border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.7);
     margin: 0.5em;
     flex-grow: 1;
     /* Table takes the remaining space */

@@ -1,5 +1,6 @@
 const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
+const numberSelectorMax = 10000
 
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
@@ -97,6 +98,11 @@ function resetAllCellChanges() {
             cell.setAttribute("ogInfo", innerVal);
             cell.setAttribute("changed", false)
             cell.classList.toggle("tabElementModified");
+            if (inputElement) {
+                inputElement.classList.toggle("whiteTextForInput");
+            } else if (selectElement) {
+                selectElement.classList.toggle("whiteTextForInput");
+            }
         }
     }
     deleteAddedRows();
@@ -215,7 +221,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
         cell.appendChild(numberInput);
         numberInput.type = "number";
         numberInput.min = 0;
-        numberInput.max = 10000;
+        numberInput.max = numberSelectorMax;
         numberInput.step = 1;
         numberInput.value = value ? value : 0;
     }
@@ -276,6 +282,11 @@ document.getElementById("searchButton").addEventListener("click", async () => {
                 cell.setAttribute("changed", (cell.getAttribute("ogInfo") === innerVal) ? "false" : "true");
                 if (prevValue !== cell.getAttribute("changed")) {
                     cell.classList.toggle("tabElementModified");
+                    if (inputElement) {
+                        inputElement.classList.toggle("whiteTextForInput");
+                    } else if (selectElement) {
+                        selectElement.classList.toggle("whiteTextForInput");
+                    }
                 }
                 calcUnsavedChanges()
             })

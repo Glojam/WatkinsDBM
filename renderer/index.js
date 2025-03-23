@@ -84,9 +84,12 @@ function resetAllCellChanges() {
             if (cell.getAttribute("changed") !== "true") { continue; }
 
             let inputElement = cell.querySelector('input');
+            let selectElement = cell.querySelector('select')
             let innerVal;
             if (inputElement) {
                 innerVal = inputElement.value;
+            } else if (selectElement) {
+                innerVal = selectElement.value;
             } else {
                 innerVal = cell.innerHTML;
             }
@@ -117,11 +120,78 @@ async function ignoreUnsavedChanges() {
 }
 
 /**
+ * Sets HTML to be some kind of special input or selector if appropriate
+ * @param {HTMLElement} cell        Cell element to modify
+ * @param {string} columnName       Name of the data column
+ * @param {any} value               Value to supply the cell
+ */
+function createInnerHTMLforCell(cell, columnName, value) {
+
+    let makeSelector = (options) => {
+        var selectList = document.createElement("select");
+        cell.appendChild(selectList);
+
+        for (var i = 0; i < options.length; i++) {
+            var option = document.createElement("option");
+            option.value = options[i];
+            option.text = options[i];
+            selectList.appendChild(option);
+        }
+        valueString = String(value);
+        if (valueString) {
+            selectList.value = valueString;
+        }
+    }
+
+    if (columnName == "date" && value !== null) {
+        const date = new Date(value);
+
+        const dateString = date.toISOString().split('T')[0]
+ 
+        let inputElement = document.createElement('input');
+        inputElement.type = 'date';
+        inputElement.name = 'Date';
+        inputElement.value = dateString;
+        inputElement.min = minYear;
+        inputElement.max = maxYear;
+
+        cell.appendChild(inputElement);
+    } else if (columnName == "field" && value !== null) {
+        let options = ["H", "A"];
+        makeSelector(options);
+    } else if (columnName == "outcome" && value !== null) {
+        let options = ["W", "L"];
+        makeSelector(options);
+    } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award") && value !== null) {
+        let options = ["true", "false"];
+        makeSelector(options);
+    } else if (columnName == "year" && value !== null) {
+        let options = ["1", "2", "3", "4"];
+        makeSelector(options);
+    } else if (columnName == "division" && value !== null) {
+        let options = ["D1","D2", "D3", "D4"];
+        makeSelector(options);
+    } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name") && value !== null) {
+        cell.contentEditable = true;
+        cell.innerHTML = value !== null ? value : "";
+    } else {
+        let numberInput = document.createElement("input");
+        cell.appendChild(numberInput);
+        numberInput.type = "number";
+        numberInput.min = 0;
+        numberInput.max = 10000;
+        numberInput.step = 1;
+        numberInput.value = value ? value : 0;
+    }
+}
+
+/**
  * Performs SQL SELECT on the DB given the left panel search fields
  */
 document.getElementById("searchButton").addEventListener("click", async () => {
     let ignoreChanges = await ignoreUnsavedChanges();
     if (!ignoreChanges) { return; }
+
     showLoader();
     
     let args = {};
@@ -134,9 +204,11 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     
     clearWindow();
     addColumns();
+
     const data = await window.electronAPI.getData(currentWorkingTable, args);
-    console.log(data);
+
     hideLoader();
+
     if (!data) { return; } // Error msg is thrown on main side
     let add = 0;
     if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
@@ -151,29 +223,16 @@ document.getElementById("searchButton").addEventListener("click", async () => {
             if (i > numColumns) { continue; }
             let cell = newRow.insertCell(i);
 
-            if (key == "date" && value !== null) {
-                const date = new Date(value);
-
-                const dateString = date.toISOString().split('T')[0]
-
-                const inputElement = document.createElement('input');
-                inputElement.type = 'date';
-                inputElement.name = 'Date';
-                inputElement.value = dateString;
-                inputElement.min = minYear;
-                inputElement.max = maxYear;
-
-                cell.appendChild(inputElement);
-            } else {
-                cell.contentEditable = true;
-                cell.innerHTML = value !== null ? value : "";
-            }
+            createInnerHTMLforCell(cell, key, value)
 
             cell.addEventListener("input", () => {
                 let inputElement = cell.querySelector('input');
+                let selectElement = cell.querySelector('select');
                 let innerVal;
                 if (inputElement) {
                     innerVal = inputElement.value;
+                } else if (selectElement) {
+                    innerVal = selectElement.value;
                 } else {
                     innerVal = cell.innerHTML;
                 }
@@ -186,8 +245,11 @@ document.getElementById("searchButton").addEventListener("click", async () => {
             })
 
             let inputElement = cell.querySelector('input');
+            let selectElement = cell.querySelector('select');
             if (inputElement) {
                 cell.setAttribute("ogInfo", inputElement.value);
+            } else if (selectElement) {
+                cell.setAttribute("ogInfo", selectElement.value);
             } else {
                 cell.setAttribute("ogInfo", cell.innerHTML);
             }
@@ -239,8 +301,11 @@ document.getElementById("updateButton").addEventListener("click", async () => {
             // Check if the cell contains an input element
             let contents;
             let inputElement = cell.querySelector('input');
+            let selectElement = cell.querySelector('select');
             if (inputElement) {
                 contents = inputElement.value;
+            } else if (selectElement) {
+                contents = selectElement.value;
             } else {
                 contents = cell.innerHTML;
             }
@@ -269,8 +334,11 @@ document.getElementById("updateButton").addEventListener("click", async () => {
             let cell = row.cells[j];
             let contents;
             let inputElement = cell.querySelector('input');
+            let selectElement = cell.querySelector('select')
             if (inputElement) {
                 contents = inputElement.value;
+            } else if (selectElement) {
+                contents = selectElement.value;
             } else {
                 contents = cell.innerHTML;
             }
@@ -282,8 +350,6 @@ document.getElementById("updateButton").addEventListener("click", async () => {
         }
         addedRows.push(addedRow);
     }
-
-    console.log(addedRows);
 
     if (modifiedRows.length == 0 && addedRows.length == 0) {
         window.electronAPI.showPrompt(
@@ -419,8 +485,11 @@ function calcUnsavedChanges() {
             // Check if the cell contains an input element
             let contents;
             let inputElement = cell.querySelector('input');
+            let selectElement = cell.querySelector('select')
             if (inputElement) {
                 contents = inputElement.value;
+            } else if (selectElement) {
+                contents = selectElement.value;
             } else {
                 contents = cell.innerHTML;
             }

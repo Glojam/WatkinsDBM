@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     upload: () => ipcRenderer.invoke('upload-file'),
     sendExportToPDF: (html) => ipcRenderer.send('export-to-pdf', html),
     showPrompt: (type, message, hint, title) => ipcRenderer.invoke('show-message', type, message, hint, title),
+    getMoreInputs: (callback) => ipcRenderer.on('get-inputs', (_event, value) => callback(value)),
     onGetColumns: (callback) => ipcRenderer.on('get-cols', (_event, value) => callback(value)),
     onShowHelp: (callback) => ipcRenderer.on('show-help', (_event, value) => callback(value)),
     onExportToPDF: (callback) => ipcRenderer.on('export-to-pdf', callback),

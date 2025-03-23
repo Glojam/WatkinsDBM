@@ -116,6 +116,42 @@ async function ignoreUnsavedChanges() {
     return true;
 }
 
+// Linear Functions for getting additional data on file input
+// Show first step on file upload
+window.electronAPI.getMoreInputs(() => {
+    document.getElementById('popupField').style.display = 'block';
+})
+
+// Handle form submission on step 1
+document.getElementById("fieldForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
+    if (selectedOption) {
+        // TODO: Add Data to Table
+
+        // Go to next step
+        document.getElementById('popupField').style.display = 'none';
+        document.getElementById('popupHalfScore').style.display = 'block';
+    } else {
+        window.electronAPI.showPrompt(
+            "info",
+            "Please select an option.",
+            "",
+            "Field Choice"
+        );
+    }
+});
+
+// Handle form submission on step 2
+document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // TODO: Add Data to Table
+
+    // Go to next step
+    document.getElementById('popupHalfScore').style.display = 'none';
+    //document.getElementById('popupStarted').style.display = 'block';
+});
+
 /**
  * Performs SQL SELECT on the DB given the left panel search fields
  */

@@ -27,7 +27,10 @@ exports.buildMenu = (window, upload) => {
         {
           role: 'Import Files',
           label: 'Import Files',
-          click: () => upload(),
+          click: () => {
+            upload(); 
+            window.webContents.send('get-inputs');
+          },
         },
         { // TODO (possibly)
           role: 'Export Selection',

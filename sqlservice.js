@@ -189,6 +189,8 @@ exports.bulkUpload = () => {
         var opponentMatch = fileName.match(/^WMHS vs (.+)\.txt$/);
         var finalOutcome;
         var markerOutcome = 'M'
+        var totalShots = 0;
+        var totalShotsOpp = 0;
         for await (const line of rl) {
             //updates player table
             const fields = line.split('|').map((f) => f.trim());
@@ -201,13 +203,17 @@ exports.bulkUpload = () => {
                 continue;
             }
 
-            const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst] = fields.map(Number);
+            const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst, Saves] = fields.map(Number);
             if (!isNaN(Goals)){
-
+                
                 var Points = (Goals * 2) + Assists;
                 finalScore += Goals;
                 finalScoreOpp +=GoalsAgainst;
                 var Played;
+                totalShots += Shots;
+                totalShotsOpp += Saves;
+                totalShotsOpp += GoalsAgainst;
+                console.log(totalShotsOpp);
                 if(MinutesPlayed != 0){
                     Played = 1;
                 }
@@ -248,7 +254,7 @@ exports.bulkUpload = () => {
                     .input('Goals', sql.Int, Goals)
                     .input('Assists', sql.Int, Assists)
                     .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input('MinutesPlayed', sql.Int, MinutesPlayed)     
                     .input('Points', sql.Int, Points)
                     .input('Played', sql.Int, Played)
                     .query(`
@@ -335,7 +341,27 @@ exports.bulkUpload = () => {
                     'message': 'Query failed: An internal server error occured.'
                 });
             }
-
+            //update teamRecord
+            try {
+                await pool.request()
+                    .input('FinalScore', sql.Int, finalScore)
+                    .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+                    .input('FinalOutcome', sql.Char, finalOutcome)
+                    .input('OpponentMatch',sql.VarChar,opponentMatch[1])
+                    .input('TotalShots', sql.Int, totalShots)
+                    .input('TotalShotsOpp', sql.Int, totalShotsOpp)
+                    .query(`
+                        INSERT INTO teamRecord (opponent, outcome, "final score", "final score opponent", "shots for", date, "shots against")
+                        VALUES (@OpponentMatch, @FinalOutcome, @FinalScore, @FinalScoreOpp,@TotalShots, GETDATE(), @TotalShotsOpp)
+                    `);
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
 
         console.log('Upload complete.');
         dialog.showMessageBox(null, { message: 'File upload successful.' });

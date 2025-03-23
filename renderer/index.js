@@ -113,7 +113,7 @@ function resetAllCellChanges() {
  */
 async function ignoreUnsavedChanges() {
     let numUnsavedChanged = calcUnsavedChanges()
-    if (unsavedChanges) {
+    if (unsavedChanges || unsavedInsert) {
         let success = await window.electronAPI.showPrompt(
             "confirmation",
             `You have ${numUnsavedChanged} unsaved change${numUnsavedChanged == 1 ? "" : "s"} that will be cleared. Continue?`,
@@ -132,6 +132,11 @@ async function ignoreUnsavedChanges() {
  * @param {any} value               Value to supply the cell
  */
 function createInnerHTMLforCell(cell, columnName, value) {
+    if (!value && columnName) {
+        def = columnAssociations[currentWorkingTable].defaults[columnName];
+        value = def ? def : value;
+        // todo stupid breaks on teamrecord
+    }
 
     let makeSelector = (options) => {
         var selectList = document.createElement("select");
@@ -162,22 +167,22 @@ function createInnerHTMLforCell(cell, columnName, value) {
         inputElement.max = maxYear;
 
         cell.appendChild(inputElement);
-    } else if (columnName == "field" && value !== null) {
+    } else if (columnName == "field") {
         let options = ["H", "A"];
         makeSelector(options);
-    } else if (columnName == "outcome" && value !== null) {
+    } else if (columnName == "outcome") {
         let options = ["W", "L"];
         makeSelector(options);
-    } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award") && value !== null) {
+    } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award")) {
         let options = ["true", "false"];
         makeSelector(options);
-    } else if (columnName == "year" && value !== null) {
+    } else if (columnName == "year") {
         let options = ["1", "2", "3", "4"];
         makeSelector(options);
-    } else if (columnName == "division" && value !== null) {
-        let options = ["D1","D2", "D3", "D4"];
+    } else if (columnName == "division") {
+        let options = ["D1", "D2", "D3", "D4"];
         makeSelector(options);
-    } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name") && value !== null) {
+    } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name")) {
         cell.contentEditable = true;
         cell.innerHTML = value !== null ? value : "";
     } else {

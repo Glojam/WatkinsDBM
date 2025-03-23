@@ -39,7 +39,7 @@ body {
     border: 0.2rem outset;
     border-spacing: 0;
     border-collapse: collapse;
-    background: rgba(255, 255, 255, 0.7);
+    background: white;
     margin: 0.5em;
     flex-grow: 1;
     /* Table takes the remaining space */

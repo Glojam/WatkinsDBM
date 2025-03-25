@@ -282,7 +282,7 @@ exports.bulkUpload = () => {
                     .input('Played', sql.Int, Played)
                     .query(`
                         MERGE INTO playersTotal AS target
-                        USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, 2025)) 
+                        USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, YEAR(GETDATE()))) 
                         AS source (jersey, goals, minutes, points, assists, shots, played, season)
                         ON target.jersey = source.jersey AND target.season = source.season
                         WHEN MATCHED THEN
@@ -295,7 +295,7 @@ exports.bulkUpload = () => {
                                 target.shots = target.shots + source.shots
                         WHEN NOT MATCHED THEN
                             INSERT (jersey, season, [games played], points, goals, assists, shots, minutes)
-                            VALUES (source.jersey, 2025, source.played, source.points, source.goals, source.assists, source.shots, source.minutes);
+                            VALUES (source.jersey, YEAR(GETDATE()), source.played, source.points, source.goals, source.assists, source.shots, source.minutes);
                     `);
             
                 console.log(`Inserted/Updated: Jersey #${Jersey}`);

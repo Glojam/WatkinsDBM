@@ -329,22 +329,6 @@ exports.bulkUpload = () => {
                             VALUES (source.jersey, YEAR(GETDATE()), source.played, source.minutes, source.goalsAgainst, source.goalsAgainst, source.saves, source.saves, source.shutouts);
                     END
                 `);
-                    //correct merge for players
-            /*                        MERGE INTO playersTotal AS target
-                        USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, YEAR(GETDATE()))) 
-                        AS source (jersey, goals, minutes, points, assists, shots, played, season)
-                        ON target.jersey = source.jersey AND target.season = source.season
-                        WHEN MATCHED THEN
-                            UPDATE SET 
-                                target.[games played] = target.[games played] + source.played,
-                                target.minutes = target.minutes + source.minutes,
-                                target.points = target.points + source.points,
-                                target.goals = target.goals + source.goals,
-                                target.assists = target.assists + source.assists,
-                                target.shots = target.shots + source.shots
-                        WHEN NOT MATCHED THEN
-                            INSERT (jersey, season, [games played], points, goals, assists, shots, minutes)
-                            VALUES (source.jersey, YEAR(GETDATE()), source.played, source.points, source.goals, source.assists, source.shots, source.minutes);*/
 
                 console.log(`Inserted/Updated: Jersey #${Jersey}`);
             } catch (err) {

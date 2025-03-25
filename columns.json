@@ -43,8 +43,8 @@
     "association": {
         "name": "Associations",
         "primary_keys": ["jersey", "season"],
-        "columns": ["jersey", "first name", "last name", "year", "season"],
-        "display_names": ["Jersey", "First Name", "Last Name", "Year", "Season"],
+        "columns": ["jersey", "first name", "last name", "year", "season", "position"],
+        "display_names": ["Jersey", "First Name", "Last Name", "Year", "Season", "Position"],
         "defaults": {"jersey": 0, "season": 2025}
     }
 }

@@ -203,7 +203,7 @@ exports.bulkUpload = () => {
                 continue;
             }
 
-            const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst, Saves] = fields.map(Number);
+            const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst, Saves, ShutOuts] = fields.map(Number);
             if (!isNaN(Goals)){
                 
                 var Points = (Goals * 2) + Assists;
@@ -223,21 +223,44 @@ exports.bulkUpload = () => {
             }
             try {
                 await pool.request()
-                    .input('Jersey', sql.Int, Jersey)
-                    .input('Goals', sql.Int, Goals)
-                    .input('Assists', sql.Int, Assists)
-                    .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
-                    .input('Points', sql.Int, Points)
-                    .input('Played', sql.Int, Played)
-                    .input('MarkerScore', sql.Int, MarkerScore)
-                    .input('OpponentMatch',sql.VarChar,opponentMatch[1])
-                    .input('MarkerOutcome',sql.Char, markerOutcome)
-                    .query(`
-                        INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent",opponent, outcome, date)
-                        VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE())
-                    `);
-
+                .input('Jersey', sql.Int, Jersey)
+                .input('Goals', sql.Int, Goals)
+                .input('Assists', sql.Int, Assists)
+                .input('Shots', sql.Int, Shots)
+                .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                .input('Points', sql.Int, Points)
+                .input('Played', sql.Int, Played)
+                .input('MarkerScore', sql.Int, MarkerScore)
+                .input('OpponentMatch', sql.VarChar, opponentMatch[1])
+                .input('MarkerOutcome', sql.Char, markerOutcome)
+                .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                .input('Saves', sql.Int, Saves)
+                .input('ShutOuts', sql.Int, ShutOuts)
+                .query(`
+                    -- Insert into goalkeepers if position is 'g'
+                    WITH PositionData AS (
+                        SELECT position
+                        FROM association
+                        WHERE jersey = @Jersey
+                    )
+                    INSERT INTO goalkeepers (jersey, minutes, played, "final score", "final score opponent", opponent, outcome, date, "goals against", saves, shutouts)
+                    SELECT @Jersey, @MinutesPlayed, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE(), @GoalsAgainst, @Saves, @ShutOuts
+                    FROM PositionData
+                    WHERE position = 'g';
+            
+                    -- Insert into players if position is not 'g'
+                    WITH PositionData AS (
+                        SELECT position
+                        FROM association
+                        WHERE jersey = @Jersey
+                    )
+                    INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent", opponent, outcome, date)
+                    SELECT @Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE()
+                    FROM PositionData
+                    WHERE position <> 'g';
+                `);
+                    //INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent",opponent, outcome, date)
+                    //VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE())
                 console.log(`Inserted: Jersey #${Jersey}`);
             } catch (err) {
                 dialog.showMessageBox(null, {

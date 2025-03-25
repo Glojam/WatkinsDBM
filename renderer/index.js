@@ -436,6 +436,9 @@ function createInnerHTMLforCell(cell, columnName, value) {
     } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name")) {
         cell.contentEditable = true;
         cell.innerHTML = value !== null ? value : "";
+    } else if (columnName == "position") {
+        let options = ["F", "M", "D", "G"];
+        makeSelector(options);
     } else {
         let numberInput = document.createElement("input");
         cell.appendChild(numberInput);

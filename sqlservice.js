@@ -323,7 +323,17 @@ exports.bulkUpload = () => {
                                 target.minutes = target.minutes + source.minutes,
                                 target.[goals against] = target.[goals against] + source.goalsAgainst,
                                 target.saves = target.saves + source.saves,
-                                target.shutouts = target.shutouts + source.shutouts
+                                target.shutouts = target.shutouts + source.shutouts,
+                                target.[goals against average] = 
+                                    CASE 
+                                        WHEN (target.[games played] + source.played) = 0 THEN 0
+                                        ELSE (target.[goals against] + source.goalsAgainst) / (target.[games played] + source.played)
+                                    END,
+                                target.[saves average] = 
+                                    CASE 
+                                        WHEN (target.[games played] + source.played) = 0 THEN 0
+                                        ELSE (target.saves + source.saves) / (target.[games played] + source.played)
+                                    END
                         WHEN NOT MATCHED THEN
                             INSERT (jersey, season, [games played], minutes, [goals against], [goals against average], saves, [saves average], shutouts)
                             VALUES (source.jersey, YEAR(GETDATE()), source.played, source.minutes, source.goalsAgainst, source.goalsAgainst, source.saves, source.saves, source.shutouts);

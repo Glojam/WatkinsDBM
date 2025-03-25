@@ -859,6 +859,17 @@ window.electronAPI.onShowHelp(() => {
 window.electronAPI.onExportToPDF(() => {
     // Extract table HTML & send to main process
     const tableElement = document.querySelector("#dataTable");
-    const tableHTML = tableElement.outerHTML;
+
+    // Convert all input fields to their displayed values
+    const clonedTable = tableElement.cloneNode(true);
+    clonedTable.querySelectorAll("td").forEach(td => {
+        const oginfoValue = td.getAttribute("oginfo");
+        if (oginfoValue !== null) {
+            td.textContent = oginfoValue;  // Replace inner content with oginfo value
+        }
+    });
+
+    // Get HTML and send to main
+    const tableHTML = clonedTable.outerHTML;
     window.electronAPI.sendExportToPDF(tableHTML);
 });

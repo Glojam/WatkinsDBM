@@ -102,7 +102,7 @@ ipcMain.on('export-to-pdf', async (event, tableHTML) => {
             landscape: true,
             marginsType: 1,
             printBackground: true,
-            pageSize: { width: 12, height: 17 }
+            pageSize: { width: 12, height: 20 }
         }).then(data => {
             fs.writeFile(pdfPath.filePath, data, (err) => {
                 if (err) {

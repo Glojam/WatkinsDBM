@@ -364,6 +364,51 @@ exports.bulkUpload = () => {
                     'message': 'Query failed: An internal server error occured.'
                 });
             }
+            try {
+                await pool.request()
+                    .input('FinalScore', sql.Int, finalScore)
+                    .query(`
+                        UPDATE goalkeepers
+                        SET "final score" = @FinalScore WHERE "final score" = 9999;
+                    `);
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
+            try {
+                await pool.request()
+                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+                .query(`
+                    UPDATE goalkeepers
+                    SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
+                    `)
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
+            try {
+                await pool.request()
+                .input('FinalOutcome', sql.Char, finalOutcome)
+                .query(`
+                    UPDATE goalkeepers
+                    SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
+                    `)
+            } catch (err) {
+                dialog.showMessageBox(null, {
+                    'type': 'error',
+                    'detail': err.toString(),
+                    'title': 'SQL Error',
+                    'message': 'Query failed: An internal server error occured.'
+                });
+            }
             //update teamRecord
             try {
                 await pool.request()

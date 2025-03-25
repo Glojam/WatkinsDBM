@@ -259,8 +259,6 @@ exports.bulkUpload = () => {
                     FROM PositionData
                     WHERE position <> 'g';
                 `);
-                    //INSERT INTO Players (jersey, goals, assists, shots, minutes, points, played, "final score", "final score opponent",opponent, outcome, date)
-                    //VALUES (@Jersey, @Goals, @Assists, @Shots, @MinutesPlayed, @Points, @Played, @MarkerScore, @MarkerScore, @OpponentMatch, @MarkerOutcome, GETDATE())
                 console.log(`Inserted: Jersey #${Jersey}`);
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -273,14 +271,28 @@ exports.bulkUpload = () => {
             //updates playersTotal table
             try {
                 await pool.request()
-                    .input('Jersey', sql.Int, Jersey)
-                    .input('Goals', sql.Int, Goals)
-                    .input('Assists', sql.Int, Assists)
-                    .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)     
-                    .input('Points', sql.Int, Points)
-                    .input('Played', sql.Int, Played)
-                    .query(`
+                .input('Jersey', sql.Int, Jersey)
+                .input('Goals', sql.Int, Goals)
+                .input('Assists', sql.Int, Assists)
+                .input('Shots', sql.Int, Shots)
+                .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                .input('Points', sql.Int, Points)
+                .input('Played', sql.Int, Played)
+                .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                .input('Saves', sql.Int, Saves)
+                .input('ShutOuts', sql.Int, ShutOuts)
+                .query(`
+                    -- First, check the player's position
+                    DECLARE @Position VARCHAR(10);
+            
+                    -- Get the position for the given jersey
+                    SELECT @Position = position
+                    FROM association
+                    WHERE jersey = @Jersey;
+            
+                    -- Conditional MERGE for PlayersTotal (if position is not 'g')
+                    IF @Position <> 'g'
+                    BEGIN
                         MERGE INTO playersTotal AS target
                         USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, YEAR(GETDATE()))) 
                         AS source (jersey, goals, minutes, points, assists, shots, played, season)
@@ -296,8 +308,38 @@ exports.bulkUpload = () => {
                         WHEN NOT MATCHED THEN
                             INSERT (jersey, season, [games played], points, goals, assists, shots, minutes)
                             VALUES (source.jersey, YEAR(GETDATE()), source.played, source.points, source.goals, source.assists, source.shots, source.minutes);
-                    `);
+                    END
             
+                    -- Conditional MERGE for GoalkeepersTotal (if position is 'g')
+                    IF @Position = 'g'
+                    BEGIN
+                        MERGE INTO goalkeeperstotal AS target
+                        USING (VALUES (@Jersey, @Goals, @MinutesPlayed, @Points, @Assists, @Shots, @Played, YEAR(GETDATE()), @GoalsAgainst, @Saves, @ShutOuts)) 
+                        AS source (jersey, goals, minutes, points, assists, shots, played, season, goalsAgainst, saves, shutouts)
+                        ON target.jersey = source.jersey AND target.season = source.season
+                        WHEN MATCHED THEN
+                            UPDATE SET 
+                                target.[games played] = target.[games played] + source.played,
+                                target.minutes = target.minutes + source.minutes,
+                                target.[goals against] = target.[goals against] + source.goalsAgainst,
+                                target.saves = target.saves + source.saves,
+                                target.shutouts = target.shutouts + source.shutouts,
+                                target.[goals against average] = 
+                                    CASE 
+                                        WHEN (target.[games played] + source.played) = 0 THEN 0
+                                        ELSE (target.[goals against] + source.goalsAgainst) / (target.[games played] + source.played)
+                                    END,
+                                target.[saves average] = 
+                                    CASE 
+                                        WHEN (target.[games played] + source.played) = 0 THEN 0
+                                        ELSE (target.saves + source.saves) / (target.[games played] + source.played)
+                                    END
+                        WHEN NOT MATCHED THEN
+                            INSERT (jersey, season, [games played], minutes, [goals against], [goals against average], saves, [saves average], shutouts)
+                            VALUES (source.jersey, YEAR(GETDATE()), source.played, source.minutes, source.goalsAgainst, source.goalsAgainst, source.saves, source.saves, source.shutouts);
+                    END
+                `);
+
                 console.log(`Inserted/Updated: Jersey #${Jersey}`);
             } catch (err) {
                 dialog.showMessageBox(null, {

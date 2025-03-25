@@ -183,6 +183,10 @@ button:active {
     }
 }
 
+h3{
+    text-align: center;
+}
+
 .popup {
     display: none;
     /* Hidden by default */
@@ -193,16 +197,16 @@ button:active {
     max-height: 20em;
     margin-right: -50%;
     margin-top: -10%;
-    overflow: auto;
+    overflow-y: auto;
     /* Enable scroll if needed */
+    overflow-x: hidden;
     background-color: rgba(204, 204, 204);
 }
 
-.popupContent {
-    margin: 15% auto;
+.popup-content {
     padding: 20px;
     border: 1px solid #888;
-    width: 500px;
+    min-width: 16em;
     border-radius: 5px;
 }
 

@@ -168,7 +168,7 @@ document.getElementById("halfScoreForm").addEventListener('submit', async (event
                 innerHTML += '<input type="checkbox" name="startedOption" value="yes">';
                 innerHTML += '<input type="checkbox" name="startedOption" value="no" checked>';
                 innerHTML += '<label>';
-                innerHTML += value + " ";
+                innerHTML += "  " + value + " ";
             }
             if (key == "last name"){
                 innerHTML += value;
@@ -201,7 +201,7 @@ document.getElementById("startedForm").addEventListener('submit', async (event) 
             if (key == "first name"){
                 innerHTML += '<input type="radio" name="motmOption" value="motmWinner">';
                 innerHTML += '<label>';
-                innerHTML += value + " ";
+                innerHTML += "  " + value + " ";
             }
             if (key == "last name"){
                 innerHTML += value;
@@ -236,7 +236,7 @@ document.getElementById("motmForm").addEventListener('submit', async (event) => 
                 if (key == "first name"){
                     innerHTML += '<input type="radio" name="sportsmanOption" value="sportsmanWinner">';
                     innerHTML += '<label>';
-                    innerHTML += value + " ";
+                    innerHTML += "  " + value + " ";
                 }
                 if (key == "last name"){
                     innerHTML += value;
@@ -317,12 +317,13 @@ document.getElementById("shotsGoalForm").addEventListener('submit', async (event
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){
+                innerHTML += '<input type="checkbox" name="yellows" value="yes">';
                 innerHTML += '<label>';
-                innerHTML += value + " ";
+                innerHTML += "  " + value + " ";
             }
             if (key == "last name"){
                 innerHTML += value;
-                innerHTML += '</label><input type="number" name="yellows" value="0" min="0" max="99"><br>';
+                innerHTML += '</label><br>';
             }
         }
     });
@@ -349,12 +350,13 @@ document.getElementById("yellowsForm").addEventListener('submit', async (event) 
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){
+                innerHTML += '<input type="checkbox" name="reds" value="yes">';
                 innerHTML += '<label>';
-                innerHTML += value + " ";
+                innerHTML += "  " + value + " ";
             }
             if (key == "last name"){
                 innerHTML += value;
-                innerHTML += '</label><input type="number" name="reds" value="0" min="0" max="99"><br>';
+                innerHTML += '</label><br>';
             }
         }
     });

@@ -876,6 +876,12 @@ function clearWindow() {
     while (topRow.cells.length > 1) { topRow.deleteCell(0); }
     topRow.cells[0].innerHTML = "No selection."
     unsavedInsert = false;
+    document.getElementById("firstName").value = '';
+    document.getElementById("lastName").value = '';
+    document.getElementById("teamYear").value = '';
+    document.getElementById("opponent").value = '';
+    document.getElementById("division").value = '';
+    document.getElementById("position").value = '';
     calcUnsavedChanges() // Always happens in tandem
 }
 

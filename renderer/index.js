@@ -468,9 +468,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
     }
 
     if (columnName == "date" && value !== null) {
-        const date = new Date(value);
-
-        const dateString = date.toISOString().split('T')[0]
+        const dateString = (new Date(value)).toISOString().split('T')[0]
  
         let inputElement = document.createElement('input');
         inputElement.type = 'date';
@@ -481,26 +479,20 @@ function createInnerHTMLforCell(cell, columnName, value) {
 
         cell.appendChild(inputElement);
     } else if (columnName == "field") {
-        let options = ["H", "A"];
-        makeSelector(options);
+        makeSelector(["H", "A"]);
     } else if (columnName == "outcome") {
-        let options = ["W", "L"];
-        makeSelector(options);
+        makeSelector(["W", "L"]);
     } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award")) {
-        let options = ["true", "false"];
-        makeSelector(options);
+        makeSelector(["true", "false"]);
     } else if (columnName == "year") {
-        let options = ["1", "2", "3", "4"];
-        makeSelector(options);
+        makeSelector(["1", "2", "3", "4"]);
     } else if (columnName == "division") {
-        let options = ["D1", "D2", "D3", "D4"];
-        makeSelector(options);
+        makeSelector(["D1", "D2", "D3", "D4"]);
+    } else if (columnName == "position") {
+        makeSelector(["F", "M", "D", "G"]);
     } else if ((columnName == "opponent" || columnName == "first name" || columnName == "last name")) {
         cell.contentEditable = true;
         cell.innerHTML = value !== null ? value : "";
-    } else if (columnName == "position") {
-        let options = ["F", "M", "D", "G"];
-        makeSelector(options);
     } else {
         let numberInput = document.createElement("input");
         cell.appendChild(numberInput);

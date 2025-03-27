@@ -70,8 +70,12 @@ function deleteAddedRows() {
         if (row.getAttribute("buffer") === "true") { break; }
         table.deleteRow(i-1);
     }
-    bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
-    document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
+    if (columnAssociations[currentWorkingTable].addable) {
+        bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+        document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
+    }
+    unsavedInsert = false;
+    calcUnsavedChanges();
 }
 
 /**
@@ -594,9 +598,11 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     });
 
     bufferRow = table.insertRow(-1);
-    bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
     bufferRow.setAttribute("buffer", "true");
-    document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
+    if (columnAssociations[currentWorkingTable].addable) {
+        bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+        document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
+    }
 });
 
 /**

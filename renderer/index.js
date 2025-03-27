@@ -136,7 +136,9 @@ document.getElementById("fieldForm").addEventListener('submit', async (event) =>
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
     if (selectedOption) {
-        // TODO: Add Data to Table
+        // TODO: Add Data to SQL Table
+        let fieldChoice = selectedOption.value;
+        console.log(fieldChoice);
 
         // Go to next step
         document.getElementById('popupField').style.display = 'none';
@@ -154,28 +156,33 @@ document.getElementById("fieldForm").addEventListener('submit', async (event) =>
 // Handle form submission on step 2
 document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
     event.preventDefault();
-    // TODO: Add Data to Table
+    // TODO: Add Data to SQL Table
+    const watkinsHalf = document.querySelector('input[name="watkinsHalfScore"]').value;
+    const opponentHalf = document.querySelector('input[name="opponentHalfScore"]').value;
+    console.log(watkinsHalf + "-" + opponentHalf);
 
     // Build form for next step
     let startedForm = document.getElementById("startedForm");
     let innerHTML = '<p>Y/N</p>';
+    let firstNames = [];
+    let lastNames = [];
 
     const data = await window.electronAPI.getData("association", {});
 
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){
-                innerHTML += '<input type="checkbox" name="startedOption" value="yes">';
-                innerHTML += '<input type="checkbox" name="startedOption" value="no" checked>';
-                innerHTML += '<label>';
-                innerHTML += "  " + value + " ";
-            }
-            if (key == "last name"){
-                innerHTML += value;
-                innerHTML += '</label><br>';
-            }
+            if (key == "first name"){ firstNames.push(value); }
+            if (key == "last name"){ lastNames.push(value); }
         }
     });
+
+    for (let i = 0; i < firstNames.length; i++){
+        innerHTML += '<input type="checkbox" name="startedOption" value="yes' + lastNames[i] + '">';
+        innerHTML += '<input type="checkbox" name="startedOption" value="no' + lastNames[i] + '" checked>';
+        innerHTML += '<label>';
+        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
+        innerHTML += '</label><br>';
+    }
 
     innerHTML += '<br><button type="submit">Submit</button>'
     startedForm.innerHTML = innerHTML;
@@ -188,27 +195,35 @@ document.getElementById("halfScoreForm").addEventListener('submit', async (event
 // Handle form submission on step 3
 document.getElementById("startedForm").addEventListener('submit', async (event) => {
     event.preventDefault();
-    // TODO: Add Data to Table
+    // TODO: Add Data to SQL Table
+    const startedCheckedBoxes = document.querySelectorAll('input[name="startedOption"]:checked');
+    let checkedBoxesArr = [];
+    startedCheckedBoxes.forEach(checkBox => {
+        checkedBoxesArr.push(checkBox.value);
+        console.log(checkBox.value);
+    });
 
     // Build form for next step
     let motmForm = document.getElementById("motmForm");
     let innerHTML = '';
+    let firstNames = [];
+    let lastNames = [];
 
     const data = await window.electronAPI.getData("association", {});
 
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){
-                innerHTML += '<input type="radio" name="motmOption" value="motmWinner">';
-                innerHTML += '<label>';
-                innerHTML += "  " + value + " ";
-            }
-            if (key == "last name"){
-                innerHTML += value;
-                innerHTML += '</label><br>';
-            }
+            if (key == "first name"){ firstNames.push(value); }
+            if (key == "last name"){ lastNames.push(value); }
         }
     });
+
+    for (let i = 0; i < firstNames.length; i++){
+        innerHTML += '<input type="radio" name="motmOption" value="' + lastNames[i] + '">';
+        innerHTML += '<label>';
+        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
+        innerHTML += '</label><br>';
+    }
 
     innerHTML += '<br><button type="submit">Submit</button>'
     motmForm.innerHTML = innerHTML;
@@ -223,27 +238,31 @@ document.getElementById("motmForm").addEventListener('submit', async (event) => 
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="motmOption"]:checked');
     if (selectedOption) {
-        // TODO: Add Data to Table
+        // TODO: Add Data to SQL Table
+        let motmWinner = selectedOption.value;
+        console.log(motmWinner);
 
         // Build form for next step
         let sportsmanForm = document.getElementById("sportsmanForm");
         let innerHTML = '';
-
+        let firstNames = [];
+        let lastNames = [];
+    
         const data = await window.electronAPI.getData("association", {});
-
+    
         data.recordsets[0].forEach(record => {
             for (const [key, value] of Object.entries(record)) {
-                if (key == "first name"){
-                    innerHTML += '<input type="radio" name="sportsmanOption" value="sportsmanWinner">';
-                    innerHTML += '<label>';
-                    innerHTML += "  " + value + " ";
-                }
-                if (key == "last name"){
-                    innerHTML += value;
-                    innerHTML += '</label><br>';
-                }
+                if (key == "first name"){ firstNames.push(value); }
+                if (key == "last name"){ lastNames.push(value); }
             }
         });
+    
+        for (let i = 0; i < firstNames.length; i++){
+            innerHTML += '<input type="radio" name="sportsmanOption" value="' + lastNames[i] + '">';
+            innerHTML += '<label>';
+            innerHTML += "  " + firstNames[i] + " " + lastNames[i];
+            innerHTML += '</label><br>';
+        }
 
         innerHTML += '<br><button type="submit">Submit</button>'
         sportsmanForm.innerHTML = innerHTML;
@@ -266,26 +285,30 @@ document.getElementById("sportsmanForm").addEventListener('submit', async (event
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
     if (selectedOption) {
-        // TODO: Add Data to Table
+        // TODO: Add Data to SQL Table
+        let sportsmanWinner = selectedOption.value;
+        console.log(sportsmanWinner);
 
         // Build form for next step
         let shotsGoalForm = document.getElementById("shotsGoalForm");
         let innerHTML = '';
-
+        let firstNames = [];
+        let lastNames = [];
+    
         const data = await window.electronAPI.getData("association", {});
-
+    
         data.recordsets[0].forEach(record => {
             for (const [key, value] of Object.entries(record)) {
-                if (key == "first name"){
-                    innerHTML += '<label>';
-                    innerHTML += value + " ";
-                }
-                if (key == "last name"){
-                    innerHTML += value;
-                    innerHTML += '</label><input type="number" name="shotsGoal" value="0" min="0" max="99"><br>';
-                }
+                if (key == "first name"){ firstNames.push(value); }
+                if (key == "last name"){ lastNames.push(value); }
             }
         });
+    
+        for (let i = 0; i < firstNames.length; i++){
+            innerHTML += '<label>';
+            innerHTML += firstNames[i] + " " + lastNames[i];
+            innerHTML += '</label><input type="number" name="shotsGoal' + lastNames[i] + '" value="0" min="0" max="99"><br>';
+        }
 
         innerHTML += '<br><button type="submit">Submit</button>'
         shotsGoalForm.innerHTML = innerHTML;
@@ -306,27 +329,35 @@ document.getElementById("sportsmanForm").addEventListener('submit', async (event
 // Handle form submission on step 6
 document.getElementById("shotsGoalForm").addEventListener('submit', async (event) => {
     event.preventDefault();
-    // TODO: Add Data to Table
+    // TODO: Add Data to SQL Table
+    let firstNames = [];
+    let lastNames = [];
+    let shotsGoalArr = [];
+    
+    const data = await window.electronAPI.getData("association", {});
+    
+    data.recordsets[0].forEach(record => {
+        for (const [key, value] of Object.entries(record)) {
+            if (key == "first name"){ firstNames.push(value); }
+            if (key == "last name"){ lastNames.push(value); }
+        }
+    });
+
+    lastNames.forEach(name => {
+        shotsGoalArr.push(document.querySelector('input[name="shotsGoal' + name + '"]').value);
+        console.log(name + ": " + document.querySelector('input[name="shotsGoal' + name + '"]').value);
+    });
 
     // Build form for next step
     let yellowsForm = document.getElementById("yellowsForm");
     let innerHTML = '';
 
-    const data = await window.electronAPI.getData("association", {});
-
-    data.recordsets[0].forEach(record => {
-        for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){
-                innerHTML += '<input type="checkbox" name="yellows" value="yes">';
-                innerHTML += '<label>';
-                innerHTML += "  " + value + " ";
-            }
-            if (key == "last name"){
-                innerHTML += value;
-                innerHTML += '</label><br>';
-            }
-        }
-    });
+    for (let i = 0; i < firstNames.length; i++){
+        innerHTML += '<input type="checkbox" name="yellows" value="' + lastNames[i] + '">';
+        innerHTML += '<label>';
+        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
+        innerHTML += '</label><br>';
+    }
 
     innerHTML += '<br><button type="submit">Submit</button>'
     yellowsForm.innerHTML = innerHTML;
@@ -339,27 +370,39 @@ document.getElementById("shotsGoalForm").addEventListener('submit', async (event
 // Handle form submission on step 7
 document.getElementById("yellowsForm").addEventListener('submit', async (event) => {
     event.preventDefault();
-    // TODO: Add Data to Table
+    // TODO: Add Data to SQL Table
+    const yellowsCheckedBoxes = document.querySelectorAll('input[name="yellows"]:checked');
+    if (yellowsCheckedBoxes){
+        let checkedBoxesArr = [];
+        yellowsCheckedBoxes.forEach(checkBox => {
+            checkedBoxesArr.push(checkBox.value);
+            console.log(checkBox.value);
+        });
+    } else {
+        console.log("No yellows selected");
+    }
 
     // Build form for next step
     let redsForm = document.getElementById("redsForm");
     let innerHTML = '';
+    let firstNames = [];
+    let lastNames = [];
 
     const data = await window.electronAPI.getData("association", {});
 
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){
-                innerHTML += '<input type="checkbox" name="reds" value="yes">';
-                innerHTML += '<label>';
-                innerHTML += "  " + value + " ";
-            }
-            if (key == "last name"){
-                innerHTML += value;
-                innerHTML += '</label><br>';
-            }
+            if (key == "first name"){ firstNames.push(value); }
+            if (key == "last name"){ lastNames.push(value); }
         }
     });
+
+    for (let i = 0; i < firstNames.length; i++){
+        innerHTML += '<input type="checkbox" name="reds" value="' + lastNames[i] + '">';
+        innerHTML += '<label>';
+        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
+        innerHTML += '</label><br>';
+    }
 
     innerHTML += '<br><button type="submit">Submit</button>'
     redsForm.innerHTML = innerHTML;
@@ -370,9 +413,19 @@ document.getElementById("yellowsForm").addEventListener('submit', async (event) 
 });
 
 // Handle form submission on step 8
-document.getElementById("yellowsForm").addEventListener('submit', async (event) => {
+document.getElementById("redsForm").addEventListener('submit', async (event) => {
     event.preventDefault();
-    // TODO: Add Data to Table
+    // TODO: Add Data to SQL Table
+    const redsCheckedBoxes = document.querySelectorAll('input[name="reds"]:checked');
+    if (redsCheckedBoxes){
+        let checkedBoxesArr = [];
+        redsCheckedBoxes.forEach(checkBox => {
+            checkedBoxesArr.push(checkBox.value);
+            console.log(checkBox.value);
+        });
+    } else {
+        console.log("No yellows selected");
+    }
 
     // Close popup
     document.getElementById('popupReds').style.display = 'none';

@@ -6,6 +6,7 @@ let unsavedChanges = false; // Useful so we don't need to parse DOM for checking
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
 let unsavedInsert = false;
+let bufferRow;
 window.electronAPI.onGetColumns((data) => {
     columnAssociations = data;
     addColumns()
@@ -69,6 +70,8 @@ function deleteAddedRows() {
         if (row.getAttribute("buffer") === "true") { break; }
         table.deleteRow(i-1);
     }
+    bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+    document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
 }
 
 /**
@@ -590,9 +593,9 @@ document.getElementById("searchButton").addEventListener("click", async () => {
         rowNum++;
     });
 
-    let buttonRow = table.insertRow(-1);
-    buttonRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
-    buttonRow.setAttribute("buffer", "true");
+    bufferRow = table.insertRow(-1);
+    bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
+    bufferRow.setAttribute("buffer", "true");
     document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
 });
 
@@ -732,6 +735,7 @@ async function addMoreRows() {
         "Add Rows"
     );
     if (!numNewRows) { return; }
+    if (numNewRows < 1) { return; }
     numNewRows = Math.min(numNewRows, 50);
     unsavedInsert = true;
     let add = 0;
@@ -757,6 +761,9 @@ async function addMoreRows() {
         }
     }
 
+    bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button><button type="button" id="deleteRowsButton">Delete</button></td></tr>';
+    document.getElementById("deleteRowsButton").addEventListener("click", deleteAddedRows);
+    document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     calcUnsavedChanges();
 };
 

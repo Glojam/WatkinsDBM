@@ -102,6 +102,25 @@ body {
     background-color: #25721e;
 }
 
+#deleteRowsButton {
+    background-color: #c24444;
+    color: white;
+    border-radius: 2em;
+    margin: 1em;
+    height: 40px;
+    padding-left: 1em;
+    padding-right: 1em;
+    width: fit-content;
+}
+
+#deleteRowsButton:hover {
+    background-color: #cc5d5d;
+}
+
+#deleteRowsButton:active {
+    background-color: #721e1e;
+}
+
 .dataInput {
     margin: 0.5em;
     border-radius: 0.2em;

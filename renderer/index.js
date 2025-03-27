@@ -727,6 +727,7 @@ document.getElementById("clearButton").addEventListener("click", async () => {
  * Async. prompts the user to add rows, then appends extra row fields at the bottom of the table.
  * These fields will be SQL INSERTed when the update button is pressed.
  */
+let addedRowSeq = 1; // Keeps consistent row color alternation if pressed multiple times
 async function addMoreRows() {
     let numNewRows = await window.electronAPI.showPrompt(
         "prompt",
@@ -745,6 +746,7 @@ async function addMoreRows() {
     
     for (let r = 0; r < numNewRows; r++) {
         let newRow = table.insertRow(-1);
+        addedRowSeq++;
         for (let c = 0; c < cMax; c++) {
             let newCell = newRow.insertCell(-1);
             
@@ -756,7 +758,7 @@ async function addMoreRows() {
             }
             createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '')
 
-            styleCell(newCell, r);
+            styleCell(newCell, addedRowSeq);
             newCell.contentEditable = true;
         }
     }

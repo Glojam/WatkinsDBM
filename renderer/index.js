@@ -516,7 +516,7 @@ document.getElementById("searchButton").addEventListener("click", async () => {
     let args = {};
     args["first name"] = document.getElementById("firstName").value;
     args["last name"] = document.getElementById("lastName").value;
-    args["year"] = document.getElementById("teamYear").value;
+    args["season"] = document.getElementById("season").value;
     args["opponent"] = document.getElementById("opponent").value;
     args["division"] = document.getElementById("division").value;
     args["position"] = document.getElementById("position").value;
@@ -718,7 +718,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
 document.getElementById("clearButton").addEventListener("click", async () => {
     let ignoreChanges = await ignoreUnsavedChanges();
     if (!ignoreChanges) { return; }
-    clearWindow()
+    clearWindow(true)
 });
 
 /**
@@ -794,7 +794,8 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
         );
     }
     document.getElementById('popupChangeTable').style.display = 'none';
-    clearWindow();
+    clearWindow(true);
+    showSearchableFields();
 });
 
 // Linear Functions for getting additional data on file input
@@ -871,9 +872,23 @@ function calcUnsavedChanges() {
 }
 
 /**
+ * Displays only the applicable search fields for the CWT
+ */
+function showSearchableFields() {
+    let allFields = ["firstName", "lastName", "season", "opponent", "division", "position"];
+    let nonSearchableFields = columnAssociations[currentWorkingTable].non_searchable;
+    allFields.forEach((colName) => {
+        actualName = colName.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
+        let display = nonSearchableFields.includes(actualName) ? "none" : "inline";
+        document.getElementById(colName + "Tag").style.display = display 
+        document.getElementById(colName).style.display = display;
+    });
+}
+
+/**
  * Deletes all rows in the current selection aside from the header.
  */
-function clearWindow() {
+function clearWindow(clearSearchFields) {
     let table = document.getElementById("dataTable");
     let rowCount = table.rows.length;
     for (let i = 2; i < rowCount; i++) {
@@ -882,13 +897,15 @@ function clearWindow() {
     while (topRow.cells.length > 1) { topRow.deleteCell(0); }
     topRow.cells[0].innerHTML = "No selection."
     unsavedInsert = false;
-    document.getElementById("firstName").value = '';
-    document.getElementById("lastName").value = '';
-    document.getElementById("teamYear").value = '';
-    document.getElementById("opponent").value = '';
-    document.getElementById("division").value = '';
-    document.getElementById("position").value = '';
-    calcUnsavedChanges() // Always happens in tandem
+    if (clearSearchFields) {
+        document.getElementById("firstName").value = '';
+        document.getElementById("lastName").value = '';
+        document.getElementById("season").value = '';
+        document.getElementById("opponent").value = '';
+        document.getElementById("division").value = '';
+        document.getElementById("position").value = '';
+    }
+    calcUnsavedChanges(); // Always happens in tandem
 }
 
 // Help window popup listener, called externally from main menu

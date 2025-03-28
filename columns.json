@@ -7,7 +7,8 @@
         "defaults": {"jersey": 0, "opponent": "NA", "date": "1970-01-01", "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
         "readonly_cols": ["jersey"],
-        "addable": true
+        "addable": true,
+        "non_searchable": ["division"]
     },
     "goalkeepers": {
         "name": "Goalkeepers",
@@ -17,7 +18,8 @@
         "defaults": {"jersey": 0, "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
         "readonly_cols": ["jersey"],
-        "addable": true
+        "addable": true,
+        "non_searchable": ["division"]
     },
     "playersTotal": {
         "name": "Players Total",
@@ -27,7 +29,8 @@
         "join_jersey": true,
         "defaults": {"motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "readonly_cols": ["jersey"],
-        "addable": false
+        "addable": false,
+        "non_searchable": ["opponent", "division", "position"]
     },
     "goalkeepersTotal": {
         "name": "Goalkeepers Total",
@@ -37,15 +40,17 @@
         "defaults": {"jersey": 0, "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
         "readonly_cols": ["jersey"],
-        "addable": false
+        "addable": false,
+        "non_searchable": ["opponent", "division", "position"]
     },
     "teamRecord": {
         "name": "Team Record",
         "primary_keys": ["opponent","date"],
-        "columns": ["date","opponent", "division", "field", "conference",  "outcome", "half score", "half score opponent", "final score", "final score opponent", "shots for", "shots against", "yellow", "red"],
+        "columns": ["date", "opponent", "division", "field", "conference",  "outcome", "half score", "half score opponent", "final score", "final score opponent", "shots for", "shots against", "yellow", "red"],
         "defaults": {"yellows": 0, "reds": 0},
-        "display_names": ["Date","Opponent", "Division", "Field", "Conference", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Shots For", "Shots Against", "Yellows", "Reds"],
-        "addable": false
+        "display_names": ["Date", "Opponent", "Division", "Field", "Conference", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Shots For", "Shots Against", "Yellows", "Reds"],
+        "addable": false,
+        "non_searchable": ["first name", "last name", "position", "season"]
     },
     "association": {
         "name": "Associations",
@@ -53,6 +58,7 @@
         "columns": ["jersey", "first name", "last name", "year", "season", "position"],
         "display_names": ["Jersey", "First Name", "Last Name", "Year", "Season", "Position"],
         "defaults": {"jersey": 0, "season": 2025},
-        "addable": true
+        "addable": true,
+        "non_searchable": ["division", "opponent"]
     }
 }

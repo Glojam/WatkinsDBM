@@ -68,6 +68,7 @@ body {
 
 #changeMeter {
     color: black;
+    background: #d8d8d89e;
     text-align: center;
     font-weight: bold;
     box-shadow: 0 0 0.1em#888888;

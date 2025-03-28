@@ -757,7 +757,6 @@ async function addMoreRows() {
             createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '')
 
             styleCell(newCell, addedRowSeq);
-            newCell.contentEditable = true;
         }
     }
 

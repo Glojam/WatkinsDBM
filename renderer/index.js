@@ -880,7 +880,7 @@ function showSearchableFields() {
     allFields.forEach((colName) => {
         actualName = colName.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
         let display = nonSearchableFields.includes(actualName) ? "none" : "inline";
-        document.getElementById(colName + "Tag").style.display = display 
+        document.getElementById(colName + "Tag").style.display = display;
         document.getElementById(colName).style.display = display;
     });
 }

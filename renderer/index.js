@@ -1,16 +1,56 @@
+import { fieldForm, halfScoreForm, startedForm, motmForm, sportsmanForm, shotsGoalForm, yellowsForm, redsForm } from "./forms.js";
 const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
 const numberSelectorMax = 10000
 
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
+let unsavedInsert = false; // Ditto - for added rows
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
-let unsavedInsert = false;
 let bufferRow;
-window.electronAPI.onGetColumns((data) => {
-    columnAssociations = data;
-    addColumns()
-})
+
+makeMainConnections(); // Change this to makeLogin when login screen is added.
+
+/**
+ * Hooks up connections from Login DOM elements to functions
+ * This is necessary when the page is rewritten
+ */
+function makeLoginConnections() {
+    
+}
+
+/**
+ * Hooks up connections from Main DOM elements to functions
+ * This is necessary when the page is rewritten
+ */
+function makeMainConnections() {
+    document.getElementById("searchButton").addEventListener("click", async () => { searchDataFields(); });
+    document.getElementById("updateButton").addEventListener("click", async () => { updateDataFields(); });
+
+    // Listener to clear rows
+    document.getElementById("clearButton").addEventListener("click", async () => {
+        let ignoreChanges = await ignoreUnsavedChanges();
+        if (!ignoreChanges) { return; }
+        clearWindow(true)
+    });
+
+    // Handle form submission on step 1
+    document.getElementById("fieldForm").addEventListener('submit', async (event) => { await fieldForm(event); });
+    // Handle form submission on step 2
+    document.getElementById("halfScoreForm").addEventListener('submit', async (event) => { await halfScoreForm(event); });
+    // Handle form submission on step 3
+    document.getElementById("startedForm").addEventListener('submit', async (event) => { await startedForm(event); });
+    // Handle form submission on step 4
+    document.getElementById("motmForm").addEventListener('submit', async (event) => { await motmForm(event); });
+    // Handle form submission on step 5
+    document.getElementById("sportsmanForm").addEventListener('submit', async (event) => { await sportsmanForm(event); });
+    // Handle form submission on step 6
+    document.getElementById("shotsGoalForm").addEventListener('submit', async (event) => { await shotsGoalForm(event); });
+    // Handle form submission on step 7
+    document.getElementById("yellowsForm").addEventListener('submit', async (event) => { await yellowsForm(event); });
+    // Handle form submission on step 8
+    document.getElementById("redsForm").addEventListener('submit', async (event) => { await redsForm(event); });
+}
 
 /**
  * Given current context (currentWorkingTable, etc) adds the top row headers.
@@ -42,6 +82,7 @@ function addColumns() {
 function showLoader() {
     document.getElementById("loader").style.display = "block";
 }
+
 /**
  * Hides the spinner loader.
  */
@@ -65,8 +106,8 @@ function styleCell(cell, rowNum) {
  */
 function deleteAddedRows() {
     let table = document.getElementById("dataTable");
-    for (i = table.rows.length; i > 0; i--) {
-        row = table.rows[i-1];
+    for (let i = table.rows.length; i > 0; i--) {
+        let row = table.rows[i-1];
         if (row.getAttribute("buffer") === "true") { break; }
         table.deleteRow(i-1);
     }
@@ -132,312 +173,6 @@ async function ignoreUnsavedChanges() {
     return true;
 }
 
-// Linear Functions for getting additional data on file input
-// Show first step on file upload
-window.electronAPI.getMoreInputs(() => {
-    document.getElementById('popupField').style.display = 'block';
-})
-
-// Handle form submission on step 1
-document.getElementById("fieldForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
-    if (selectedOption) {
-        // TODO: Add Data to SQL Table
-        let fieldChoice = selectedOption.value;
-        console.log(fieldChoice);
-
-        // Go to next step
-        document.getElementById('popupField').style.display = 'none';
-        document.getElementById('popupHalfScore').style.display = 'block';
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "Please select an option.",
-            "",
-            "Field Choice"
-        );
-    }
-});
-
-// Handle form submission on step 2
-document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to SQL Table
-    const watkinsHalf = document.querySelector('input[name="watkinsHalfScore"]').value;
-    const opponentHalf = document.querySelector('input[name="opponentHalfScore"]').value;
-    console.log(watkinsHalf + "-" + opponentHalf);
-
-    // Build form for next step
-    let startedForm = document.getElementById("startedForm");
-    let innerHTML = '<p>Y/N</p>';
-    let firstNames = [];
-    let lastNames = [];
-
-    const data = await window.electronAPI.getData("association", {});
-
-    data.recordsets[0].forEach(record => {
-        for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){ firstNames.push(value); }
-            if (key == "last name"){ lastNames.push(value); }
-        }
-    });
-
-    for (let i = 0; i < firstNames.length; i++){
-        innerHTML += '<input type="checkbox" name="startedOption" value="yes' + lastNames[i] + '">';
-        innerHTML += '<input type="checkbox" name="startedOption" value="no' + lastNames[i] + '" checked>';
-        innerHTML += '<label>';
-        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
-        innerHTML += '</label><br>';
-    }
-
-    innerHTML += '<br><button type="submit">Submit</button>'
-    startedForm.innerHTML = innerHTML;
-
-    // Go to next step
-    document.getElementById('popupHalfScore').style.display = 'none';
-    document.getElementById('popupStarted').style.display = 'block';
-});
-
-// Handle form submission on step 3
-document.getElementById("startedForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to SQL Table
-    const startedCheckedBoxes = document.querySelectorAll('input[name="startedOption"]:checked');
-    let checkedBoxesArr = [];
-    startedCheckedBoxes.forEach(checkBox => {
-        checkedBoxesArr.push(checkBox.value);
-        console.log(checkBox.value);
-    });
-
-    // Build form for next step
-    let motmForm = document.getElementById("motmForm");
-    let innerHTML = '';
-    let firstNames = [];
-    let lastNames = [];
-
-    const data = await window.electronAPI.getData("association", {});
-
-    data.recordsets[0].forEach(record => {
-        for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){ firstNames.push(value); }
-            if (key == "last name"){ lastNames.push(value); }
-        }
-    });
-
-    for (let i = 0; i < firstNames.length; i++){
-        innerHTML += '<input type="radio" name="motmOption" value="' + lastNames[i] + '">';
-        innerHTML += '<label>';
-        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
-        innerHTML += '</label><br>';
-    }
-
-    innerHTML += '<br><button type="submit">Submit</button>'
-    motmForm.innerHTML = innerHTML;
-
-    // Go to next step
-    document.getElementById('popupStarted').style.display = 'none';
-    document.getElementById('popupMOTM').style.display = 'block';
-});
-
-// Handle form submission on step 4
-document.getElementById("motmForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="motmOption"]:checked');
-    if (selectedOption) {
-        // TODO: Add Data to SQL Table
-        let motmWinner = selectedOption.value;
-        console.log(motmWinner);
-
-        // Build form for next step
-        let sportsmanForm = document.getElementById("sportsmanForm");
-        let innerHTML = '';
-        let firstNames = [];
-        let lastNames = [];
-    
-        const data = await window.electronAPI.getData("association", {});
-    
-        data.recordsets[0].forEach(record => {
-            for (const [key, value] of Object.entries(record)) {
-                if (key == "first name"){ firstNames.push(value); }
-                if (key == "last name"){ lastNames.push(value); }
-            }
-        });
-    
-        for (let i = 0; i < firstNames.length; i++){
-            innerHTML += '<input type="radio" name="sportsmanOption" value="' + lastNames[i] + '">';
-            innerHTML += '<label>';
-            innerHTML += "  " + firstNames[i] + " " + lastNames[i];
-            innerHTML += '</label><br>';
-        }
-
-        innerHTML += '<br><button type="submit">Submit</button>'
-        sportsmanForm.innerHTML = innerHTML;
-
-        // Go to next step
-        document.getElementById('popupMOTM').style.display = 'none';
-        document.getElementById('popupSportsman').style.display = 'block';
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "Please select an option.",
-            "",
-            "MOTM Choice"
-        );
-    }
-});
-
-// Handle form submission on step 5
-document.getElementById("sportsmanForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
-    if (selectedOption) {
-        // TODO: Add Data to SQL Table
-        let sportsmanWinner = selectedOption.value;
-        console.log(sportsmanWinner);
-
-        // Build form for next step
-        let shotsGoalForm = document.getElementById("shotsGoalForm");
-        let innerHTML = '';
-        let firstNames = [];
-        let lastNames = [];
-    
-        const data = await window.electronAPI.getData("association", {});
-    
-        data.recordsets[0].forEach(record => {
-            for (const [key, value] of Object.entries(record)) {
-                if (key == "first name"){ firstNames.push(value); }
-                if (key == "last name"){ lastNames.push(value); }
-            }
-        });
-    
-        for (let i = 0; i < firstNames.length; i++){
-            innerHTML += '<label>';
-            innerHTML += firstNames[i] + " " + lastNames[i];
-            innerHTML += '</label><input type="number" name="shotsGoal' + lastNames[i] + '" value="0" min="0" max="99"><br>';
-        }
-
-        innerHTML += '<br><button type="submit">Submit</button>'
-        shotsGoalForm.innerHTML = innerHTML;
-
-        // Go to next step
-        document.getElementById('popupSportsman').style.display = 'none';
-        document.getElementById('popupShotsGoal').style.display = 'block';
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "Please select an option.",
-            "",
-            "Sportsmanship Choice"
-        );
-    }
-});
-
-// Handle form submission on step 6
-document.getElementById("shotsGoalForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to SQL Table
-    let firstNames = [];
-    let lastNames = [];
-    let shotsGoalArr = [];
-    
-    const data = await window.electronAPI.getData("association", {});
-    
-    data.recordsets[0].forEach(record => {
-        for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){ firstNames.push(value); }
-            if (key == "last name"){ lastNames.push(value); }
-        }
-    });
-
-    lastNames.forEach(name => {
-        shotsGoalArr.push(document.querySelector('input[name="shotsGoal' + name + '"]').value);
-        console.log(name + ": " + document.querySelector('input[name="shotsGoal' + name + '"]').value);
-    });
-
-    // Build form for next step
-    let yellowsForm = document.getElementById("yellowsForm");
-    let innerHTML = '';
-
-    for (let i = 0; i < firstNames.length; i++){
-        innerHTML += '<input type="checkbox" name="yellows" value="' + lastNames[i] + '">';
-        innerHTML += '<label>';
-        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
-        innerHTML += '</label><br>';
-    }
-
-    innerHTML += '<br><button type="submit">Submit</button>'
-    yellowsForm.innerHTML = innerHTML;
-
-    // Go to next step
-    document.getElementById('popupShotsGoal').style.display = 'none';
-    document.getElementById('popupYellows').style.display = 'block';
-});
-
-// Handle form submission on step 7
-document.getElementById("yellowsForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to SQL Table
-    const yellowsCheckedBoxes = document.querySelectorAll('input[name="yellows"]:checked');
-    if (yellowsCheckedBoxes){
-        let checkedBoxesArr = [];
-        yellowsCheckedBoxes.forEach(checkBox => {
-            checkedBoxesArr.push(checkBox.value);
-            console.log(checkBox.value);
-        });
-    } else {
-        console.log("No yellows selected");
-    }
-
-    // Build form for next step
-    let redsForm = document.getElementById("redsForm");
-    let innerHTML = '';
-    let firstNames = [];
-    let lastNames = [];
-
-    const data = await window.electronAPI.getData("association", {});
-
-    data.recordsets[0].forEach(record => {
-        for (const [key, value] of Object.entries(record)) {
-            if (key == "first name"){ firstNames.push(value); }
-            if (key == "last name"){ lastNames.push(value); }
-        }
-    });
-
-    for (let i = 0; i < firstNames.length; i++){
-        innerHTML += '<input type="checkbox" name="reds" value="' + lastNames[i] + '">';
-        innerHTML += '<label>';
-        innerHTML += "  " + firstNames[i] + " " + lastNames[i];
-        innerHTML += '</label><br>';
-    }
-
-    innerHTML += '<br><button type="submit">Submit</button>'
-    redsForm.innerHTML = innerHTML;
-
-    // Go to next step
-    document.getElementById('popupYellows').style.display = 'none';
-    document.getElementById('popupReds').style.display = 'block';
-});
-
-// Handle form submission on step 8
-document.getElementById("redsForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to SQL Table
-    const redsCheckedBoxes = document.querySelectorAll('input[name="reds"]:checked');
-    if (redsCheckedBoxes){
-        let checkedBoxesArr = [];
-        redsCheckedBoxes.forEach(checkBox => {
-            checkedBoxesArr.push(checkBox.value);
-            console.log(checkBox.value);
-        });
-    } else {
-        console.log("No yellows selected");
-    }
-
-    // Close popup
-    document.getElementById('popupReds').style.display = 'none';
-});
-
 /**
  * Sets HTML to be some kind of special input or selector if appropriate
  * @param {HTMLElement} cell        Cell element to modify
@@ -446,7 +181,7 @@ document.getElementById("redsForm").addEventListener('submit', async (event) => 
  */
 function createInnerHTMLforCell(cell, columnName, value) {
     if (!value && columnName) {
-        def = columnAssociations[currentWorkingTable].defaults[columnName];
+        let def = columnAssociations[currentWorkingTable].defaults[columnName];
         value = def ? def : value;
         // todo stupid breaks on teamrecord
     }
@@ -461,7 +196,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
             option.text = options[i];
             selectList.appendChild(option);
         }
-        valueString = String(value);
+        let valueString = String(value);
         if (valueString) {
             selectList.value = valueString;
         }
@@ -507,7 +242,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
 /**
  * Performs SQL SELECT on the DB given the left panel search fields
  */
-document.getElementById("searchButton").addEventListener("click", async () => {
+async function searchDataFields() {
     let ignoreChanges = await ignoreUnsavedChanges();
     if (!ignoreChanges) { return; }
 
@@ -595,13 +330,13 @@ document.getElementById("searchButton").addEventListener("click", async () => {
         bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
         document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     }
-});
+}
 
 /**
  * Performs SQL UPDATE on the DB given the unsaved changes. 
  * Performs SQL INSERT on the DB given any added rows.
  */
-document.getElementById("updateButton").addEventListener("click", async () => {
+async function updateDataFields() {
     if (!unsavedChanges && !unsavedInsert) {
         window.electronAPI.showPrompt(
             "info",
@@ -712,14 +447,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
     hideLoader();
     resetAllCellChanges();
     calcUnsavedChanges();
-});
-
-// Listener to clear rows
-document.getElementById("clearButton").addEventListener("click", async () => {
-    let ignoreChanges = await ignoreUnsavedChanges();
-    if (!ignoreChanges) { return; }
-    clearWindow(true)
-});
+}
 
 /**
  * Async. prompts the user to add rows, then appends extra row fields at the bottom of the table.
@@ -798,42 +526,6 @@ document.getElementById("switchTableForm").addEventListener('submit', async (eve
     showSearchableFields();
 });
 
-// Linear Functions for getting additional data on file input
-// Show first step on file upload
-window.electronAPI.getMoreInputs(() => {
-    document.getElementById('popupField').style.display = 'block';
-})
-
-// Handle form submission on step 1
-document.getElementById("fieldForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
-    if (selectedOption) {
-        // TODO: Add Data to Table
-
-        // Go to next step
-        document.getElementById('popupField').style.display = 'none';
-        document.getElementById('popupHalfScore').style.display = 'block';
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "Please select an option.",
-            "",
-            "Field Choice"
-        );
-    }
-});
-
-// Handle form submission on step 2
-document.getElementById("halfScoreForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    // TODO: Add Data to Table
-
-    // Go to next step
-    document.getElementById('popupHalfScore').style.display = 'none';
-    //document.getElementById('popupStarted').style.display = 'block';
-});
-
 /**
  * Iterates through all grid cells, and keeps track of differences from original values via attributes to count changes.
  * Added rows count as a single change, no matter how many.
@@ -878,7 +570,7 @@ function showSearchableFields() {
     let allFields = ["firstName", "lastName", "season", "opponent", "division", "position"];
     let nonSearchableFields = columnAssociations[currentWorkingTable].non_searchable;
     allFields.forEach((colName) => {
-        actualName = colName.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
+        let actualName = colName.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
         let display = nonSearchableFields.includes(actualName) ? "none" : "inline";
         document.getElementById(colName + "Tag").style.display = display;
         document.getElementById(colName).style.display = display;
@@ -955,3 +647,21 @@ window.electronAPI.onExportToPDF(() => {
     const tableHTML = clonedTable.outerHTML;
     window.electronAPI.sendExportToPDF(tableHTML);
 });
+
+// Linear Functions for getting additional data on file input
+// Show first step on file upload
+window.electronAPI.getMoreInputs(() => {
+    document.getElementById('popupField').style.display = 'block';
+})
+
+// Listener to set column associations table; should only fire once
+window.electronAPI.onGetColumns((data) => {
+    columnAssociations = data;
+    addColumns();
+})
+
+// Linear Functions for getting additional data on file input
+// Show first step on file upload
+window.electronAPI.getMoreInputs(() => {
+    document.getElementById('popupField').style.display = 'block';
+})

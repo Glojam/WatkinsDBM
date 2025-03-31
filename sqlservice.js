@@ -4,7 +4,6 @@ const fs = require('fs');
 const readline = require('readline');
 const passwords = require('./passwords.json');
 const path = require('path');
-const { table } = require('console');
 const columnAssociations = require('./columns.json')
 
 // MSSQL Configuration

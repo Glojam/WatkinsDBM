@@ -395,7 +395,7 @@ async function updateDataFields() {
             let cell = row.cells[j];
             let contents;
             let inputElement = cell.querySelector('input');
-            let selectElement = cell.querySelector('select')
+            let selectElement = cell.querySelector('select');
             if (inputElement) {
                 contents = inputElement.value;
             } else if (selectElement) {

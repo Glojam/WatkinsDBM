@@ -27,10 +27,12 @@ exports.buildMenu = (window, upload) => {
                 {
                     role: 'Import Files',
                     label: 'Import Files',
+                    id: "import-option",
                     click: () => {
-            upload(); 
-            window.webContents.send('get-inputs');
-          },
+                        upload(); 
+                        console.log(`enabled: ${adminPerms}`)
+                        window.webContents.send('get-inputs');
+                    },
                 },
                 { // TODO (possibly)
                     role: 'Export Selection',

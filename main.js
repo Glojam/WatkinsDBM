@@ -1,10 +1,10 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
-const { buildMenu } = require('./menu')
+const { buildMenu } = require('./menu');
 const fs = require('fs');
 const prompt = require('electron-prompt');
-const { bulkUpload, fetch, insert, update, login, logout } = require('./sqlservice')
-const columnAssociations = require('./columns.json')
+const { bulkUpload, fetch, insert, update, login, logout } = require('./sqlservice');
+const columnAssociations = require('./columns.json');
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
@@ -22,7 +22,6 @@ function createMainWindow() {
         icon: './resources/icon.png'
     });
 
-    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload));
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
     mainWindow.maximize();
     mainWindow.show();
@@ -45,9 +44,13 @@ app.whenReady().then(() => {
     ipcMain.handle('update-data', update);
     ipcMain.handle('insert-data', insert);
     ipcMain.handle('login', login);
-    ipcMain.on('logout', logout);
+    ipcMain.on('logout', (logout) => {
+        Menu.setApplicationMenu(null); 
+        logout;
+    });
 
     //ipcMain.handle('get-cols', () => {return columnAssociations})
+    Menu.setApplicationMenu(null); 
     createMainWindow();
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -63,6 +66,14 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("upload-file", async (event) => {
     return bulkUpload();
+});
+
+ipcMain.on('set-user-role', (event, role) => {
+    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload));
+
+    // Change menu visibility options
+    const menu = Menu.getApplicationMenu();
+    menu.getMenuItemById("import-option").visible = role;
 });
 
 ipcMain.on('export-to-pdf', async (event, tableHTML) => {

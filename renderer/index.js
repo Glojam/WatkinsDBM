@@ -128,6 +128,7 @@ async function connect() {
     buttonElement.style.display = "block";
     currentlyConnecting = false;
     isAdmin = document.getElementById("usernameInput").value === "Admin";
+    window.electronAPI.setUserRole(isAdmin);
     if (successOrError == true) {
         switchPage("main");
     } else {

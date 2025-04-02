@@ -1,4 +1,8 @@
 import { fieldForm, halfScoreForm, startedForm, motmForm, sportsmanForm, shotsGoalForm, yellowsForm, redsForm } from "./forms.js";
+const pageInfo = {
+    login: {html: "./login.html", func: makeLoginConnections},
+    main: {html: "./main.html", func: makeMainConnections}
+}
 const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
 const numberSelectorMax = 10000
@@ -7,16 +11,16 @@ let unsavedChanges = false; // Useful so we don't need to parse DOM for checking
 let unsavedInsert = false; // Ditto - for added rows
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
+let isAdmin = false; // Determines what frontend features should be enabled
+let currentlyConnecting = false; // Connect button debounce
 let bufferRow;
-
-makeMainConnections(); // Change this to makeLogin when login screen is added.
 
 /**
  * Hooks up connections from Login DOM elements to functions
  * This is necessary when the page is rewritten
  */
 function makeLoginConnections() {
-    
+    document.getElementById("connectButton").addEventListener("click", async () => { connect(); });
 }
 
 /**
@@ -32,6 +36,43 @@ function makeMainConnections() {
         let ignoreChanges = await ignoreUnsavedChanges();
         if (!ignoreChanges) { return; }
         clearWindow(true)
+    });
+
+    // Display form to switch table on screen
+    document.getElementById("switchTable").addEventListener("click", async () => {
+        let ignoreChanges = await ignoreUnsavedChanges();
+        if (!ignoreChanges) { return; }
+        document.getElementById('popupChangeTable').style.display = 'block';
+    });
+
+    // Close the switch table form when the 'x' on the popup is clicked
+    document.getElementById("closePopup").addEventListener("click", async () => {
+        document.getElementById('popupChangeTable').style.display = 'none';
+    });
+
+    // Handle form submission
+    document.getElementById("switchTableForm").addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const selectedOption = document.querySelector('input[name="tableOption"]:checked');
+        if (selectedOption) {
+            currentWorkingTable = selectedOption.value;
+            document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name
+        } else {
+            window.electronAPI.showPrompt(
+                "info",
+                "No option was selected.",
+                "",
+                "Table Change"
+            );
+        }
+        document.getElementById('popupChangeTable').style.display = 'none';
+        clearWindow(true);
+        showSearchableFields();
+    });
+
+    document.getElementById("disconnectButton").addEventListener("click", async () => {
+        window.electronAPI.logout();
+        switchPage("login");
     });
 
     // Handle form submission on step 1
@@ -50,6 +91,60 @@ function makeMainConnections() {
     document.getElementById("yellowsForm").addEventListener('submit', async (event) => { await yellowsForm(event); });
     // Handle form submission on step 8
     document.getElementById("redsForm").addEventListener('submit', async (event) => { await redsForm(event); });
+    document.getElementById("changeMeter").style.display = isAdmin ? "block" : "none";
+    document.getElementById("updateButton").style.display = isAdmin ? "block" : "none";
+
+    addColumns();
+}
+
+/**
+ * Switches the page to the name specified (login, main, etc.)
+ */
+async function switchPage(to) {
+    let container = document.getElementById("mainContainer");
+    container.innerHTML = "";
+    const response = await fetch(pageInfo[to].html);
+    container.innerHTML = await response.text();
+    pageInfo[to].func();
+}
+
+async function connect() {
+    if (currentlyConnecting) { return; }
+    currentlyConnecting = true;
+    let buttonElement = document.getElementById("connectButton");
+    document.getElementById("errorText").innerHTML = "";
+
+    let credentials = {};
+    credentials.user = document.getElementById("usernameInput").value;
+    credentials.password = document.getElementById("passwordInput").value;
+    credentials.server = document.getElementById("serverInput").value;
+    credentials.port = Number(document.getElementById("portInput").value);
+
+    showLoader();
+    buttonElement.style.display = "none";
+    let successOrError = await window.electronAPI.login(credentials);
+    console.log(successOrError);
+    hideLoader();
+    buttonElement.style.display = "block";
+    currentlyConnecting = false;
+    isAdmin = document.getElementById("usernameInput").value === "Admin";
+    if (successOrError == true) {
+        switchPage("main");
+    } else {
+        document.getElementById("errorText").innerHTML = makeErrorReadable(successOrError);
+    }
+}
+
+/**
+ * Takes a error message and attempts to make it more human readable
+ * @param {String} err  String containing the error
+ * @return {String}     String containing reworded error
+ */
+function makeErrorReadable(err) {
+    if (err.match("ConnectionError: Failed to connect to")) {
+        return "Failed to connect. Check your internet connection or login credentials and try again."
+    }
+    return err;
 }
 
 /**
@@ -188,6 +283,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
 
     let makeSelector = (options) => {
         var selectList = document.createElement("select");
+        selectList.classList.toggle("tableInput");
         cell.appendChild(selectList);
 
         for (var i = 0; i < options.length; i++) {
@@ -203,9 +299,10 @@ function createInnerHTMLforCell(cell, columnName, value) {
     }
 
     if (columnName == "date" && value !== null) {
-        const dateString = (new Date(value)).toISOString().split('T')[0]
+        const dateString = (new Date(value)).toISOString().split('T')[0];
  
         let inputElement = document.createElement('input');
+        inputElement.classList.toggle("tableInput");
         inputElement.type = 'date';
         inputElement.name = 'Date';
         inputElement.value = dateString;
@@ -230,6 +327,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
         cell.innerHTML = value !== null ? value : "";
     } else {
         let numberInput = document.createElement("input");
+        numberInput.classList.toggle("tableInput");
         cell.appendChild(numberInput);
         numberInput.type = "number";
         numberInput.min = 0;
@@ -386,8 +484,8 @@ async function updateDataFields() {
         }
     }
 
-    for (i = table.rows.length; i > 0; i--) {
-        row = table.rows[i-1];
+    for (let i = table.rows.length; i > 0; i--) {
+        let row = table.rows[i-1];
         if (row.getAttribute("buffer") === "true") { break; }
         let addedRow = {};
         for (let j = 0; j < row.cells.length; j++) {
@@ -493,38 +591,6 @@ async function addMoreRows() {
     document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     calcUnsavedChanges();
 };
-
-// Display form to switch table on screen
-document.getElementById("switchTable").addEventListener("click", async () => {
-    let ignoreChanges = await ignoreUnsavedChanges();
-    if (!ignoreChanges) { return; }
-    document.getElementById('popupChangeTable').style.display = 'block';
-});
-
-// Close the switch table form when the 'x' on the popup is clicked
-document.getElementById("closePopup").addEventListener("click", async () => {
-    document.getElementById('popupChangeTable').style.display = 'none';
-});
-
-// Handle form submission
-document.getElementById("switchTableForm").addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const selectedOption = document.querySelector('input[name="tableOption"]:checked');
-    if (selectedOption) {
-        currentWorkingTable = selectedOption.value;
-        document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name
-    } else {
-        window.electronAPI.showPrompt(
-            "info",
-            "No option was selected.",
-            "",
-            "Table Change"
-        );
-    }
-    document.getElementById('popupChangeTable').style.display = 'none';
-    clearWindow(true);
-    showSearchableFields();
-});
 
 /**
  * Iterates through all grid cells, and keeps track of differences from original values via attributes to count changes.
@@ -654,14 +720,14 @@ window.electronAPI.getMoreInputs(() => {
     document.getElementById('popupField').style.display = 'block';
 })
 
-// Listener to set column associations table; should only fire once
-window.electronAPI.onGetColumns((data) => {
-    columnAssociations = data;
-    addColumns();
-})
-
 // Linear Functions for getting additional data on file input
 // Show first step on file upload
 window.electronAPI.getMoreInputs(() => {
     document.getElementById('popupField').style.display = 'block';
+})
+
+// Listener to set column associations table; should only fire once
+window.electronAPI.onGetColumns((data) => {
+    columnAssociations = data;
+    switchPage("login");
 })

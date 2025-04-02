@@ -122,6 +122,63 @@ body {
     background-color: #721e1e;
 }
 
+#centralBox {
+    background-color: white;
+    width: 40%;
+    height: 60%;
+    margin-bottom: 50%;
+    display: flex;
+    margin: 0 auto;
+    padding: 1em;
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    border-radius: 2em;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+#loginContainer {
+    flex-grow: 3;
+    overflow: hidden;
+}
+
+#loginImage {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 2em;
+    width: 20em;
+    height: 18em;
+}
+
+#connectButton {
+    width: fit-content;
+    height: fit-content;
+}
+
+#connectContainer {
+    display: flex;
+}
+
+#disconnectButton {
+    background-color: #c93a3a;
+    color: white;
+    position: absolute;
+    padding: 0.35em;
+    margin: 0.5em;
+    bottom: 0;
+    float: left;
+    width: fit-content;
+}
+#disconnectButton:hover {
+    background-color: #ec6a6a;
+}
+#disconnectButton:active {
+    background-color: #691717;
+}
+
 .dataInput {
     margin: 0.5em;
     border-radius: 0.2em;
@@ -134,8 +191,24 @@ body {
     transition: 0.1s;
 }
 
-input,
-select {
+.dataInput:focus {
+    outline-offset: 5px;
+    background-color: #fff;
+}
+
+.tooltip {
+    padding: 2px;
+    background-color: rgb(255, 210, 64);
+    color: black;
+    border-radius: 1px;
+}
+
+.errorText {
+    color:rgb(211, 53, 53);
+    font-size: small;
+}
+
+.tableInput {
     margin: 0px;
     border: 0px;
     padding: 0px;
@@ -191,6 +264,20 @@ button:active {
     transform: translate(-50%, -50%), scaleZ(50%, -50%);
     display: none;
     z-index: 100;
+}
+
+.miniLoader {
+    border: 7px solid #1a1a1a;
+    border-top: 7px solid rgb(255, 210, 64);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    margin-left: 30px;
+    margin-top: 15px;
+    animation: spin 0.8s ease-in-out infinite;
+    top: 50%;
+    left: 60%;
+    display: none;
 }
 
 @keyframes spin {

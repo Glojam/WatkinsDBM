@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const { buildMenu } = require('./menu')
 const fs = require('fs');
 const prompt = require('electron-prompt');
-const { bulkUpload, fetch, insert, update } = require('./sqlservice')
+const { bulkUpload, fetch, insert, update, login, logout } = require('./sqlservice')
 const columnAssociations = require('./columns.json')
 const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -44,6 +44,8 @@ app.whenReady().then(() => {
     ipcMain.handle('get-data', fetch);
     ipcMain.handle('update-data', update);
     ipcMain.handle('insert-data', insert);
+    ipcMain.handle('login', login);
+    ipcMain.on('logout', logout);
 
     //ipcMain.handle('get-cols', () => {return columnAssociations})
     createMainWindow();

@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     update: (tableName, rowsList) => ipcRenderer.invoke('update-data', tableName, rowsList),
     insert: (tableName, rowsList) => ipcRenderer.invoke('insert-data', tableName, rowsList),
     upload: () => ipcRenderer.invoke('upload-file'),
+    login: (credentials) => ipcRenderer.invoke('login', credentials),
+    logout: () => ipcRenderer.send('logout'),
     sendExportToPDF: (html) => ipcRenderer.send('export-to-pdf', html),
     showPrompt: (type, message, hint, title) => ipcRenderer.invoke('show-message', type, message, hint, title),
     getMoreInputs: (callback) => ipcRenderer.on('get-inputs', (_event, value) => callback(value)),

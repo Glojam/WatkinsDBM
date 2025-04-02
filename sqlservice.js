@@ -2,16 +2,18 @@ const { dialog } = require('electron');
 const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
-const passwords = require('./passwords.json');
 const path = require('path');
 const columnAssociations = require('./columns.json')
 
+// Universal pool instance; orders of magnitude faster to query from just 1 pool than to use multiple
+var poolPromise;
+
 // MSSQL Configuration
-const config = {
-    user: passwords.user,
-    password: passwords.password,
-    server: passwords.server,
-    port: passwords.port,
+var config = {
+    user: "",
+    password: "",
+    server: "",
+    port: "",
     database: 'Watkins',
     options: {
         encrypt: true, // Change to true if using Azure
@@ -19,8 +21,36 @@ const config = {
     },
 };
 
-// Universal pool instance; orders of magnitude faster to query from just 1 pool than to use multiple
-const poolPromise = sql.connect(config);
+/**
+ * Log out of the current profile.
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ */
+exports.logout = async (event) => {
+    try {
+        poolPromise.close();
+    } catch (err) { 
+        console.log(err);
+    }
+}
+
+/**
+ * Log into a database profile.
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {Object} credentials          Table of profile credentials
+ * @return {Promise<any>}               Promise containing data or error
+ */
+exports.login = async (event, credentials) => {
+    config.user = credentials.user;
+    config.password = credentials.password;
+    config.server = credentials.server;
+    config.port = credentials.port;
+    try {
+        poolPromise = await sql.connect(config);
+        return true;
+    } catch (err) {
+        return err.toString();
+    }
+}
 
 /**
  * Updates existing data within the database.

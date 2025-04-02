@@ -1,0 +1,46 @@
+<div id="formHalf">
+    <div id="formContainer">
+        <form>
+            <h2 id="viewingText">Viewing: <br>Players</h2>
+            <label for="firstName" id="firstNameTag">First Name:</label>
+            <input type="text" id="firstName" class="dataInput" name="firstName"
+                placeholder="Leave blank for all first names">
+
+            <label for="lastName" id="lastNameTag">Last Name:</label>
+            <input type="text" id="lastName" class="dataInput" name="lastName"
+                placeholder="Leave blank for all last names">
+
+            <label for="season" id="seasonTag">Season:</label>
+            <input type="text" id="season" class="dataInput" name="season" placeholder="Leave blank for all years">
+
+            <label for="opponent" id="opponentTag">Opponent:</label>
+            <input type="text" id="opponent" class="dataInput" name="opponent"
+                placeholder="Leave blank for all opponents">
+
+            <label for="division" id="divisionTag">Division:</label>
+            <input type="text" id="division" class="dataInput" name="division"
+                placeholder="Leave blank for all divisions">
+
+            <label for="position" id="positionTag">Position:</label>
+            <input type="text" id="position" class="dataInput" name="position"
+                placeholder="Leave blank for all positions"><br><br>
+
+            <button type="button" id="searchButton">Search</button>
+            <button type="button" id="clearButton">Clear</button>
+            <button type="button" id="switchTable">Switch Table</button>
+            <br>
+            <p id="changeMeter">0 unsaved changes</p>
+            <button type="button" id="updateButton">Publish Changes</button>
+        </form>
+    </div>
+</div>
+
+<div id="tableContainer">
+    <div class="loader" id="loader"></div>
+    <table id="dataTable" class="rowsTable">
+        <tr id="topRow"></tr>
+        <tr></tr> <!-- Empty row required for correct sizing -->
+    </table>
+</div>
+
+<button type="button" id="disconnectButton">↯ Disconnect</button>

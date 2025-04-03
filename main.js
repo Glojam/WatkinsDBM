@@ -31,6 +31,7 @@ function createMainWindow() {
     // Must be done once it is finished loading
     // NOTE: There is a possibility loading fails, in such case the app must be relaunched.
     mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.send('get-is-dev', isDev);
         mainWindow.webContents.send('get-cols', columnAssociations);
     });
 

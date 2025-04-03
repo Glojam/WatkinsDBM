@@ -7,6 +7,8 @@ const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
 const numberSelectorMax = 10000
 
+let isDev = false; // If it is dev, to enable quick testing features
+let devEnv = "Guest"; // What user profile to use dev testing with
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
 let unsavedInsert = false; // Ditto - for added rows
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
@@ -19,15 +21,22 @@ let bufferRow;
  * Hooks up connections from Login DOM elements to functions
  * This is necessary when the page is rewritten
  */
-function makeLoginConnections() {
+async function makeLoginConnections() {
     document.getElementById("connectButton").addEventListener("click", async () => { connect(); });
+    // DEV ONLY
+    if (!isDev) { return; }
+    let passwords = JSON.parse(await (await fetch("../passwords.json")).text());
+    document.getElementById("serverInput").value = passwords.server;
+    document.getElementById("portInput").value = passwords.port;
+    document.getElementById("usernameInput").value = devEnv;
+    document.getElementById("passwordInput").value = passwords[devEnv];
 }
 
 /**
  * Hooks up connections from Main DOM elements to functions
  * This is necessary when the page is rewritten
  */
-function makeMainConnections() {
+async function makeMainConnections() {
     document.getElementById("searchButton").addEventListener("click", async () => { searchDataFields(); });
     document.getElementById("updateButton").addEventListener("click", async () => { updateDataFields(); });
 
@@ -143,7 +152,11 @@ async function connect() {
  */
 function makeErrorReadable(err) {
     if (err.match("ConnectionError: Failed to connect to")) {
-        return "Failed to connect. Check your internet connection or login credentials and try again."
+        return "Failed to connect. Check your internet connection or server credentials and try again.";
+    } else if (err.match("ConnectionError: Login failed for user")) {
+        return "Incorrect password for selected user.";
+    } else if (err.match("getaddrinfo ENOTFOUND")) {
+        return "Invalid server name.";
     }
     return err;
 }
@@ -726,6 +739,9 @@ window.electronAPI.getMoreInputs(() => {
 window.electronAPI.getMoreInputs(() => {
     document.getElementById('popupField').style.display = 'block';
 })
+
+// Listener to set column associations table; should only fire once
+window.electronAPI.onGetIsDev((serverIsDev) => { isDev = serverIsDev; })
 
 // Listener to set column associations table; should only fire once
 window.electronAPI.onGetColumns((data) => {

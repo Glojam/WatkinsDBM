@@ -40,6 +40,7 @@ exports.logout = async (event) => {
  * @return {Promise<any>}               Promise containing data or error
  */
 exports.login = async (event, credentials) => {
+    this.logout();
     config.user = credentials.user;
     config.password = credentials.password;
     config.server = credentials.server;

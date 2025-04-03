@@ -45,9 +45,9 @@ app.whenReady().then(() => {
     ipcMain.handle('update-data', update);
     ipcMain.handle('insert-data', insert);
     ipcMain.handle('login', login);
-    ipcMain.on('logout', (logout) => {
+    ipcMain.on('logout', () => {
         Menu.setApplicationMenu(null); 
-        logout;
+        logout();
     });
 
     //ipcMain.handle('get-cols', () => {return columnAssociations})

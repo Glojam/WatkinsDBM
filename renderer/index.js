@@ -5,7 +5,8 @@ const pageInfo = {
 }
 const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
-const numberSelectorMax = 10000
+const numberSelectorMax = 10000;
+const timeout = 60 * 5 * 1000; // Time (in milliseconds) of inactivity before user gets kicked off
 
 let isDev = false; // If it is dev, to enable quick testing features
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
@@ -14,14 +15,18 @@ let currentWorkingTable = "players"; // To keep track of the current working tab
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
 let isAdmin = false; // Determines what frontend features should be enabled
 let currentlyConnecting = false; // Connect button debounce
+let currentPage = "";
 let bufferRow;
 
 /**
  * Hooks up connections from Login DOM elements to functions
  * This is necessary when the page is rewritten
  */
-async function makeLoginConnections() {
+async function makeLoginConnections(extras) {
     document.getElementById("connectButton").addEventListener("click", async () => { connect(); });
+    if (extras.inactive) {
+        document.getElementById("errorText").innerHTML = "You were disconnected due to inactivity."
+    }
     // DEV ONLY
     if (!isDev) { return; }
     let passwords = JSON.parse(await (await fetch("../passwords.json")).text());
@@ -35,7 +40,7 @@ async function makeLoginConnections() {
  * Hooks up connections from Main DOM elements to functions
  * This is necessary when the page is rewritten
  */
-async function makeMainConnections() {
+async function makeMainConnections(extras) {
     document.getElementById("searchButton").addEventListener("click", async () => { searchDataFields(); });
     document.getElementById("updateButton").addEventListener("click", async () => { updateDataFields(); });
 
@@ -108,13 +113,16 @@ async function makeMainConnections() {
 
 /**
  * Switches the page to the name specified (login, main, etc.)
+ * @param {String} to       Page name to switch to (from pageInfo)
+ * @param {Object} extras   JSON object containing any variables the new page may need
  */
-async function switchPage(to) {
+async function switchPage(to, extras = {}) {
+    currentPage = to;
     let container = document.getElementById("mainContainer");
     container.innerHTML = "";
     const response = await fetch(pageInfo[to].html);
     container.innerHTML = await response.text();
-    pageInfo[to].func();
+    pageInfo[to].func(extras);
 }
 
 async function connect() {
@@ -694,6 +702,29 @@ function clearWindow(clearSearchFields) {
     calcUnsavedChanges(); // Always happens in tandem
 }
 
+function runInactivityLoop() {
+    let time;
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeydown = resetTimer;
+    document.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.ontouchstart = resetTimer;
+    document.onkeydown = resetTimer;   // onkeypress is deprectaed
+
+    function logout() {
+        if (currentPage != "main") { return; }
+        window.electronAPI.logout();
+        switchPage("login", {"inactive": true});
+    }
+
+    function resetTimer() {
+        clearTimeout(time);
+        time = setTimeout(logout, timeout);
+        // 1000 milliseconds = 1 second
+    }
+};
+
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification
 window.electronAPI.onShowHelp(() => {
@@ -761,4 +792,5 @@ window.electronAPI.onGetIsDev((serverIsDev) => { isDev = serverIsDev; })
 window.electronAPI.onGetColumns((data) => {
     columnAssociations = data;
     switchPage("login");
+    runInactivityLoop();
 })

@@ -8,7 +8,6 @@ const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is 
 const numberSelectorMax = 10000
 
 let isDev = false; // If it is dev, to enable quick testing features
-let devEnv = "Guest"; // What user profile to use dev testing with
 let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
 let unsavedInsert = false; // Ditto - for added rows
 let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
@@ -28,8 +27,8 @@ async function makeLoginConnections() {
     let passwords = JSON.parse(await (await fetch("../passwords.json")).text());
     document.getElementById("serverInput").value = passwords.server;
     document.getElementById("portInput").value = passwords.port;
-    document.getElementById("usernameInput").value = devEnv;
-    document.getElementById("passwordInput").value = passwords[devEnv];
+    document.getElementById("usernameInput").value = passwords.devEnv;
+    document.getElementById("passwordInput").value = passwords[passwords.devEnv];
 }
 
 /**
@@ -104,6 +103,7 @@ async function makeMainConnections() {
     document.getElementById("updateButton").style.display = isAdmin ? "block" : "none";
 
     addColumns();
+    showSearchableFields();
 }
 
 /**
@@ -132,7 +132,6 @@ async function connect() {
     showLoader();
     buttonElement.style.display = "none";
     let successOrError = await window.electronAPI.login(credentials);
-    console.log(successOrError);
     hideLoader();
     buttonElement.style.display = "block";
     currentlyConnecting = false;
@@ -220,7 +219,7 @@ function deleteAddedRows() {
         if (row.getAttribute("buffer") === "true") { break; }
         table.deleteRow(i-1);
     }
-    if (columnAssociations[currentWorkingTable].addable) {
+    if (columnAssociations[currentWorkingTable].addable && isAdmin) {
         bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
         document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     }
@@ -389,6 +388,18 @@ async function searchDataFields() {
             if (i > numColumns) { continue; }
             let cell = newRow.insertCell(i);
 
+            // Do not add input selectors or changed listeners if in guess mode
+            if (!isAdmin) {
+                if (key == "date" && value !== null) {
+                    cell.innerHTML = (new Date(value)).toISOString().split('T')[0];
+                } else {
+                    cell.innerHTML = value;
+                }
+                styleCell(cell, rowNum);
+                i++;
+                continue;
+            }
+
             createInnerHTMLforCell(cell, key, value)
 
             cell.addEventListener("input", () => {
@@ -438,7 +449,7 @@ async function searchDataFields() {
 
     bufferRow = table.insertRow(-1);
     bufferRow.setAttribute("buffer", "true");
-    if (columnAssociations[currentWorkingTable].addable) {
+    if (columnAssociations[currentWorkingTable].addable && isAdmin) {
         bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
         document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     }
@@ -449,6 +460,7 @@ async function searchDataFields() {
  * Performs SQL INSERT on the DB given any added rows.
  */
 async function updateDataFields() {
+    if (!isAdmin) { return; }
     if (!unsavedChanges && !unsavedInsert) {
         window.electronAPI.showPrompt(
             "info",
@@ -567,6 +579,7 @@ async function updateDataFields() {
  */
 let addedRowSeq = 1; // Keeps consistent row color alternation if pressed multiple times
 async function addMoreRows() {
+    if (!isAdmin) { return; }
     let numNewRows = await window.electronAPI.showPrompt(
         "prompt",
         "How many rows?",
@@ -612,6 +625,7 @@ async function addMoreRows() {
  * @returns {number}    Number of changes that were counted.
  */
 function calcUnsavedChanges() {
+    if (!isAdmin) { return; }
     unsavedChanges = false; // Assume false, then try and prove it is true
     let table = document.getElementById("dataTable");
     let changeMeter = document.getElementById("changeMeter");

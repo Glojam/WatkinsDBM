@@ -26,6 +26,7 @@ var config = {
  * @param {Electron.IpcMainEvent} event Electron IPC event
  */
 exports.logout = async (event) => {
+    if (poolPromise == undefined) { return; }
     try {
         poolPromise.close();
     } catch (err) { 

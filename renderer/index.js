@@ -48,7 +48,7 @@ async function makeMainConnections(extras) {
     document.getElementById("clearButton").addEventListener("click", async () => {
         let ignoreChanges = await ignoreUnsavedChanges();
         if (!ignoreChanges) { return; }
-        clearWindow(true)
+        clearWindow(true, true)
     });
 
     // Display form to switch table on screen
@@ -79,7 +79,7 @@ async function makeMainConnections(extras) {
             );
         }
         document.getElementById('popupChangeTable').style.display = 'none';
-        clearWindow(true);
+        clearWindow(true, true);
         showSearchableFields();
     });
 
@@ -108,6 +108,7 @@ async function makeMainConnections(extras) {
     document.getElementById("updateButton").style.display = isAdmin ? "block" : "none";
 
     addColumns();
+    addBufferRow();
     showSearchableFields();
 }
 
@@ -171,7 +172,7 @@ function makeErrorReadable(err) {
 /**
  * Given current context (currentWorkingTable, etc) adds the top row headers.
  * 
- * Expects a clear page.
+ * Expects a clear page
  */
 function addColumns() {
     let numCols = columnAssociations[currentWorkingTable].columns.length;
@@ -269,7 +270,6 @@ function resetAllCellChanges() {
             }
         }
     }
-    deleteAddedRows();
 }
 
 /**
@@ -376,7 +376,6 @@ async function searchDataFields() {
     args["position"] = document.getElementById("position").value;
     
     clearWindow();
-    addColumns();
 
     const data = await window.electronAPI.getData(currentWorkingTable, args);
 
@@ -454,8 +453,14 @@ async function searchDataFields() {
         }
         rowNum++;
     });
+    addBufferRow();
+}
 
-    bufferRow = table.insertRow(-1);
+/**
+ * Adds the "Add Rows" button in a buffer row at the bottom of the page
+ */
+function addBufferRow() {
+    bufferRow = document.getElementById("dataTable").insertRow(-1);
     bufferRow.setAttribute("buffer", "true");
     if (columnAssociations[currentWorkingTable].addable && isAdmin) {
         bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
@@ -478,7 +483,6 @@ async function updateDataFields() {
         );
         return;
     }
-    unsavedInsert = false;
     let modifiedRows = [];
     let addedRows = [];
     let table = document.getElementById("dataTable");
@@ -555,17 +559,20 @@ async function updateDataFields() {
     }
 
     showLoader();
+    let error = false;
     let updateString = "";
     if (modifiedRows.length > 0) {
         let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
         if (success == true) {
             updateString = modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.\n`
+            resetAllCellChanges();
         }
     } 
     if (addedRows.length > 0) {
         let success = await window.electronAPI.insert(currentWorkingTable, addedRows);
         if (success == true) {
             updateString += addedRows.length + ` new row${addedRows.length == 1 ? " was" : "s were"} added.`
+            deleteAddedRows();
         }
     }
     if (updateString !== "") {
@@ -577,7 +584,6 @@ async function updateDataFields() {
         );
     }
     hideLoader();
-    resetAllCellChanges();
     calcUnsavedChanges();
 }
 
@@ -682,14 +688,12 @@ function showSearchableFields() {
 /**
  * Deletes all rows in the current selection aside from the header.
  */
-function clearWindow(clearSearchFields) {
+function clearWindow(clearSearchFields, appendAddRowsButton) {
     let table = document.getElementById("dataTable");
     let rowCount = table.rows.length;
     for (let i = 2; i < rowCount; i++) {
         table.deleteRow(2);
     }
-    while (topRow.cells.length > 1) { topRow.deleteCell(0); }
-    topRow.cells[0].innerHTML = "No selection."
     unsavedInsert = false;
     if (clearSearchFields) {
         document.getElementById("firstName").value = '';
@@ -699,6 +703,8 @@ function clearWindow(clearSearchFields) {
         document.getElementById("division").value = '';
         document.getElementById("position").value = '';
     }
+    addColumns();
+    if (appendAddRowsButton) { addBufferRow(); }
     calcUnsavedChanges(); // Always happens in tandem
 }
 
@@ -710,7 +716,7 @@ function runInactivityLoop() {
     document.onload = resetTimer;
     document.onmousemove = resetTimer;
     document.ontouchstart = resetTimer;
-    document.onkeydown = resetTimer;   // onkeypress is deprectaed
+    document.onkeydown = resetTimer;
 
     function logout() {
         if (currentPage != "main") { return; }

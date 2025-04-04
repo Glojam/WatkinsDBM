@@ -218,6 +218,10 @@ body {
     text-align: center;
 }
 
+.cellUneditable {
+    background-color: #c0c0c0 !important;
+}
+
 .whiteTextForInput {
     color: rgb(241, 228, 46) !important;
 }

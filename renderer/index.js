@@ -15,6 +15,7 @@ let currentWorkingTable = "players"; // To keep track of the current working tab
 let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
 let isAdmin = false; // Determines what frontend features should be enabled
 let currentlyConnecting = false; // Connect button debounce
+let addedRowSeq = 1; // Keeps consistent row color alternation if pressed multiple times, for added rows
 let currentPage = "";
 let bufferRow;
 
@@ -212,10 +213,11 @@ function hideLoader() {
  * @param {HTMLElement} cell    Cell to style.
  * @param {number} rowNum       The row number of the cell, for alternating colors    
  */
-function styleCell(cell, rowNum) {
+function styleCell(cell, rowNum, valueIsReadOnly) {
     cell.style.borderTopStyle = "dotted";
     cell.style.borderBottomStyle = "dotted";
     cell.className = (rowNum % 2 == 0) ? "tabElement tabElementAlt" : "tabElement";
+    if (valueIsReadOnly) { cell.classList.toggle("cellUneditable"); }
 }
 
 /**
@@ -232,6 +234,7 @@ function deleteAddedRows() {
         bufferRow.innerHTML = '<tr id="bufferRow"><td colspan="100%"><button type="button" id="addRowsButton">+ Add Rows</button></td></tr>';
         document.getElementById("addRowsButton").addEventListener("click", addMoreRows);
     }
+    addedRowSeq = 1; // Make sure the first added row is always grey for readability
     unsavedInsert = false;
     calcUnsavedChanges();
 }
@@ -394,20 +397,23 @@ async function searchDataFields() {
         for (const [key, value] of Object.entries(record)) {
             if (i > numColumns) { continue; }
             let cell = newRow.insertCell(i);
+            
+            // Values are read-only if they are explicity defined as such, OR if they are joined from another table
+            let valueIsReadOnly = columnAssociations[currentWorkingTable].readonly_cols.includes(key) || (columnAssociations[currentWorkingTable].columns.includes(key) == false);
 
             // Do not add input selectors or changed listeners if in guess mode
-            if (!isAdmin) {
+            if (!isAdmin || valueIsReadOnly) {
                 if (key == "date" && value !== null) {
                     cell.innerHTML = (new Date(value)).toISOString().split('T')[0];
                 } else {
                     cell.innerHTML = value;
                 }
-                styleCell(cell, rowNum);
+                styleCell(cell, rowNum, valueIsReadOnly);
                 i++;
                 continue;
             }
 
-            createInnerHTMLforCell(cell, key, value)
+            createInnerHTMLforCell(cell, key, value);
 
             cell.addEventListener("input", () => {
                 let inputElement = cell.querySelector('input');
@@ -494,6 +500,8 @@ async function updateDataFields() {
         let oldRow = {};
         let rowHasChanges = false;
         for (let j = 0; j < row.cells.length; j++) {
+            const colName = columnAssociations[currentWorkingTable].columns[j];
+
             let cell = row.cells[j];
             // Check if the cell contains an input element
             let contents;
@@ -506,15 +514,16 @@ async function updateDataFields() {
             } else {
                 contents = cell.innerHTML;
             }
+            
+            let valueIsReadOnly = columnAssociations[currentWorkingTable].readonly_cols.includes(colName) || (columnAssociations[currentWorkingTable].columns.includes(colName) == false)
 
             // Fill out the data for this row if changes exist
-            let colName = columnAssociations[currentWorkingTable].columns[j];
-            if (cell.getAttribute("ogInfo") !== contents) {
+            if ((cell.getAttribute("ogInfo") !== contents) && !valueIsReadOnly) {
                 rowHasChanges = true;
-                updatedRow[colName] = contents;
+                updatedRow[colName] = contents;             
             }
             if (columnAssociations[currentWorkingTable].primary_keys.includes(colName)) {
-                oldRow[colName] = cell.getAttribute("ogInfo");
+                oldRow[colName] = cell.getAttribute("ogInfo") || contents;
             }
         }
         if (rowHasChanges) {
@@ -542,7 +551,7 @@ async function updateDataFields() {
 
             // Fill out the data for this row if changes exist
             // Changes dont need to be tracked for added cells
-            let colName = columnAssociations[currentWorkingTable].columns[j];
+            const colName = columnAssociations[currentWorkingTable].columns[j];
             addedRow[colName] = contents;
         }
         addedRows.push(addedRow);
@@ -558,8 +567,9 @@ async function updateDataFields() {
         return;
     }
 
+    console.log(modifiedRows);
+
     showLoader();
-    let error = false;
     let updateString = "";
     if (modifiedRows.length > 0) {
         let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
@@ -591,7 +601,6 @@ async function updateDataFields() {
  * Async. prompts the user to add rows, then appends extra row fields at the bottom of the table.
  * These fields will be SQL INSERTed when the update button is pressed.
  */
-let addedRowSeq = 1; // Keeps consistent row color alternation if pressed multiple times
 async function addMoreRows() {
     if (!isAdmin) { return; }
     let numNewRows = await window.electronAPI.showPrompt(
@@ -608,7 +617,7 @@ async function addMoreRows() {
     if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
     let table = document.getElementById("dataTable");
     let cMax = columnAssociations[currentWorkingTable].columns.length + add;
-    
+
     for (let r = 0; r < numNewRows; r++) {
         let newRow = table.insertRow(-1);
         addedRowSeq++;
@@ -691,6 +700,7 @@ function showSearchableFields() {
 function clearWindow(clearSearchFields, appendAddRowsButton) {
     let table = document.getElementById("dataTable");
     let rowCount = table.rows.length;
+    deleteAddedRows();
     for (let i = 2; i < rowCount; i++) {
         table.deleteRow(2);
     }

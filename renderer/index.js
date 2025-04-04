@@ -43,6 +43,12 @@ async function makeLoginConnections(extras) {
  */
 async function makeMainConnections(extras) {
     currentWorkingTable = "players";
+
+    document.getElementById("modeTag").innerHTML = (isAdmin ? "Admin" : "Guest") + " Mode" + `<div id="viewingText">Viewing: <br>Players</div>`;
+    if (isAdmin) { 
+        (document.getElementById("modeTag").classList.toggle("guestModeItem")); 
+    }
+
     document.getElementById("searchButton").addEventListener("click", async () => { searchDataFields(); });
     document.getElementById("updateButton").addEventListener("click", async () => { updateDataFields(); });
 

@@ -60,10 +60,32 @@ body {
 #viewingText {
     background-color: black;
     color: white;
-    border-radius: 0.2em;
+    border-bottom-left-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
     text-align: center;
-    box-shadow: 0 0 0.1em#888888;
+    font-weight: bold;
+    font-size: x-large;
+    box-shadow: 0 0 0.4em#282828;
     padding: 0.5em;
+}
+
+#modeTag {
+    background-color: rgb(68, 70, 192);
+    overflow: hidden;
+    color: white;
+    border-radius: 0.4rem;
+    margin-top: 5px;
+    margin-bottom: 1em;
+    text-align: center;
+    font-size: small;
+    padding-top: 0.2em;
+}
+
+.guestModeItem {
+    background-color: rgb(68, 192, 89) !important;
+    color: black !important;
 }
 
 #changeMeter {
@@ -213,10 +235,14 @@ body {
     border: 0px;
     padding: 0px;
     outline: 0px;
-    font-size: 1.1em;
+    font-size: 1em;
     width: fit-content;
     background-color: transparent;
     text-align: center;
+}
+
+.tableInput[type="date"] {
+    font-size: 1.4em;
 }
 
 .tableInput[type="number"] {

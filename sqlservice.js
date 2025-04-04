@@ -396,6 +396,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                     .input('FinalScore', sql.Int, finalScore)
                     .query(`
+                        SET Context_Info 0x55555
                         UPDATE Players
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
                     `);
@@ -411,6 +412,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
+                    SET Context_Info 0x55555
                     UPDATE Players
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     `)
@@ -426,6 +428,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
+                    SET Context_Info 0x55555
                     UPDATE Players
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     `)
@@ -441,6 +444,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                     .input('FinalScore', sql.Int, finalScore)
                     .query(`
+                        SET Context_Info 0x55555
                         UPDATE goalkeepers
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
                     `);
@@ -456,6 +460,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
+                    SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     `)
@@ -471,6 +476,7 @@ exports.bulkUpload = () => {
                 await pool.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
+                    SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     `)

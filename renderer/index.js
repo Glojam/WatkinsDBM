@@ -391,7 +391,14 @@ async function searchDataFields() {
 
     hideLoader();
 
-    if (!data) { return; } // Error msg is thrown on main side
+    if (!data) {
+        // Error msg is thrown on main side
+        // Debug: restore page format to prevent entire app from breaking
+        addColumns();
+        addBufferRow();
+        return; 
+    }
+
     let add = 0;
     if (columnAssociations[currentWorkingTable].join_jersey) { add = 3; }
 

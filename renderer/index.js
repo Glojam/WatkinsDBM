@@ -26,7 +26,7 @@ let bufferRow;                          // Reference to HTMLelement of the buffe
 async function makeLoginConnections(extras) {
     document.getElementById("connectButton").addEventListener("click", async () => { connect(); });
     if (extras.inactive) {
-        document.getElementById("errorText").innerHTML = "You were disconnected due to inactivity."
+        document.getElementById("errorText").innerHTML = "You were disconnected due to inactivity.";
     }
     // DEV ONLY
     if (!isDev) { return; }
@@ -56,7 +56,7 @@ async function makeMainConnections(extras) {
     document.getElementById("clearButton").addEventListener("click", async () => {
         let ignoreChanges = await ignoreUnsavedChanges();
         if (!ignoreChanges) { return; }
-        clearWindow(true, true)
+        clearWindow(true, true);
     });
 
     // Display form to switch table on screen
@@ -77,7 +77,7 @@ async function makeMainConnections(extras) {
         const selectedOption = document.querySelector('input[name="tableOption"]:checked');
         if (selectedOption) {
             currentWorkingTable = selectedOption.value;
-            document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name
+            document.getElementById('viewingText').innerHTML = "Viewing: <br>" + columnAssociations[currentWorkingTable].name;
         } else {
             window.electronAPI.showPrompt(
                 "info",

@@ -5,19 +5,19 @@ const pageInfo = {
 }
 const minYear = "1970-01-01";
 const maxYear = new Date().getFullYear() + "-12-31"; // By default, max year is current year
-const numberSelectorMax = 10000;
-const timeout = 60 * 5 * 1000; // Time (in milliseconds) of inactivity before user gets kicked off
+const numberSelectorMax = 10000;        // Max value for any number input
+const timeout = 60 * 5 * 1000;          // Time (in milliseconds) of inactivity before user gets kicked off
 
-let isDev = false; // If it is dev, to enable quick testing features
-let unsavedChanges = false; // Useful so we don't need to parse DOM for checking changes
-let unsavedInsert = false; // Ditto - for added rows
-let currentWorkingTable = "players"; // To keep track of the current working table (CWT)
-let columnAssociations = null; // JSON column+key associations for all tables, sent over on init
-let isAdmin = false; // Determines what frontend features should be enabled
-let currentlyConnecting = false; // Connect button debounce
-let addedRowSeq = 1; // Keeps consistent row color alternation if pressed multiple times, for added rows
-let currentPage = "";
-let bufferRow;
+let isDev = false;                      // (Do not change) turned on if dev env is detected, to enable quick testing features
+let unsavedChanges = false;             // Useful so we don't need to parse DOM for checking changes
+let unsavedInsert = false;              // Ditto - for added rows
+let currentWorkingTable = "players";    // To keep track of the current working table (CWT)
+let columnAssociations = null;          // JSON column+key associations for all tables, sent over on init
+let isAdmin = false;                    // Determines what frontend features should be enabled
+let currentlyConnecting = false;        // Connect button debounce
+let addedRowSeq = 1;                    // Keeps consistent row color alternation if pressed multiple times, for added rows
+let currentPage = "";                   // String name of the current page
+let bufferRow;                          // Reference to HTMLelement of the buffer row, which contains the "Add Rows" button
 
 /**
  * Hooks up connections from Login DOM elements to functions

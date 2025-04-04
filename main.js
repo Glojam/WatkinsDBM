@@ -78,10 +78,10 @@ ipcMain.on('set-user-role', (event, role) => {
 });
 
 ipcMain.on('export-to-pdf', async (event, tableHTML) => {
-    const pdfPath = await dialog.showSaveDialog({
+    const pdfPath = await dialog.showSaveDialog(mainWindow, {
         title: 'Save PDF',
         defaultPath: 'exported_page.pdf',
-        filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+        filters: [{ name: 'PDF Files', extensions: ['pdf'] }], 
     });
 
     if (pdfPath.canceled) return;

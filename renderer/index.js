@@ -42,6 +42,7 @@ async function makeLoginConnections(extras) {
  * This is necessary when the page is rewritten
  */
 async function makeMainConnections(extras) {
+    currentWorkingTable = "players";
     document.getElementById("searchButton").addEventListener("click", async () => { searchDataFields(); });
     document.getElementById("updateButton").addEventListener("click", async () => { updateDataFields(); });
 
@@ -567,8 +568,6 @@ async function updateDataFields() {
         return;
     }
 
-    console.log(modifiedRows);
-
     showLoader();
     let updateString = "";
     if (modifiedRows.length > 0) {
@@ -630,7 +629,7 @@ async function addMoreRows() {
             } else {
                 innerHTML = columnAssociations[currentWorkingTable].defaults[columnAssociations[currentWorkingTable].columns[c]];
             }
-            createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '')
+            createInnerHTMLforCell(newCell, columnAssociations[currentWorkingTable].columns[c], (innerHTML !== undefined) ? innerHTML : '');
 
             styleCell(newCell, addedRowSeq);
         }

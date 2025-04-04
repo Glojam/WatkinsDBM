@@ -34,6 +34,10 @@ body {
     overflow-y: auto;
 }
 
+#usernameInput {
+    width: fit-content;
+}
+
 #tableContainer {
     box-shadow: 0 0 0.4em#888888;
     border: 0.2rem outset;

@@ -782,6 +782,10 @@ window.electronAPI.onExportToPDF(() => {
             td.textContent = oginfoValue;  // Replace inner content with oginfo value
         }
     });
+    // Delete the add rows button
+    clonedTable.querySelectorAll("tr").forEach(tr => {
+        if (tr.getAttribute("buffer") == "true") { tr.remove(); }
+    });
 
     // Get HTML and send to main
     const tableHTML = clonedTable.outerHTML;

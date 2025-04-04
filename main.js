@@ -160,7 +160,10 @@ ipcMain.handle("show-message", async (event, type, message, hint = "", title = "
             inputAttrs: {
                 type: 'number', requird: 'true'
             },
-            type: 'input'
+            type: 'input',
+            resizable: true,
+            icon: './resources/icon.png',
+            skipTaskbar: true,
         }, mainWindow)
         .then((r) => {
             return r !== null ? r : false;

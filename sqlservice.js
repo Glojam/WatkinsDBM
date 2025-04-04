@@ -399,6 +399,7 @@ exports.bulkUpload = () => {
                         SET Context_Info 0x55555
                         UPDATE Players
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
+                        SET Context_Info 0x0
                     `);
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -415,6 +416,7 @@ exports.bulkUpload = () => {
                     SET Context_Info 0x55555
                     UPDATE Players
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
+                    SET Context_Info 0x0
                     `)
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -431,6 +433,7 @@ exports.bulkUpload = () => {
                     SET Context_Info 0x55555
                     UPDATE Players
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
+                    SET Context_Info 0x0
                     `)
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -447,6 +450,7 @@ exports.bulkUpload = () => {
                         SET Context_Info 0x55555
                         UPDATE goalkeepers
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
+                        SET Context_Info 0x0
                     `);
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -463,6 +467,7 @@ exports.bulkUpload = () => {
                     SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
+                    SET Context_Info 0x0
                     `)
             } catch (err) {
                 dialog.showMessageBox(null, {
@@ -479,6 +484,7 @@ exports.bulkUpload = () => {
                     SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
+                    SET Context_Info 0x0
                     `)
             } catch (err) {
                 dialog.showMessageBox(null, {

@@ -509,5 +509,8 @@ exports.bulkUpload = () => {
     }
 
     // Execute the function
-    uploadData().catch((err) => console.error('Error:', err));
+    return uploadData().catch((err) => {
+        console.error('Error:', err);
+        throw err;
+    });
 };

@@ -28,10 +28,13 @@ exports.buildMenu = (window, upload) => {
                     role: 'Import Files',
                     label: 'Import Files',
                     id: "import-option",
-                    click: () => {
-                        upload(); 
-                        console.log(`enabled: ${adminPerms}`)
-                        window.webContents.send('get-inputs');
+                    click: async () => {
+                        try{
+                            const result = await upload(); 
+                            window.webContents.send('get-inputs');
+                        } catch (error){
+                            console.log("Import canceled");
+                        }
                     },
                 },
                 { // TODO (possibly)

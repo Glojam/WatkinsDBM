@@ -564,14 +564,14 @@ async function updateDataFields() {
     if (modifiedRows.length > 0) {
         let success = await window.electronAPI.update(currentWorkingTable, modifiedRows);
         if (success == true) {
-            updateString = modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.\n`
+            updateString = modifiedRows.length + ` row${modifiedRows.length == 1 ? " was" : "s were"} changed.\n`;
             resetAllCellChanges();
         }
     } 
     if (addedRows.length > 0) {
         let success = await window.electronAPI.insert(currentWorkingTable, addedRows);
         if (success == true) {
-            updateString += addedRows.length + ` new row${addedRows.length == 1 ? " was" : "s were"} added.`
+            updateString += addedRows.length + ` new row${addedRows.length == 1 ? " was" : "s were"} added.`;
             deleteAddedRows();
         }
     }

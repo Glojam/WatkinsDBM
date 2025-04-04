@@ -30,7 +30,7 @@ exports.buildMenu = (window, upload) => {
                     id: "import-option",
                     click: async () => {
                         try{
-                            const result = await upload(); 
+                            await upload(); 
                             window.webContents.send('get-inputs');
                         } catch (error){
                             console.log("Import canceled");

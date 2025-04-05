@@ -824,7 +824,7 @@ window.electronAPI.onShowHelp(() => {
         "————————————————————————————————————\n" +
         "File Options (Top-left menu):\n" +
         "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
-        "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
+        "• Export Selection  (takes the current selection and exports as PDF or |-delimited CSV)\n",
         "Help"
     );
 });

@@ -6,7 +6,7 @@
         "display_names": ["Date","Opponent", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds", "Season"],
         "defaults": {"jersey": 0, "opponent": "NA", "date": "1970-01-01", "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
-        "readonly_cols": ["jersey"],
+        "readonly_cols": ["jersey","date", "opponent", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "played", "points"],
         "addable": true,
         "non_searchable": ["division"]
     },
@@ -17,7 +17,7 @@
         "display_names": ["Date","Opponent", "Field", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Jersey", "Played", "Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Saves", "Shutouts", "Yellows", "Reds", "Season"],
         "defaults": {"jersey": 0, "opponent": "NA", "date": "1970-01-01", "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
-        "readonly_cols": ["jersey"],
+        "readonly_cols": ["date", "opponent", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "jersey", "played"],
         "addable": true,
         "non_searchable": ["division"]
     },
@@ -28,7 +28,7 @@
         "display_names": ["Jersey", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals", "Assists", "Points", "Shots", "Shots On Goal", "Yellows", "Reds", "Season"],
         "join_jersey": true,
         "defaults": {"motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
-        "readonly_cols": ["jersey"],
+        "readonly_cols": ["jersey", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals", "assists", "points", "shots", "shots on goal", "yellows", "reds", "season"],
         "addable": false,
         "non_searchable": ["opponent", "division", "position"]
     },
@@ -39,7 +39,7 @@
         "display_names": ["Jersey", "Games Played", "Games Started", "MOTM Award", "Sportsmanship Award", "Minutes", "Goals Against", "Goals Against Average", "Saves", "Saves Average", "Shutouts", "Yellows", "Reds","Season"],
         "defaults": {"jersey": 0, "motm award": 0, "sportsmanship award": 0, "yellows": 0, "reds": 0, "season": 2025},
         "join_jersey": true,
-        "readonly_cols": ["jersey"],
+        "readonly_cols": ["jersey", "games played", "games started", "motm award", "sportsmanship award", "minutes", "goals against", "goals against average", "saves", "saves average", "shutouts", "yellows", "reds","season"],
         "addable": false,
         "non_searchable": ["opponent", "division", "position"]
     },
@@ -49,7 +49,7 @@
         "columns": ["date", "opponent", "division", "field", "conference",  "outcome", "half score", "half score opponent", "final score", "final score opponent", "shots for", "shots against", "yellows", "reds"],
         "defaults": {"yellows": 0, "reds": 0},
         "display_names": ["Date", "Opponent", "Division", "Field", "Conference", "Outcome", "Half Score", "Half Score (Opponent)", "Final Score", "Final Score (Opponent)", "Shots For", "Shots Against", "Yellows", "Reds"],
-        "readonly_cols": [],
+        "readonly_cols": ["outcome","final score", "final score opponent", "shots for", "shots against", "yellows", "reds"],
         "addable": false,
         "non_searchable": ["first name", "last name", "position", "season"]
     },

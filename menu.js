@@ -37,10 +37,21 @@ exports.buildMenu = (window, upload) => {
                         }
                     },
                 },
-                { // TODO (possibly)
+                {
                     role: 'Export Selection',
                     label: 'Export Selection',
-                    click: () => { window.webContents.send('export-to-pdf'); }
+                    submenu: [
+                        {
+                            role: 'as pdf',
+                            label: 'As PDF',
+                            click: () => { window.webContents.send('export-to-pdf'); }
+                        }, 
+                        {
+                            role: 'as csv',
+                            label: 'As CSV',
+                            click: () => { window.webContents.send('export-to-csv'); }
+                        }
+                    ]
                 },
                 { type: 'separator' },
                 isMac ? { role: 'close' } : { role: 'quit' }

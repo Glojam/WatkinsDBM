@@ -125,8 +125,39 @@ ipcMain.on('export-to-pdf', async (event, tableHTML) => {
                 }
             });
         }).catch(err => {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Save to PDF failed: An error occured.'
+            });
             console.error(err);
         });
+    });
+});
+
+ipcMain.on('export-to-csv', async (event, dataTable) => {
+    const csvPath = await dialog.showSaveDialog(mainWindow, {
+        title: 'Save CSV',
+        defaultPath: 'exported_page.csv',
+        filters: [{ name: 'CSV Files', extensions: ['csv'] }], 
+    });
+
+    if (csvPath.canceled) return;
+
+    csvString = dataTable.map(row => row.join('|')).join('\n');
+
+    fs.writeFile(csvPath.filePath, csvString, (err) => {
+        if (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Save to CSV failed: An error occured.'
+            });
+            console.error(err);
+            return;
+        }
     });
 });
 

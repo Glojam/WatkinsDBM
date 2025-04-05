@@ -730,6 +730,9 @@ function clearWindow(clearSearchFields, appendAddRowsButton) {
     calcUnsavedChanges(); // Always happens in tandem
 }
 
+/**
+ * Runs a background thread that logs user out if inactive
+ */
 function runInactivityLoop() {
     let time;
     window.onload = resetTimer;
@@ -752,6 +755,50 @@ function runInactivityLoop() {
         // 1000 milliseconds = 1 second
     }
 };
+
+/**
+ * Gets the HTML contents of the data table minus any input or css fluff
+ * @returns {String} The table HTML
+ */
+function getDataTable() {
+    // Extract table HTML & send to main process
+    const tableElement = document.querySelector("#dataTable");
+
+    // Convert all input fields to their displayed values
+    const clonedTable = tableElement.cloneNode(true);
+    clonedTable.querySelectorAll("td").forEach(td => {
+        const oginfoValue = td.getAttribute("oginfo");
+        if (oginfoValue !== null) {
+            td.textContent = oginfoValue;  // Replace inner content with oginfo value
+        }
+    });
+    // Delete the add rows button
+    clonedTable.querySelectorAll("tr").forEach(tr => {
+        if (tr.getAttribute("buffer") == "true") { tr.remove(); }
+    });
+
+    // Get HTML and send to main
+    return clonedTable;
+}
+
+// Listener to export the current selection to PDF
+window.electronAPI.onExportToPDF(() => {
+    window.electronAPI.sendExportToPDF(getDataTable().outerHTML);
+});
+
+// Listener to export the current selection to CSV
+window.electronAPI.onExportToCSV(() => {
+    let dataStream = [];
+    getDataTable().querySelectorAll("tr").forEach(row => {
+        let rowTab = [];
+        for (let c = 0; c < row.cells.length; c++) {
+            rowTab.push(row.cells[c].innerText);
+        }
+        if (rowTab.length > 0) { dataStream.push(rowTab) };
+    });
+
+    window.electronAPI.sendExportToCSV(dataStream);
+});
 
 // Help window popup listener, called externally from main menu
 // TODO better formated popup, possibly using a custom notification
@@ -780,29 +827,6 @@ window.electronAPI.onShowHelp(() => {
         "• Export Selection  (takes the current selection and exports as a |-delimited CSV file)\n",
         "Help"
     );
-});
-
-// Listener to export the current selection to PDF
-window.electronAPI.onExportToPDF(() => {
-    // Extract table HTML & send to main process
-    const tableElement = document.querySelector("#dataTable");
-
-    // Convert all input fields to their displayed values
-    const clonedTable = tableElement.cloneNode(true);
-    clonedTable.querySelectorAll("td").forEach(td => {
-        const oginfoValue = td.getAttribute("oginfo");
-        if (oginfoValue !== null) {
-            td.textContent = oginfoValue;  // Replace inner content with oginfo value
-        }
-    });
-    // Delete the add rows button
-    clonedTable.querySelectorAll("tr").forEach(tr => {
-        if (tr.getAttribute("buffer") == "true") { tr.remove(); }
-    });
-
-    // Get HTML and send to main
-    const tableHTML = clonedTable.outerHTML;
-    window.electronAPI.sendExportToPDF(tableHTML);
 });
 
 // Linear Functions for getting additional data on file input

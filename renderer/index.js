@@ -344,7 +344,7 @@ function createInnerHTMLforCell(cell, columnName, value) {
     } else if (columnName == "field") {
         makeSelector(["H", "A"]);
     } else if (columnName == "outcome") {
-        makeSelector(["W", "L"]);
+        makeSelector(["W", "L", "T"]);
     } else if ((columnName == "played" || columnName == "started" || columnName == "motm award" || columnName == "sportsmanship award")) {
         makeSelector(["true", "false"]);
     } else if (columnName == "year") {

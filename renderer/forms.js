@@ -1,10 +1,11 @@
+let responses = [];     // An array containing responses (and player last name if necessary) paired with their respective property
+
 export async function fieldForm(event) {
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        let fieldChoice = selectedOption.value;
-        console.log(fieldChoice);
+        responses.push({property: "field", lastName: null, data: selectedOption.value});
 
         // Go to next step
         document.getElementById('popupField').style.display = 'none';
@@ -24,7 +25,8 @@ export async function halfScoreForm(event) {
     // TODO: Add Data to SQL Table
     const watkinsHalf = document.querySelector('input[name="watkinsHalfScore"]').value;
     const opponentHalf = document.querySelector('input[name="opponentHalfScore"]').value;
-    console.log(watkinsHalf + "-" + opponentHalf);
+    responses.push({property: "half score", lastName: null, data: watkinsHalf});
+    responses.push({property: "half score opponent", lastName: null, data: opponentHalf});
 
     // Build form for next step
     let startedForm = document.getElementById("startedForm");
@@ -60,27 +62,39 @@ export async function halfScoreForm(event) {
 export async function startedForm(event) {
     event.preventDefault();
     // TODO: Add Data to SQL Table
-    const startedCheckedBoxes = document.querySelectorAll('input[name="startedOption"]:checked');
-    let checkedBoxesArr = [];
-    startedCheckedBoxes.forEach(checkBox => {
-        checkedBoxesArr.push(checkBox.value);
-        console.log(checkBox.value);
-    });
-
-    // Build form for next step
-    let motmForm = document.getElementById("motmForm");
-    let innerHTML = '';
     let firstNames = [];
     let lastNames = [];
-
+    
     const data = await window.electronAPI.getData("association", {});
-
+    
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){ firstNames.push(value); }
             if (key == "last name"){ lastNames.push(value); }
         }
     });
+
+    const startedCheckedBoxes = document.querySelectorAll('input[name="startedOption"]:checked');
+    let selectedYes = false;    // "yes" responses take precedent over "no"
+
+    lastNames.forEach(name => {
+        startedCheckedBoxes.forEach(checkBox => {
+            if (checkBox.value.includes(name)) {
+                checkBox.value = checkBox.value.replace(name, "");
+                if (!selectedYes){
+                    responses.push({property: "started", lastName: name, data: checkBox.value});
+                }
+                if (checkBox.value === "yes"){
+                    selectedYes = true;
+                }
+            };
+        });
+        selectedYes = false;
+    });
+
+    // Build form for next step
+    let motmForm = document.getElementById("motmForm");
+    let innerHTML = '';
 
     for (let i = 0; i < firstNames.length; i++){
         innerHTML += '<input type="radio" name="motmOption" value="' + lastNames[i] + '">';
@@ -102,8 +116,7 @@ export async function motmForm(event) {
     const selectedOption = document.querySelector('input[name="motmOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        let motmWinner = selectedOption.value;
-        console.log(motmWinner);
+        responses.push({property: "motm award", lastName: selectedOption.value, data: null});
 
         // Build form for next step
         let sportsmanForm = document.getElementById("sportsmanForm");
@@ -148,8 +161,7 @@ export async function sportsmanForm(event) {
     const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        let sportsmanWinner = selectedOption.value;
-        console.log(sportsmanWinner);
+        responses.push({property: "sportsmanship award", lastName: selectedOption.value, data: null});
 
         // Build form for next step
         let shotsGoalForm = document.getElementById("shotsGoalForm");
@@ -193,7 +205,6 @@ export async function shotsGoalForm(event) {
     // TODO: Add Data to SQL Table
     let firstNames = [];
     let lastNames = [];
-    let shotsGoalArr = [];
     
     const data = await window.electronAPI.getData("association", {});
     
@@ -204,9 +215,10 @@ export async function shotsGoalForm(event) {
         }
     });
 
+    let shotsOnGoal;
     lastNames.forEach(name => {
-        shotsGoalArr.push(document.querySelector('input[name="shotsGoal' + name + '"]').value);
-        console.log(name + ": " + document.querySelector('input[name="shotsGoal' + name + '"]').value);
+        shotsOnGoal = document.querySelector('input[name="shotsGoal' + name + '"]').value;
+        responses.push({property: "shots on goal", lastName: name, data: shotsOnGoal});
     });
 
     // Build form for next step
@@ -233,13 +245,9 @@ export async function yellowsForm(event) {
     // TODO: Add Data to SQL Table
     const yellowsCheckedBoxes = document.querySelectorAll('input[name="yellows"]:checked');
     if (yellowsCheckedBoxes){
-        let checkedBoxesArr = [];
         yellowsCheckedBoxes.forEach(checkBox => {
-            checkedBoxesArr.push(checkBox.value);
-            console.log(checkBox.value);
+            responses.push({property: "yellows", lastName: checkBox.value, data: null});
         });
-    } else {
-        console.log("No yellows selected");
     }
 
     // Build form for next step
@@ -277,14 +285,11 @@ export async function redsForm(event) {
     // TODO: Add Data to SQL Table
     const redsCheckedBoxes = document.querySelectorAll('input[name="reds"]:checked');
     if (redsCheckedBoxes){
-        let checkedBoxesArr = [];
         redsCheckedBoxes.forEach(checkBox => {
-            checkedBoxesArr.push(checkBox.value);
-            console.log(checkBox.value);
+            responses.push({property: "reds", lastName: checkBox.value, data: null});
         });
-    } else {
-        console.log("No yellows selected");
     }
+    console.log(responses);
 
     // Close popup
     document.getElementById('popupReds').style.display = 'none';

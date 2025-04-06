@@ -5,6 +5,8 @@ const readline = require('readline');
 const path = require('path');
 const columnAssociations = require('./columns.json')
 
+//file scoped variable to keep track of current working opponent name. given from bulk upload and accessed by fieldData
+var opponentMatch;
 // Universal pool instance; orders of magnitude faster to query from just 1 pool than to use multiple
 var poolPromise;
 
@@ -53,7 +55,50 @@ exports.login = async (event, credentials) => {
         return err.toString();
     }
 }
-
+exports.fieldData = async(responses) => {
+    console.log(opponentMatch)
+    async function uploadFieldData() {
+        try {
+            // Connect to the database
+            await sql.connect(config);
+            // Loop through the data array
+            for (let i = 0; i < responses.length; i++) {
+              if (lastName) {
+                // Construct the SQL query to update the appropriate column
+                const query = `
+                    UPDATE p
+                    SET p.${responses[i].property} = @data
+                    FROM Players p
+                    JOIN association a ON a.jersey = p.jersey AND a.season = p.season
+                    WHERE
+                    (a.lastName = @lastName OR @lastName IS NULL)
+                    AND a.fileName = @fileName
+                    AND CONVERT(date, a.[date]) = CONVERT(date, GETDATE())
+                `;
+        
+                // Run the query with parameterized values
+                await sql.request()
+                  .input('data', sql.NVarChar, responses[i].data)   // Use appropriate SQL data type
+                  .input('lastName', sql.NVarChar, responses[i].lastName)
+                  .input('oppM', sql.NVarChar, opponentMatch)
+                  .query(query);
+                
+                console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+              }
+            }
+        
+            // Close the connection
+            await sql.close();
+          } catch (err) {
+            console.error('Error updating database:', err);
+        }
+    }
+        // Execute the function
+        return uploadFieldData().catch((err) => {
+            console.error('Error:', err);
+            throw err;
+        });
+}
 /**
  * Updates existing data within the database.
  * @param {Electron.IpcMainEvent} event Electron IPC event
@@ -217,7 +262,7 @@ exports.bulkUpload = () => {
         var finalScore = 0;
         var finalScoreOpp = 0;
         var fileName = path.basename(fileOutputs[0]);
-        var opponentMatch = fileName.match(/^WMHS vs (.+)\.txt$/);
+        opponentMatch = fileName.match(/^WMHS vs (.+)\.txt$/);
         var finalOutcome;
         var markerOutcome = 'M'
         var totalShots = 0;

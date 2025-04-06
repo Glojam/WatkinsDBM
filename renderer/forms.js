@@ -5,7 +5,12 @@ export async function fieldForm(event) {
     const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        responses.push({property: "field", lastName: null, data: selectedOption.value});
+        if (selectedOption.value === "home"){
+            responses.push({property: "field", lastName: null, data: "H"});
+        } 
+        else {
+            responses.push({property: "field", lastName: null, data: "A"});
+        }
 
         // Go to next step
         document.getElementById('popupField').style.display = 'none';
@@ -82,10 +87,13 @@ export async function startedForm(event) {
             if (checkBox.value.includes(name)) {
                 checkBox.value = checkBox.value.replace(name, "");
                 if (!selectedYes){
-                    responses.push({property: "started", lastName: name, data: checkBox.value});
-                }
-                if (checkBox.value === "yes"){
-                    selectedYes = true;
+                    if (checkBox.value === "yes"){
+                        responses.push({property: "started", lastName: name, data: 1});
+                        selectedYes = true;
+                    }
+                    else {
+                        responses.push({property: "started", lastName: name, data: 0});
+                    }
                 }
             };
         });
@@ -116,7 +124,7 @@ export async function motmForm(event) {
     const selectedOption = document.querySelector('input[name="motmOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        responses.push({property: "motm award", lastName: selectedOption.value, data: null});
+        responses.push({property: "motm award", lastName: selectedOption.value, data: 1});
 
         // Build form for next step
         let sportsmanForm = document.getElementById("sportsmanForm");
@@ -161,7 +169,7 @@ export async function sportsmanForm(event) {
     const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        responses.push({property: "sportsmanship award", lastName: selectedOption.value, data: null});
+        responses.push({property: "sportsmanship award", lastName: selectedOption.value, data: 1});
 
         // Build form for next step
         let shotsGoalForm = document.getElementById("shotsGoalForm");
@@ -246,7 +254,7 @@ export async function yellowsForm(event) {
     const yellowsCheckedBoxes = document.querySelectorAll('input[name="yellows"]:checked');
     if (yellowsCheckedBoxes){
         yellowsCheckedBoxes.forEach(checkBox => {
-            responses.push({property: "yellows", lastName: checkBox.value, data: null});
+            responses.push({property: "yellows", lastName: checkBox.value, data: 1});
         });
     }
 
@@ -286,7 +294,7 @@ export async function redsForm(event) {
     const redsCheckedBoxes = document.querySelectorAll('input[name="reds"]:checked');
     if (redsCheckedBoxes){
         redsCheckedBoxes.forEach(checkBox => {
-            responses.push({property: "reds", lastName: checkBox.value, data: null});
+            responses.push({property: "reds", lastName: checkBox.value, data: 1});
         });
     }
     console.log(responses);

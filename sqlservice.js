@@ -63,14 +63,16 @@ exports.fieldData = async (event, responses) => {
             for (let i = 0; i < responses.length; i++) {
                 // Construct the SQL query to update the appropriate column
                 const query = `
+                    SET Context_Info 0x55555
                     UPDATE p
-                    SET p.${responses[i].property} = @data
+                    SET p.[${responses[i].property}] = @data
                     FROM Players p
                     JOIN association a ON a.jersey = p.jersey AND a.season = p.season
                     WHERE
-                    (a.lastName = @lastName OR @lastName IS NULL)
-                    AND a.fileName = @fileName
-                    AND CONVERT(date, a.[date]) = CONVERT(date, GETDATE())
+                    (a.[last name] = @lastName OR @lastName IS NULL)
+                    AND p.opponent = @oppM
+                    AND CONVERT(date, p.[date]) = CONVERT(date, GETDATE())
+                    SET Context_Info 0x0
                 `;
 
                 // Run the query with parameterized values

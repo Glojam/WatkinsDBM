@@ -1,3 +1,41 @@
+[data-theme="light"] {
+    --box-shadow: #888888;
+    --box-shadow-2: #282828;
+    --change-meter: #c5c5c5;
+    --contrast-1: white;
+    --contrast-2: black;
+    --off-white: #f1f1f1;
+    --school-theme: rgb(255, 210, 64);
+    --data-input-bg: #e2e2e2;
+    --cell-uneditable: #c0c0c0;
+    --popup-bg: rgb(247, 247, 247);
+    --tab-element: white;
+    --tab-element-alt: rgba(235, 235, 235);
+    --scollbar-bg: #F5F5F5;
+    --login-box-bg: white;
+    --table-container: white;
+    --background-img: url(../resources/background.png);
+}
+
+[data-theme="dark"] {
+    --box-shadow: #888888;
+    --box-shadow-2: #282828;
+    --change-meter: #3d3c44;
+    --contrast-1: black;
+    --contrast-2: white;
+    --off-white: #34353b;
+    --school-theme: rgb(255, 210, 64);
+    --data-input-bg: #303133;
+    --cell-uneditable: #202022;
+    --popup-bg: rgb(34, 34, 36);
+    --tab-element: rgb(67, 70, 75);
+    --tab-element-alt: rgb(41, 42, 44);
+    --scollbar-bg: #222222;
+    --login-box-bg: rgb(67, 70, 75);
+    --table-container: rgb(34, 34, 37);
+    --background-img: url(../resources/background-dark.png);
+}
+
 html {
     height: 100%;
 }
@@ -10,7 +48,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-image: url("../resources/background.png");
+    background-image:var(--background-img);
     background-size: cover;
     /* Prevents the body from scrolling */
 }
@@ -39,11 +77,12 @@ body {
 }
 
 #tableContainer {
-    box-shadow: 0 0 0.4em#888888;
+    box-shadow: 0 0 0.4em var(--box-shadow);
     border: 0.2rem outset;
     border-spacing: 0;
     border-collapse: collapse;
-    background: white;
+    border-color: var(--contrast-1);
+    background: var(--table-container);
     margin: 0.5em;
     flex-grow: 1;
     /* Table takes the remaining space */
@@ -71,7 +110,7 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: x-large;
-    box-shadow: 0 0 0.4em#282828;
+    box-shadow: 0 0 0.4em var(--box-shadow-2);
     padding: 0.5em;
 }
 
@@ -92,11 +131,11 @@ body {
 }
 
 #changeMeter {
-    color: black;
-    background: #d8d8d89e;
+    color: var(--contrast-2);
+    background: var(--change-meter);
     text-align: center;
     font-weight: bold;
-    box-shadow: 0 0 0.1em#888888;
+    box-shadow: 0 0 0.1em var(--box-shadow);
     padding: 0.5em;
 }
 
@@ -104,7 +143,7 @@ body {
     position: sticky;
     top: 0;
     /* Stick it to the top */
-    background-color: #f1f1f1;
+    background-color: var(--off-white);
     z-index: 1;
     /* Makes top row stays above other content */
 }
@@ -148,7 +187,7 @@ body {
 }
 
 #centralBox {
-    background-color: white;
+    background-color: var(--table-container);
     width: 40%;
     height: 60%;
     margin-bottom: 50%;
@@ -205,12 +244,13 @@ body {
 }
 
 .dataInput {
+    color: var(--contrast-2);
     margin: 0.5em;
     border-radius: 0.2em;
     width: 90%;
-    outline: 2px solid rgb(255, 210, 64);
+    outline: 2px solid var(--school-theme);
     border: 0;
-    background-color: #e2e2e2;
+    background-color: var(--data-input-bg);
     outline-offset: 3px;
     padding: 0.2em;
     transition: 0.1s;
@@ -218,22 +258,23 @@ body {
 
 .dataInput:focus {
     outline-offset: 5px;
-    background-color: #fff;
+    background-color: var(--table-container);
 }
 
 .tooltip {
     padding: 2px;
-    background-color: rgb(255, 210, 64);
+    background-color: var(--school-theme);
     color: black;
     border-radius: 1px;
 }
 
 .errorText {
-    color:rgb(211, 53, 53);
+    color: rgb(211, 53, 53);
     font-size: small;
 }
 
 .tableInput {
+    color: var(--contrast-2);
     margin: 0px;
     border: 0px;
     padding: 0px;
@@ -253,20 +294,24 @@ body {
 }
 
 .cellUneditable {
-    background-color: #c0c0c0 !important;
+    background-color: var(--cell-uneditable) !important;
 }
 
 .whiteTextForInput {
-    color: rgb(241, 228, 46) !important;
+    color: var(--school-theme) !important;
 }
 
 label {
     font-weight: bold;
 }
 
+select option {
+    background-color: var(--table-container);
+}
+
 button {
-    background-color: rgb(255, 210, 64);
-    box-shadow: 0 0 0.1em#888888;
+    background-color: var(--school-theme);
+    box-shadow: 0 0 0.1em var(--box-shadow);
     border: 0px;
     color: black;
     padding: 0.2em;
@@ -328,8 +373,17 @@ button:active {
     }
 }
 
-h3{
+h1, h2 {
+    color: var(--contrast-2);
+}
+
+h3 {
     text-align: center;
+    color: var(--contrast-2);
+}
+
+.inputLabel {
+    color: var(--contrast-2);
 }
 
 .popup {
@@ -344,7 +398,7 @@ h3{
     overflow-y: auto;
     /* Enable scroll if needed */
     overflow-x: hidden;
-    background-color: rgb(247, 247, 247);
+    background-color: var(--popup-bg);
     border-radius: 1em;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
 }
@@ -372,7 +426,9 @@ h3{
 .tabElement {
     font-size: 0.75em;
     text-align: center;
-    border: 0.15rem solid white;
+    color: var(--contrast-2);
+    background: var(--tab-element);
+    border: 0.15rem solid var(--tab-element);
     padding: 5px;
     word-wrap: break-word;
     white-space: normal;
@@ -380,25 +436,26 @@ h3{
 }
 
 .tabElementModified {
-    color: rgb(241, 228, 46);
+    color: var(--school-theme);
     background-color: #706715 !important;
-    border-color: white;
+    border-color: var(--tab-element);
 }
 
 .tabElementBolded {
     font-weight: bold;
-    background-color: rgb(255, 210, 64);
-    border-color: white;
+    background-color: var(--school-theme);
+    border-color: var(--tab-element);
+    color: black;
     font-size: .9em;
 }
 
 .tabElementAlt {
-    background-color: rgba(235, 235, 235);
+    background-color: var(--tab-element-alt);
     transition: color 0.5s ease, background-color 0.5s ease !important;
 }
 
 .tabElement:hover {
-    outline: 4px solid rgb(255, 210, 64);
+    outline: 4px solid var(--school-theme);
     outline-offset: -2px;
     /* Pulls the outline closer to the cell */
 }
@@ -410,17 +467,17 @@ h3{
 /* Custom scrollbar */
 ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #F5F5F5;
+    background-color: var(--scollbar-bg);
 }
 
 ::-webkit-scrollbar {
     width: 10px;
-    background-color: #F5F5F5;
+    background-color: var(--scollbar-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #000000;
-    border: 2px solid #555555;
+    background-color: var(--contrast-2);
+    border: 2px solid var(--box-shadow);
 }
 
 input::-webkit-outer-spin-button,

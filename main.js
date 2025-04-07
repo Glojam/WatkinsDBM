@@ -23,9 +23,8 @@ function createMainWindow() {
     });
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
-    mainWindow.maximize();
-    mainWindow.show();
     if (isDev) { mainWindow.webContents.openDevTools(); }
+
 
     // Send the list of columns & keys to the frontend
     // Must be done once it is finished loading
@@ -33,11 +32,32 @@ function createMainWindow() {
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('get-is-dev', isDev);
         mainWindow.webContents.send('get-cols', columnAssociations);
+
+        // Set the theme if it has been saved previously.
+        try {
+            themeDataPath = path.join(app.getPath("userData"), "theme.json");
+            const themeData = require(themeDataPath);
+            mainWindow.webContents.send('change-theme', themeData.theme);
+        } catch(err) {
+            console.log(err.toString());
+        }
+
+        mainWindow.maximize();
+        mainWindow.show();
     });
 
     mainWindow.webContents.on('did-fail-load', () => {
         mainWindow.webContents.send('get-cols', columnAssociations);
     });
+}
+
+// Can be later adapted to save more than just themes
+function saveThemeData(themeName) {
+    try {
+        fs.writeFileSync(path.join(app.getPath("userData"), "theme.json"), JSON.stringify( {"theme": themeName} ))
+    } catch {
+        console.log("Failed to store theme data.")
+    }
 }
 
 app.whenReady().then(() => {
@@ -70,7 +90,16 @@ ipcMain.handle("upload-file", async (event) => {
 });
 
 ipcMain.on('set-user-role', (event, role) => {
-    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload));
+    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload, saveThemeData));
+
+    // Set the menu selector theme if it's been changed (for dark mode)
+    try {
+        themeDataPath = path.join(app.getPath("userData"), "theme.json");
+        const themeData = require(themeDataPath);
+        Menu.getApplicationMenu().getMenuItemById('radio-' + themeData.theme).checked = true;
+    } catch(err) {
+        console.log(err.toString());
+    }
 
     // Change menu visibility options
     const menu = Menu.getApplicationMenu();

@@ -1,7 +1,7 @@
 const { app, Menu, ipcRenderer, nativeImage } = require('electron');
 const isMac = process.platform === 'darwin'
 
-exports.buildMenu = (window, upload) => {
+exports.buildMenu = (window, upload, saveThemeData) => {
     return Menu.buildFromTemplate([
         // { role: 'appMenu' }
         ...(isMac
@@ -29,10 +29,10 @@ exports.buildMenu = (window, upload) => {
                     label: 'Import Files',
                     id: "import-option",
                     click: async () => {
-                        try{
-                            await upload(); 
+                        try {
+                            await upload();
                             window.webContents.send('get-inputs');
-                        } catch (error){
+                        } catch (error) {
                             console.log("Import canceled");
                         }
                     },
@@ -45,7 +45,7 @@ exports.buildMenu = (window, upload) => {
                             role: 'as pdf',
                             label: 'As PDF',
                             click: () => { window.webContents.send('export-to-pdf'); }
-                        }, 
+                        },
                         {
                             role: 'as csv',
                             label: 'As CSV',
@@ -115,10 +115,20 @@ exports.buildMenu = (window, upload) => {
                         {
                             label: 'Light',
                             type: 'radio',
+                            id: 'radio-light',
+                            click: () => {
+                                window.webContents.send('change-theme', 'light');
+                                saveThemeData('light');
+                            }
                         },
                         {
                             label: 'Dark',
                             type: 'radio',
+                            id: 'radio-dark',
+                            click: () => {
+                                window.webContents.send('change-theme', 'dark');
+                                saveThemeData('dark');
+                            }
                         },
                     ]
                 },

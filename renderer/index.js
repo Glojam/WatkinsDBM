@@ -841,6 +841,10 @@ window.electronAPI.getMoreInputs(() => {
     document.getElementById('popupField').style.display = 'block';
 })
 
+window.electronAPI.onChangeTheme((toTheme) => {
+    document.documentElement.setAttribute('data-theme', toTheme);
+})
+
 // Listener to set column associations table; should only fire once
 window.electronAPI.onGetIsDev((serverIsDev) => { isDev = serverIsDev; })
 

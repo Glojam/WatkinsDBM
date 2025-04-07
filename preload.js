@@ -18,4 +18,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onExportToCSV: (callback) => ipcRenderer.on('export-to-csv', callback),
     sendExportToCSV: (html) => ipcRenderer.send('export-to-csv', html),
     onChangeTheme: (callback) => ipcRenderer.on('change-theme', (_event, value) => callback(value)),
+    fieldData: (data) => ipcRenderer.send('field-data', data),
 });

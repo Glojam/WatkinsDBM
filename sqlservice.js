@@ -31,7 +31,7 @@ exports.logout = async (event) => {
     if (poolPromise == undefined) { return; }
     try {
         poolPromise.close();
-    } catch (err) { 
+    } catch (err) {
         console.log(err);
     }
 }
@@ -55,15 +55,12 @@ exports.login = async (event, credentials) => {
         return err.toString();
     }
 }
-exports.fieldData = async(responses) => {
-    console.log(opponentMatch)
+exports.fieldData = async (event, responses) => {
+    console.log(opponentMatch);
     async function uploadFieldData() {
         try {
-            // Connect to the database
-            await sql.connect(config);
             // Loop through the data array
             for (let i = 0; i < responses.length; i++) {
-              if (lastName) {
                 // Construct the SQL query to update the appropriate column
                 const query = `
                     UPDATE p
@@ -75,29 +72,25 @@ exports.fieldData = async(responses) => {
                     AND a.fileName = @fileName
                     AND CONVERT(date, a.[date]) = CONVERT(date, GETDATE())
                 `;
-        
+
                 // Run the query with parameterized values
-                await sql.request()
-                  .input('data', sql.NVarChar, responses[i].data)   // Use appropriate SQL data type
-                  .input('lastName', sql.NVarChar, responses[i].lastName)
-                  .input('oppM', sql.NVarChar, opponentMatch)
-                  .query(query);
-                
+                await poolPromise.request()
+                    .input('data', sql.NVarChar, responses[i].data)   // Use appropriate SQL data type
+                    .input('lastName', sql.NVarChar, responses[i].lastName)
+                    .input('oppM', sql.NVarChar, opponentMatch[1])
+                    .query(query);
+
                 console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-              }
             }
-        
-            // Close the connection
-            await sql.close();
-          } catch (err) {
+        } catch (err) {
             console.error('Error updating database:', err);
         }
     }
-        // Execute the function
-        return uploadFieldData().catch((err) => {
-            console.error('Error:', err);
-            throw err;
-        });
+    // Execute the function
+    return uploadFieldData().catch((err) => {
+        console.error('Error:', err);
+        throw err;
+    });
 }
 /**
  * Updates existing data within the database.
@@ -256,7 +249,7 @@ exports.bulkUpload = () => {
             output: process.stdout,
             terminal: false,
         });
-            
+
         let isHeader = true; // Skip header row
         const MarkerScore = 9999;
         var finalScore = 0;
@@ -280,39 +273,39 @@ exports.bulkUpload = () => {
             }
 
             const [Jersey, Goals, Assists, Shots, MinutesPlayed, GoalsAgainst, Saves, ShutOuts] = fields.map(Number);
-            if (!isNaN(Goals)){
-                
+            if (!isNaN(Goals)) {
+
                 var Points = (Goals * 2) + Assists;
                 finalScore += Goals;
-                finalScoreOpp +=GoalsAgainst;
+                finalScoreOpp += GoalsAgainst;
                 var Played;
                 totalShots += Shots;
                 totalShotsOpp += Saves;
                 totalShotsOpp += GoalsAgainst;
                 console.log(totalShotsOpp);
-                if(MinutesPlayed != 0){
+                if (MinutesPlayed != 0) {
                     Played = 1;
                 }
-                else{
+                else {
                     Played = 0;
                 }
             }
             try {
                 await pool.request()
-                .input('Jersey', sql.Int, Jersey)
-                .input('Goals', sql.Int, Goals)
-                .input('Assists', sql.Int, Assists)
-                .input('Shots', sql.Int, Shots)
-                .input('MinutesPlayed', sql.Int, MinutesPlayed)
-                .input('Points', sql.Int, Points)
-                .input('Played', sql.Int, Played)
-                .input('MarkerScore', sql.Int, MarkerScore)
-                .input('OpponentMatch', sql.VarChar, opponentMatch[1])
-                .input('MarkerOutcome', sql.Char, markerOutcome)
-                .input('GoalsAgainst', sql.Int, GoalsAgainst)
-                .input('Saves', sql.Int, Saves)
-                .input('ShutOuts', sql.Int, ShutOuts)
-                .query(`
+                    .input('Jersey', sql.Int, Jersey)
+                    .input('Goals', sql.Int, Goals)
+                    .input('Assists', sql.Int, Assists)
+                    .input('Shots', sql.Int, Shots)
+                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input('Points', sql.Int, Points)
+                    .input('Played', sql.Int, Played)
+                    .input('MarkerScore', sql.Int, MarkerScore)
+                    .input('OpponentMatch', sql.VarChar, opponentMatch[1])
+                    .input('MarkerOutcome', sql.Char, markerOutcome)
+                    .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                    .input('Saves', sql.Int, Saves)
+                    .input('ShutOuts', sql.Int, ShutOuts)
+                    .query(`
                     -- Insert into goalkeepers if position is 'g'
                     WITH PositionData AS (
                         SELECT position
@@ -347,17 +340,17 @@ exports.bulkUpload = () => {
             //updates playersTotal table
             try {
                 await pool.request()
-                .input('Jersey', sql.Int, Jersey)
-                .input('Goals', sql.Int, Goals)
-                .input('Assists', sql.Int, Assists)
-                .input('Shots', sql.Int, Shots)
-                .input('MinutesPlayed', sql.Int, MinutesPlayed)
-                .input('Points', sql.Int, Points)
-                .input('Played', sql.Int, Played)
-                .input('GoalsAgainst', sql.Int, GoalsAgainst)
-                .input('Saves', sql.Int, Saves)
-                .input('ShutOuts', sql.Int, ShutOuts)
-                .query(`
+                    .input('Jersey', sql.Int, Jersey)
+                    .input('Goals', sql.Int, Goals)
+                    .input('Assists', sql.Int, Assists)
+                    .input('Shots', sql.Int, Shots)
+                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                    .input('Points', sql.Int, Points)
+                    .input('Played', sql.Int, Played)
+                    .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                    .input('Saves', sql.Int, Saves)
+                    .input('ShutOuts', sql.Int, ShutOuts)
+                    .query(`
                     -- First, check the player's position
                     DECLARE @Position VARCHAR(10);
             
@@ -425,37 +418,37 @@ exports.bulkUpload = () => {
                     'message': 'Query failed: An internal server error occurred.'
                 });
             }
-            
-        }   
-            if(finalScore < finalScoreOpp){
-                finalOutcome = 'L';
-            }
-            else if(finalScore > finalScoreOpp){
-                finalOutcome = 'W';
-            }
-            else{
-                finalOutcome = 'T';
-            }
-            // these try statements might be able to be combind.
-            try {
-                await pool.request()
-                    .input('FinalScore', sql.Int, finalScore)
-                    .query(`
+
+        }
+        if (finalScore < finalScoreOpp) {
+            finalOutcome = 'L';
+        }
+        else if (finalScore > finalScoreOpp) {
+            finalOutcome = 'W';
+        }
+        else {
+            finalOutcome = 'T';
+        }
+        // these try statements might be able to be combind.
+        try {
+            await pool.request()
+                .input('FinalScore', sql.Int, finalScore)
+                .query(`
                         SET Context_Info 0x55555
                         UPDATE Players
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
                         SET Context_Info 0x0
                     `);
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            try {
-                await pool.request()
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        try {
+            await pool.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
                     SET Context_Info 0x55555
@@ -463,16 +456,16 @@ exports.bulkUpload = () => {
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     SET Context_Info 0x0
                     `)
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            try {
-                await pool.request()
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        try {
+            await pool.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
                     SET Context_Info 0x55555
@@ -480,33 +473,33 @@ exports.bulkUpload = () => {
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     SET Context_Info 0x0
                     `)
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            try {
-                await pool.request()
-                    .input('FinalScore', sql.Int, finalScore)
-                    .query(`
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        try {
+            await pool.request()
+                .input('FinalScore', sql.Int, finalScore)
+                .query(`
                         SET Context_Info 0x55555
                         UPDATE goalkeepers
                         SET "final score" = @FinalScore WHERE "final score" = 9999;
                         SET Context_Info 0x0
                     `);
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            try {
-                await pool.request()
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        try {
+            await pool.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
                     SET Context_Info 0x55555
@@ -514,16 +507,16 @@ exports.bulkUpload = () => {
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     SET Context_Info 0x0
                     `)
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            try {
-                await pool.request()
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        try {
+            await pool.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
                     SET Context_Info 0x55555
@@ -531,35 +524,35 @@ exports.bulkUpload = () => {
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     SET Context_Info 0x0
                     `)
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
-            //update teamRecord
-            try {
-                await pool.request()
-                    .input('FinalScore', sql.Int, finalScore)
-                    .input('FinalScoreOpp', sql.Int, finalScoreOpp)
-                    .input('FinalOutcome', sql.Char, finalOutcome)
-                    .input('OpponentMatch',sql.VarChar,opponentMatch[1])
-                    .input('TotalShots', sql.Int, totalShots)
-                    .input('TotalShotsOpp', sql.Int, totalShotsOpp)
-                    .query(`
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
+        //update teamRecord
+        try {
+            await pool.request()
+                .input('FinalScore', sql.Int, finalScore)
+                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+                .input('FinalOutcome', sql.Char, finalOutcome)
+                .input('OpponentMatch', sql.VarChar, opponentMatch[1])
+                .input('TotalShots', sql.Int, totalShots)
+                .input('TotalShotsOpp', sql.Int, totalShotsOpp)
+                .query(`
                         INSERT INTO teamRecord (opponent, outcome, "final score", "final score opponent", "shots for", date, "shots against")
                         VALUES (@OpponentMatch, @FinalOutcome, @FinalScore, @FinalScoreOpp,@TotalShots, GETDATE(), @TotalShotsOpp)
                     `);
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
+        } catch (err) {
+            dialog.showMessageBox(null, {
+                'type': 'error',
+                'detail': err.toString(),
+                'title': 'SQL Error',
+                'message': 'Query failed: An internal server error occured.'
+            });
+        }
 
         console.log('Upload complete.');
         dialog.showMessageBox(null, { message: 'File upload successful.' });

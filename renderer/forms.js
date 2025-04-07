@@ -35,22 +35,27 @@ export async function halfScoreForm(event) {
 
     // Build form for next step
     let startedForm = document.getElementById("startedForm");
-    let innerHTML = '<p>Y/N</p>';
+    let innerHTML = '';
     let firstNames = [];
     let lastNames = [];
 
     const data = await window.electronAPI.getData("association", {});
+    const date = new Date();
+    const currentYear = date.getFullYear();
 
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){ firstNames.push(value); }
             if (key == "last name"){ lastNames.push(value); }
+            if (key == "season" && value != currentYear) {
+                firstNames.pop();
+                lastNames.pop();
+            }
         }
     });
 
     for (let i = 0; i < firstNames.length; i++){
         innerHTML += '<input type="checkbox" name="startedOption" value="yes' + lastNames[i] + '">';
-        innerHTML += '<input type="checkbox" name="startedOption" value="no' + lastNames[i] + '" checked>';
         innerHTML += '<label>';
         innerHTML += "  " + firstNames[i] + " " + lastNames[i];
         innerHTML += '</label><br>';
@@ -71,33 +76,34 @@ export async function startedForm(event) {
     let lastNames = [];
     
     const data = await window.electronAPI.getData("association", {});
+    const date = new Date();
+    const currentYear = date.getFullYear();
     
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){ firstNames.push(value); }
             if (key == "last name"){ lastNames.push(value); }
+            if (key == "season" && value != currentYear) {
+                firstNames.pop();
+                lastNames.pop();
+            }
         }
     });
 
     const startedCheckedBoxes = document.querySelectorAll('input[name="startedOption"]:checked');
-    let selectedYes = false;    // "yes" responses take precedent over "no"
 
     lastNames.forEach(name => {
         startedCheckedBoxes.forEach(checkBox => {
             if (checkBox.value.includes(name)) {
                 checkBox.value = checkBox.value.replace(name, "");
-                if (!selectedYes){
-                    if (checkBox.value === "yes"){
-                        responses.push({property: "started", lastName: name, data: true});
-                        selectedYes = true;
-                    }
-                    else {
-                        responses.push({property: "started", lastName: name, data: false});
-                    }
+                if (checkBox.value === "yes"){
+                    responses.push({property: "started", lastName: name, data: true});
+                }
+                else {
+                    responses.push({property: "started", lastName: name, data: false});
                 }
             };
         });
-        selectedYes = false;
     });
 
     // Build form for next step
@@ -133,11 +139,17 @@ export async function motmForm(event) {
         let lastNames = [];
     
         const data = await window.electronAPI.getData("association", {});
-    
+        const date = new Date();
+        const currentYear = date.getFullYear();
+        
         data.recordsets[0].forEach(record => {
             for (const [key, value] of Object.entries(record)) {
                 if (key == "first name"){ firstNames.push(value); }
                 if (key == "last name"){ lastNames.push(value); }
+                if (key == "season" && value != currentYear) {
+                    firstNames.pop();
+                    lastNames.pop();
+                }
             }
         });
     
@@ -178,18 +190,24 @@ export async function sportsmanForm(event) {
         let lastNames = [];
     
         const data = await window.electronAPI.getData("association", {});
-    
+        const date = new Date();
+        const currentYear = date.getFullYear();
+        
         data.recordsets[0].forEach(record => {
             for (const [key, value] of Object.entries(record)) {
                 if (key == "first name"){ firstNames.push(value); }
                 if (key == "last name"){ lastNames.push(value); }
+                if (key == "season" && value != currentYear) {
+                    firstNames.pop();
+                    lastNames.pop();
+                }
             }
         });
     
         for (let i = 0; i < firstNames.length; i++){
-            innerHTML += '<label>';
-            innerHTML += firstNames[i] + " " + lastNames[i];
-            innerHTML += '</label><input type="number" name="shotsGoal' + lastNames[i] + '" value="0" min="0" max="99"><br>';
+            innerHTML += '<input type="number" name="shotsGoal' + lastNames[i] + '" value="0" min="0" max="99"><label>';
+            innerHTML += '  ' + firstNames[i] + " " + lastNames[i];
+            innerHTML += '</label><br>';
         }
 
         innerHTML += '<br><button type="submit">Submit</button>'
@@ -215,11 +233,17 @@ export async function shotsGoalForm(event) {
     let lastNames = [];
     
     const data = await window.electronAPI.getData("association", {});
+    const date = new Date();
+    const currentYear = date.getFullYear();
     
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){ firstNames.push(value); }
             if (key == "last name"){ lastNames.push(value); }
+            if (key == "season" && value != currentYear) {
+                firstNames.pop();
+                lastNames.pop();
+            }
         }
     });
 
@@ -265,11 +289,17 @@ export async function yellowsForm(event) {
     let lastNames = [];
 
     const data = await window.electronAPI.getData("association", {});
-
+    const date = new Date();
+    const currentYear = date.getFullYear();
+    
     data.recordsets[0].forEach(record => {
         for (const [key, value] of Object.entries(record)) {
             if (key == "first name"){ firstNames.push(value); }
             if (key == "last name"){ lastNames.push(value); }
+            if (key == "season" && value != currentYear) {
+                firstNames.pop();
+                lastNames.pop();
+            }
         }
     });
 

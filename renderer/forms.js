@@ -1,3 +1,4 @@
+import { fieldData } from "../sqlservice";
 let responses = [];     // An array containing responses (and player last name if necessary) paired with their respective property
 
 export async function fieldForm(event) {
@@ -298,7 +299,7 @@ export async function redsForm(event) {
         });
     }
     console.log(responses);
-
+    fieldData(responses);
     // Close popup
     document.getElementById('popupReds').style.display = 'none';
 }

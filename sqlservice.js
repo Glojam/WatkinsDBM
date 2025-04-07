@@ -82,9 +82,17 @@ exports.fieldData = async (event, responses) => {
                     SET Context_Info 0x0
                 `;
 
+                //let dataType = (typeof(responses[i].data) == "boolean") ? sql.Bit : sql.NVarChar;
+                
+                let sqlType = sql.NVarChar
+                switch(typeof(responses[i].data)) {
+                    case "boolean": sqlType = sql.Bit;
+                    case "number": sqlType = sql.Int;
+                }
+
                 // Run the query with parameterized values
                 await poolPromise.request()
-                    .input('data', sql.NVarChar, responses[i].data)   // Use appropriate SQL data type
+                    .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
                     .input('lastName', sql.NVarChar, responses[i].lastName)
                     .input('oppM', sql.NVarChar, opponentMatch[1])
                     .query(query);
@@ -132,9 +140,8 @@ exports.update = async (event, tableName, rowsList) => {
     }
 
     try {
-        const pool = await poolPromise;
         for (const listPair of rowsList) {
-            await pool.request().query(getQueryClause(listPair));
+            await poolPromise.request().query(getQueryClause(listPair));
         }
         return true;
     } catch (err) {
@@ -170,9 +177,8 @@ exports.insert = async (event, tableName, rowsList) => {
     }
 
     try {
-        const pool = await poolPromise;
         for (const listPair of rowsList) {
-            await pool.request().query(getQueryClause(listPair));
+            await poolPromise.request().query(getQueryClause(listPair));
         }
         return true;
     } catch (err) {
@@ -224,8 +230,7 @@ exports.fetch = async (event, tableName, args) => {
     query += ';';
 
     try {
-        const pool = await poolPromise;
-        const result = await pool.request().query(query);
+        const result = await poolPromise.request().query(query);
         return result;
     } catch (err) {
         dialog.showMessageBox(null, {
@@ -233,7 +238,7 @@ exports.fetch = async (event, tableName, args) => {
             'detail': err.toString(),
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
-        });
+        });yu
         return false;
     }
 };
@@ -253,7 +258,6 @@ exports.bulkUpload = () => {
 
     // Function to parse and upload data
     async function uploadData() {
-        const pool = await poolPromise;
         const rl = readline.createInterface({
             input: fs.createReadStream(fileOutputs[0]), // TODO: this only actually accepts the first file. Should loop and upload all verified files.
             output: process.stdout,
@@ -301,7 +305,7 @@ exports.bulkUpload = () => {
                 }
             }
             try {
-                await pool.request()
+                await poolPromise.request()
                     .input('Jersey', sql.Int, Jersey)
                     .input('Goals', sql.Int, Goals)
                     .input('Assists', sql.Int, Assists)
@@ -349,7 +353,7 @@ exports.bulkUpload = () => {
             }
             //updates playersTotal table
             try {
-                await pool.request()
+                await poolPromise.request()
                     .input('Jersey', sql.Int, Jersey)
                     .input('Goals', sql.Int, Goals)
                     .input('Assists', sql.Int, Assists)
@@ -441,7 +445,7 @@ exports.bulkUpload = () => {
         }
         // these try statements might be able to be combind.
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalScore', sql.Int, finalScore)
                 .query(`
                         SET Context_Info 0x55555
@@ -458,7 +462,7 @@ exports.bulkUpload = () => {
             });
         }
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
                     SET Context_Info 0x55555
@@ -475,7 +479,7 @@ exports.bulkUpload = () => {
             });
         }
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
                     SET Context_Info 0x55555
@@ -492,7 +496,7 @@ exports.bulkUpload = () => {
             });
         }
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalScore', sql.Int, finalScore)
                 .query(`
                         SET Context_Info 0x55555
@@ -509,7 +513,7 @@ exports.bulkUpload = () => {
             });
         }
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .query(`
                     SET Context_Info 0x55555
@@ -526,7 +530,7 @@ exports.bulkUpload = () => {
             });
         }
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalOutcome', sql.Char, finalOutcome)
                 .query(`
                     SET Context_Info 0x55555
@@ -544,7 +548,7 @@ exports.bulkUpload = () => {
         }
         //update teamRecord
         try {
-            await pool.request()
+            await poolPromise.request()
                 .input('FinalScore', sql.Int, finalScore)
                 .input('FinalScoreOpp', sql.Int, finalScoreOpp)
                 .input('FinalOutcome', sql.Char, finalOutcome)

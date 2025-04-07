@@ -88,11 +88,11 @@ export async function startedForm(event) {
                 checkBox.value = checkBox.value.replace(name, "");
                 if (!selectedYes){
                     if (checkBox.value === "yes"){
-                        responses.push({property: "started", lastName: name, data: 1});
+                        responses.push({property: "started", lastName: name, data: true});
                         selectedYes = true;
                     }
                     else {
-                        responses.push({property: "started", lastName: name, data: 0});
+                        responses.push({property: "started", lastName: name, data: false});
                     }
                 }
             };
@@ -124,7 +124,7 @@ export async function motmForm(event) {
     const selectedOption = document.querySelector('input[name="motmOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        responses.push({property: "motm award", lastName: selectedOption.value, data: 1});
+        responses.push({property: "motm award", lastName: selectedOption.value, data: true});
 
         // Build form for next step
         let sportsmanForm = document.getElementById("sportsmanForm");
@@ -169,7 +169,7 @@ export async function sportsmanForm(event) {
     const selectedOption = document.querySelector('input[name="sportsmanOption"]:checked');
     if (selectedOption) {
         // TODO: Add Data to SQL Table
-        responses.push({property: "sportsmanship award", lastName: selectedOption.value, data: 1});
+        responses.push({property: "sportsmanship award", lastName: selectedOption.value, data: true});
 
         // Build form for next step
         let shotsGoalForm = document.getElementById("shotsGoalForm");

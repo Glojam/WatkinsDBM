@@ -55,6 +55,13 @@ exports.login = async (event, credentials) => {
         return err.toString();
     }
 }
+
+/**
+ * Given context of previous file import and form response data, fills missing gaps in import data
+ * @param {Electron.IpcMainEvent} event Electron IPC event
+ * @param {Array} responses             Container for all responses
+ * @return {Promise<any>}               Promise containing data or error
+ */
 exports.fieldData = async (event, responses) => {
     console.log(opponentMatch);
     async function uploadFieldData() {
@@ -94,6 +101,7 @@ exports.fieldData = async (event, responses) => {
         throw err;
     });
 }
+
 /**
  * Updates existing data within the database.
  * @param {Electron.IpcMainEvent} event Electron IPC event

@@ -92,6 +92,8 @@ async function makeMainConnections(extras) {
     });
 
     document.getElementById("disconnectButton").addEventListener("click", async () => {
+        let ignoreChanges = await ignoreUnsavedChanges();
+        if (!ignoreChanges) { return; }
         window.electronAPI.logout();
         switchPage("login");
     });

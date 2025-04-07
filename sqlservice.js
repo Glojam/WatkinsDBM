@@ -5,7 +5,7 @@ const readline = require('readline');
 const path = require('path');
 const columnAssociations = require('./columns.json')
 
-//file scoped variable to keep track of current working opponent name. given from bulk upload and accessed by fieldData
+// File-scoped variable to keep track of current working opponent name, given from previous bulk upload and accessed by fieldData
 var opponentMatch;
 // Universal pool instance; orders of magnitude faster to query from just 1 pool than to use multiple
 var poolPromise;
@@ -81,11 +81,9 @@ exports.fieldData = async (event, responses) => {
                     AND CONVERT(date, p.[date]) = CONVERT(date, GETDATE())
                     SET Context_Info 0x0
                 `;
-
-                //let dataType = (typeof(responses[i].data) == "boolean") ? sql.Bit : sql.NVarChar;
                 
                 let sqlType = sql.NVarChar
-                switch(typeof(responses[i].data)) {
+                switch (typeof(responses[i].data)) {
                     case "boolean": sqlType = sql.Bit;
                     case "number": sqlType = sql.Int;
                 }

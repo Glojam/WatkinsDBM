@@ -6,7 +6,7 @@
 ![Electron Version](https://img.shields.io/badge/Electron-3.22.0-blue)
 ![Built by ONU Database Capstone Team](https://img.shields.io/badge/Built%20by-ONU%20Database%20Capstone%20Team-orange)
 
-WatkinsDBM is a dekstop application designed to interface with a Microsoft SQL database. It provides a user-friendly way to view and edit tables remotely, no SQL knowledge required. It is compatible with Windows, Mac, and Linux.
+WatkinsDBM is a dekstop application designed to interface with a Microsoft SQL database holding sports statistics. It provides a user-friendly way to view and edit tables remotely, no SQL knowledge required. It is compatible with Windows, Mac, and Linux.
 
 ### Feature Set
 - Search tables with filters

@@ -847,6 +847,10 @@ window.electronAPI.onChangeTheme((toTheme) => {
     document.documentElement.setAttribute('data-theme', toTheme);
 })
 
+window.electronAPI.onShowSpinner((shown) => {
+    shown ? showLoader() : hideLoader();
+})
+
 // Listener to set column associations table; should only fire once
 window.electronAPI.onGetIsDev((serverIsDev) => { isDev = serverIsDev; })
 

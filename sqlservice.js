@@ -1,4 +1,4 @@
-const { dialog } = require('electron');
+const { dialog, BrowserWindow } = require('electron');
 const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
@@ -62,8 +62,9 @@ exports.login = async (event, credentials) => {
  * @param {Array} responses             Container for all responses
  * @return {Promise<any>}               Promise containing data or error
  */
-exports.fieldData = async (event, responses) => {
+exports.fieldData = async (responses, window) => {
     console.log(opponentMatch);
+    window.webContents.send('change-spinner', true);
     async function uploadFieldData() {
         try {
             // Loop through the data array
@@ -97,14 +98,24 @@ exports.fieldData = async (event, responses) => {
 
                 console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
             }
+
+            window.webContents.send('change-spinner', false);
+            dialog.showMessageBox(window, {
+                'type': 'info',
+                'detail': `Search "${opponentMatch[1]}" in Opponent to see details for this match.`,
+                'title': 'Bulk Upload',
+                'message': 'Bulk upload complete',
+            })
         } catch (err) {
             console.error('Error updating database:', err);
         }
     }
     // Execute the function
-    return uploadFieldData().catch((err) => {
+    return await uploadFieldData().catch((err) => {
         console.error('Error:', err);
         throw err;
+    }).then(() => {
+        window.webContents.send('change-spinner', false);
     });
 }
 
@@ -236,17 +247,17 @@ exports.fetch = async (event, tableName, args) => {
             'detail': err.toString(),
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
-        });yu
+        });
         return false;
     }
 };
 
 /**
  * Requests the user to select |-delimited CSV files and imports the data to the database.
+ * @param {BrowserWindow} window    Window for sending IPC messages
  */
-exports.bulkUpload = () => {
+exports.bulkUpload = async (window) => {
     // Get all selected files
-    // !! WARNING: NO INPUT VALIDATION! TODO: Add regex that confirms each file as acceptable, reject it if otherwise.
     const fileOutputs = dialog.showOpenDialogSync({
         title: 'Import Files',
         buttonLabel: 'Import',
@@ -254,10 +265,12 @@ exports.bulkUpload = () => {
         properties: ['openFile', 'multiSelections'],
     });
 
+    window.webContents.send('change-spinner', true);
+
     // Function to parse and upload data
     async function uploadData() {
         const rl = readline.createInterface({
-            input: fs.createReadStream(fileOutputs[0]), // TODO: this only actually accepts the first file. Should loop and upload all verified files.
+            input: fs.createReadStream(fileOutputs[0]), // TODO: this only actually accepts the first file. Could loop and upload all verified files.
             output: process.stdout,
             terminal: false,
         });
@@ -567,12 +580,13 @@ exports.bulkUpload = () => {
         }
 
         console.log('Upload complete.');
-        dialog.showMessageBox(null, { message: 'File upload successful.' });
     }
 
     // Execute the function
-    return uploadData().catch((err) => {
+    return await uploadData().catch((err) => {
         console.error('Error:', err);
         throw err;
+    }).then(() => {
+        window.webContents.send('change-spinner', false);
     });
 };

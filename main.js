@@ -65,7 +65,7 @@ app.whenReady().then(() => {
     ipcMain.handle('update-data', update);
     ipcMain.handle('insert-data', insert);
     ipcMain.handle('login', login);
-    ipcMain.on('field-data', fieldData);
+    ipcMain.on('field-data', async(responses)=>{fieldData(responses, mainWindow)});
 
     ipcMain.on('logout', () => {
         Menu.setApplicationMenu(null); 
@@ -88,11 +88,11 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.handle("upload-file", async (event) => {
-    return bulkUpload();
+    return bulkUpload(mainWindow);
 });
 
 ipcMain.on('set-user-role', (event, role) => {
-    Menu.setApplicationMenu(buildMenu(mainWindow, bulkUpload, saveThemeData));
+    Menu.setApplicationMenu(buildMenu(mainWindow, async()=>{await bulkUpload(mainWindow)}, saveThemeData));
 
     // Set the menu selector theme if it's been changed (for dark mode)
     try {

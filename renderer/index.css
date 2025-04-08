@@ -27,7 +27,7 @@
     --school-theme: rgb(255, 210, 64);
     --data-input-bg: #303133;
     --cell-uneditable: #202022;
-    --popup-bg: rgb(34, 34, 36);
+    --popup-bg: rgb(67, 70, 75);
     --tab-element: rgb(67, 70, 75);
     --tab-element-alt: rgb(41, 42, 44);
     --scollbar-bg: #222222;
@@ -38,6 +38,10 @@
 
 html {
     height: 100%;
+}
+
+label {
+    color: var(--contrast-2);
 }
 
 body {

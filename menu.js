@@ -33,7 +33,7 @@ exports.buildMenu = (window, upload, saveThemeData) => {
                             await upload();
                             window.webContents.send('get-inputs');
                         } catch (error) {
-                            console.log("Import canceled");
+                            console.log(error.toString());
                         }
                     },
                 },

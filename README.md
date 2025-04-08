@@ -1,5 +1,5 @@
 <p align="center">
-    <img src='https://raw.githubusercontent.com/Glojam/WatkinsDBM/refs/heads/main/resources/icon.png?token=GHSAT0AAAAAAC6JGDLWLXK2EUIA4MYT3CL6Z7VT37A' alt='WatkinsDBM Logo' width="250" height="200"/>
+    <img src='https://github.com/Glojam/WatkinsDBM/blob/main/resources/icon.png' alt='WatkinsDBM Logo' width="250" height="200"/>
 </p>
 
 # Watkins Database Manager

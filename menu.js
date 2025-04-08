@@ -1,5 +1,7 @@
 const { app, Menu, ipcRenderer, nativeImage } = require('electron');
-const isMac = process.platform === 'darwin'
+const path = require('path');
+const openAboutWindow = require('about-window').default;
+const isMac = process.platform === 'darwin';
 
 exports.buildMenu = (window, upload, saveThemeData) => {
     return Menu.buildFromTemplate([
@@ -84,8 +86,6 @@ exports.buildMenu = (window, upload, saveThemeData) => {
                     ]
                     : [
                         { role: 'delete' },
-                        { type: 'separator' },
-                        { role: 'selectAll' }
                     ])
             ]
         },
@@ -93,18 +93,6 @@ exports.buildMenu = (window, upload, saveThemeData) => {
         {
             label: 'View',
             submenu: [
-                { role: 'minimize' },
-                ...(isMac
-                    ? [
-                        { type: 'separator' },
-                        { role: 'front' },
-                        { type: 'separator' },
-                        { role: 'window' }
-                    ]
-                    : [
-                        //{ role: 'close' }
-                    ]),
-                { type: 'separator' },
                 { role: 'resetZoom' },
                 { role: 'zoomIn' },
                 { role: 'zoomOut' },
@@ -144,7 +132,16 @@ exports.buildMenu = (window, upload, saveThemeData) => {
                     click: () => window.webContents.send('show-help'),
                 },
                 { type: 'separator' },
-                { role: 'About' } // TODO contain basic information on app, watkins, usage, and credits (libraries, etc)
+                { 
+                    label: 'About',
+                    click: () => openAboutWindow({
+                        icon_path: path.join(__dirname, 'resources', 'icon-small.png'),                      
+                        product_name: "Watkins Database Manager",
+                        copyright: 'Copyright (c) 2025 Watkins Memorial High School',
+                        description: "Remote database interface app tailored for Watkins Memorial High School.",
+                        show_close_button: "OK",
+                    }),
+                }
             ]
 
         }

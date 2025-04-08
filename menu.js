@@ -138,7 +138,8 @@ exports.buildMenu = (window, upload, saveThemeData) => {
                         icon_path: path.join(__dirname, 'resources', 'icon-small.png'),                      
                         product_name: "Watkins Database Manager",
                         copyright: 'Copyright (c) 2025 Watkins Memorial High School',
-                        description: "Remote database interface app tailored for Watkins Memorial High School.",
+                        description: "Remote database interface app tailored for Watkins Memorial High School.\n\nRepo: https://github.com/Glojam/WatkinsDBM",
+                        adjust_window_size: true,
                         show_close_button: "OK",
                     }),
                 }

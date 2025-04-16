@@ -5,8 +5,11 @@ const fs = require('fs');
 const prompt = require('electron-prompt');
 const { bulkUpload, fetch, insert, update, fieldData, login, logout } = require('./sqlservice');
 const columnAssociations = require('./columns.json');
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = process.env.NODE_ENV === 'dev';
 const isMac = process.platform === 'darwin';
+
+// run this as early in the main process as possible
+if (require('electron-squirrel-startup')) app.quit();
 
 var mainWindow;
 
@@ -19,7 +22,7 @@ function createMainWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         },
-        icon: './resources/icon.png'
+        icon: './resources/appicon.ico'
     });
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));

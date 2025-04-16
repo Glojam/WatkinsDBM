@@ -1,23 +1,36 @@
 {
-    "name": "watkinsdemo",
-    "productName": "Watkins Database Manager",
-    "version": "1.0.0",
-    "description": "Frontend remote database management software for Watkins Memorial High School",
-    "main": "main.js",
-    "scripts": {
-        "start": "electron ."
-    },
-    "author": "Josh Meyer",
-    "license": "MIT",
-    "dependencies": {
-        "about-window": "^1.15.2",
-        "electron": "^33.2.0",
-        "electron-prompt": "^1.7.0",
-        "mssql": "^11.0.1",
-        "path": "^0.12.7",
-        "tedious": "^18.6.1"
-    },
-    "build": {
-        "files": "!passwords.json"
-    }
+  "name": "watkinsdemo",
+  "productName": "Watkins Database Manager",
+  "version": "1.0.0",
+  "description": "Frontend remote database management software for Watkins Memorial High School",
+  "main": "main.js",
+  "scripts": {
+    "start": "set NODE_ENV=dev&& electron-forge start",
+    "make": "electron-forge make",
+    "package": "electron-forge package"
+  },
+  "author": "ONU Database Capstone Team",
+  "license": "MIT",
+  "dependencies": {
+    "about-window": "^1.15.2",
+    "electron-prompt": "^1.7.0",
+    "electron-squirrel-startup": "^1.0.1",
+    "mssql": "^11.0.1",
+    "path": "^0.12.7",
+    "tedious": "^18.6.1"
+  },
+  "build": {
+    "files": "!passwords.json"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.0",
+    "@electron-forge/maker-deb": "^7.8.0",
+    "@electron-forge/maker-rpm": "^7.8.0",
+    "@electron-forge/maker-squirrel": "^7.8.0",
+    "@electron-forge/maker-zip": "^7.8.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
+    "@electron-forge/plugin-fuses": "^7.8.0",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^33.4.9"
+  }
 }

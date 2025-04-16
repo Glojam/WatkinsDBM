@@ -176,7 +176,7 @@ ipcMain.on('export-to-csv', async (event, dataTable) => {
 
     if (csvPath.canceled) return;
 
-    csvString = dataTable.map(row => row.join('|')).join('\n');
+    csvString = dataTable.map(row => row.join(',')).join('\n');
 
     fs.writeFile(csvPath.filePath, csvString, (err) => {
         if (err) {

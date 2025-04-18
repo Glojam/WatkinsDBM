@@ -280,7 +280,7 @@ exports.bulkUpload = async (window) => {
         var finalScore = 0;
         var finalScoreOpp = 0;
         var fileName = path.basename(fileOutputs[0]);
-        opponentMatch = fileName.match(/^WMHS vs (.+)\.txt$/);
+        opponentMatch = fileName.match(/^.*WMHS vs (.+)\.txt$/);
         var finalOutcome;
         var markerOutcome = 'M'
         var totalShots = 0;

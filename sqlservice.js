@@ -70,7 +70,7 @@ exports.fieldData = async (responses, window) => {
             // Loop through the data array
             for (let i = 0; i < responses.length; i++) {
                 // Construct the SQL query to update the appropriate column
-                const query = `
+                const Playersquery = `
                     SET Context_Info 0x55555
                     UPDATE p
                     SET p.[${responses[i].property}] = @data
@@ -82,7 +82,59 @@ exports.fieldData = async (responses, window) => {
                     AND CONVERT(date, p.[date]) = CONVERT(date, GETDATE())
                     SET Context_Info 0x0
                 `;
+                const goalKeepersquery = `
+                SET Context_Info 0x55555
+                UPDATE gk
+                SET gk.[${responses[i].property}] = @data
+                FROM goalkeepers gk
+                JOIN association a ON a.jersey = gk.jersey AND a.season = gk.season
+                WHERE
+                (gk.[last name] = @lastName OR @lastName IS NULL)
+                AND gk.opponent = @oppM
+                AND CONVERT(date, gk.[date]) = CONVERT(date, GETDATE())
+                SET Context_Info 0x0
+                `;
+                const playersTotalquery = `
+                SET Context_Info 0x55555
+                UPDATE pt
+                SET pt.[${responses[i].property}] = ISNULL(pt.[${responses[i].property}], 0) + CAST(@data AS INT)
+                FROM playersTotal pt
+                JOIN association a ON a.jersey = pt.jersey AND a.season = pt.season
+                WHERE
+                (a.[last name] = @lastName)
+                AND
+                pt.season = YEAR(GETDATE())
+                SET Context_Info 0x0
+                `;
+                const goalkeepersTotalquery = `
+                SET Context_Info 0x55555
+                UPDATE gkt
+                SET gkt.[${responses[i].property}] = ISNULL(gkt.[${responses[i].property}], 0) + CAST(@data AS INT)
+                FROM goalkeepersTotal as gkt
+                JOIN association a ON a.jersey = gkt.jersey AND a.season = gkt.season
+                WHERE
+                (a.[last name] = @lastName)
+                AND
+                gkt.season = YEAR(GETDATE())
+                SET Context_Info 0x0
+                `;
+                const isCard = ['reds', 'yellows'].includes(responses[i].property);
+                const teamRecordquery = `
+                SET Context_Info 0x55555;
                 
+                UPDATE tr
+                SET tr.[${responses[i].property}] = ${
+                  isCard
+                    ? `ISNULL(tr.[${responses[i].property}], 0) + CAST(@data AS INT)`
+                    : `@data`
+                }
+                FROM teamRecord as tr
+                WHERE
+                  (opponent = @oppM)
+                  AND CONVERT(date, tr.[date]) = CONVERT(date, GETDATE());
+                
+                SET Context_Info 0x0;
+                `;
                 let sqlType = sql.NVarChar
                 switch (typeof(responses[i].data)) {
                     case "boolean": sqlType = sql.Bit;
@@ -94,10 +146,46 @@ exports.fieldData = async (responses, window) => {
                     .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
                     .input('lastName', sql.NVarChar, responses[i].lastName)
                     .input('oppM', sql.NVarChar, opponentMatch[1])
-                    .query(query);
-
+                    .query(Playersquery);
                 console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                if(responses[i].property != "shots on goal")
+                {
+                    await poolPromise.request()
+                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                        .input('lastName', sql.NVarChar, responses[i].lastName)
+                        .input('oppM', sql.NVarChar, opponentMatch[1])
+                        .query(goalKeepersquery);
+                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                }
+                if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent")
+                {
+                    await poolPromise.request()
+                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                        .input('lastName', sql.NVarChar, responses[i].lastName)
+                        .input('oppM', sql.NVarChar, opponentMatch[1])
+                        .query(playersTotalquery);
+                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                }
+                if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent" && responses[i].property != "shots on goal")
+                {
+                    await poolPromise.request()
+                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                        .input('lastName', sql.NVarChar, responses[i].lastName)
+                        .input('oppM', sql.NVarChar, opponentMatch[1])
+                        .query(goalkeepersTotalquery);
+                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                }
+                if(responses[i].property != "shots on goal" && responses[i].property != "motm award" && responses[i].property != "sportsmanship award" && responses[i].property != "started")
+                {
+                    await poolPromise.request()
+                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                        .input('lastName', sql.NVarChar, responses[i].lastName)
+                        .input('oppM', sql.NVarChar, opponentMatch[1])
+                        .query(teamRecordquery);
+                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                }
             }
+        
 
             window.webContents.send('change-spinner', false);
             dialog.showMessageBox(window, {

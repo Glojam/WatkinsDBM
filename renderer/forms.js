@@ -1,6 +1,7 @@
 let responses = [];     // An array containing responses (and player last name if necessary) paired with their respective property
 
 export async function fieldForm(event) {
+    responses = [];
     event.preventDefault();
     const selectedOption = document.querySelector('input[name="fieldOption"]:checked');
     if (selectedOption) {

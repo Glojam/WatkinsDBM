@@ -88,27 +88,35 @@ exports.fieldData = async (responses, window) => {
                 FROM goalkeepers gk
                 JOIN association a ON a.jersey = gk.jersey AND a.season = gk.season
                 WHERE
-                (gk.[last name] = @lastName OR @lastName IS NULL)
+                (a.[last name] = @lastName OR @lastName IS NULL)
                 AND gk.opponent = @oppM
                 AND CONVERT(date, gk.[date]) = CONVERT(date, GETDATE())
                 SET Context_Info 0x0
                 `;
+                const propertyMap = {
+                    "started": "games started",
+                    "motm award": "motm awards",
+                    "sportsmanship award": "sportsmanship awards"
+                };
+                  
+                  const originalProperty = responses[i].property;
+                  const property = propertyMap[originalProperty] || originalProperty;
+                  
                 const playersTotalquery = `
-                SET Context_Info 0x55555
-                UPDATE pt
-                SET pt.[${responses[i].property}] = ISNULL(pt.[${responses[i].property}], 0) + CAST(@data AS INT)
-                FROM playersTotal pt
-                JOIN association a ON a.jersey = pt.jersey AND a.season = pt.season
-                WHERE
-                (a.[last name] = @lastName)
-                AND
-                pt.season = YEAR(GETDATE())
-                SET Context_Info 0x0
+                    SET Context_Info 0x55555;
+                    UPDATE pt
+                    SET pt.[${property}] = ISNULL(pt.[${property}], 0) + CAST(@data AS INT)
+                    FROM playersTotal pt
+                    JOIN association a ON a.jersey = pt.jersey AND a.season = pt.season
+                    WHERE
+                        a.[last name] = @lastName
+                        AND pt.season = YEAR(GETDATE());
+                    SET Context_Info 0x0;
                 `;
                 const goalkeepersTotalquery = `
                 SET Context_Info 0x55555
                 UPDATE gkt
-                SET gkt.[${responses[i].property}] = ISNULL(gkt.[${responses[i].property}], 0) + CAST(@data AS INT)
+                SET gkt.[${property}] = ISNULL(gkt.[${property}], 0) + CAST(@data AS INT)
                 FROM goalkeepersTotal as gkt
                 JOIN association a ON a.jersey = gkt.jersey AND a.season = gkt.season
                 WHERE
@@ -141,12 +149,14 @@ exports.fieldData = async (responses, window) => {
                 }
 
                 // Run the query with parameterized values
+                //Updates Players
                 await poolPromise.request()
                     .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
                     .input('lastName', sql.NVarChar, responses[i].lastName)
                     .input('oppM', sql.NVarChar, opponentMatch[1])
                     .query(Playersquery);
                 console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+                //Updates Goalkeepers
                 if(responses[i].property != "shots on goal")
                 {
                     await poolPromise.request()
@@ -156,6 +166,7 @@ exports.fieldData = async (responses, window) => {
                         .query(goalKeepersquery);
                     console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
                 }
+                //Updates PlayersTotal
                 if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent")
                 {
                     await poolPromise.request()
@@ -165,6 +176,7 @@ exports.fieldData = async (responses, window) => {
                         .query(playersTotalquery);
                     console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
                 }
+                //Updates goalkeepersTotal
                 if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent" && responses[i].property != "shots on goal")
                 {
                     await poolPromise.request()
@@ -174,6 +186,7 @@ exports.fieldData = async (responses, window) => {
                         .query(goalkeepersTotalquery);
                     console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
                 }
+                //Updates teamRecord
                 if(responses[i].property != "shots on goal" && responses[i].property != "motm award" && responses[i].property != "sportsmanship award" && responses[i].property != "started")
                 {
                     await poolPromise.request()

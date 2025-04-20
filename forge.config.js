@@ -1,20 +1,47 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
-const icoPath = './resources/appicon.ico';
+const path = require('path');
+const icoPath = path.join(__dirname, './resources/appicon.ico');
 
 module.exports = {
     packagerConfig: {
         asar: true,
-        icon: icoPath
+        icon: icoPath,
+        "ignore": [
+            "/passwords.json"
+        ]
     },
     rebuildConfig: {},
     makers: [
         {
-            // Builds project for Windows (using Squirrel framework)
-            name: '@electron-forge/maker-squirrel',
+            // Builds Windows installewr
+            name: "@electron-forge/maker-wix",
             config: {
-                // The ICO file to use as the icon for the generated Setup.exe
-                setupIcon: icoPath
+                language: 1033,
+                manufacturer: 'Watkins Memorial High School',
+                description: 'Frontend database management suite for a tailored sports database.',
+                exe: 'Watkins Database Manager',
+                icon: icoPath,
+                name: 'Watkins Database Manager',
+                shortName: 'WatkinsDBM',
+                version: require('./package.json').version,
+                ui: {
+                    chooseDirectory: true,
+                    images: {
+                        background: path.join(__dirname, './resources/installer_background.bmp'),
+                        banner: path.join(__dirname, './resources/installer_banner.bmp'),
+                    }
+                }
+            }
+        },
+        {
+            // Builds MacOS installer
+            name: '@electron-forge/maker-dmg',
+            config: {
+                name: 'Watkins Database Manager',
+                background: path.join(__dirname, './resources/background.png'),
+                icon: path.join(__dirname, './resources/icon.png'),
+                overwrite: true,
             }
         },
         {
@@ -23,21 +50,13 @@ module.exports = {
             platforms: ['darwin'],
         },
         {
-            // Builds for Debian platforms (e.g. Ubunut)
+            // Builds for Debian platforms (e.g. Ubuntu)
             name: '@electron-forge/maker-deb',
             config: {
                 options: {
                     icon: icoPath
                 }
             }
-        },
-        {
-            // Builds for RedHat-based Linux distributions (e.g. Fedora)
-            name: '@electron-forge/maker-rpm',
-            config: {
-                icon: icoPath,
-                description: "Front end management toolkit for managing sport statistics databases.",
-            },
         },
     ],
     plugins: [

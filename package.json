@@ -12,6 +12,7 @@
   "author": "ONU Database Capstone Team",
   "license": "MIT",
   "dependencies": {
+    "@electron-forge/maker-wix": "^7.8.0",
     "about-window": "^1.15.2",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.1",

@@ -8,9 +8,6 @@ const columnAssociations = require('./columns.json');
 const isDev = process.env.NODE_ENV === 'dev';
 const isMac = process.platform === 'darwin';
 
-// run this as early in the main process as possible
-if (require('electron-squirrel-startup')) app.quit();
-
 var mainWindow;
 
 function createMainWindow() {

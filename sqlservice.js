@@ -3,7 +3,12 @@ const sql = require('mssql');
 const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
-const columnAssociations = require('./columns.json')
+const columnAssociations = require('./columns.json');
+let util;
+
+// Because this is a CommonJS file we need to await import() to import a .mjs file since require() doesn't work on those.
+// Necessary for that file to be .mjs since the frontend are ES modules, which needs to use import { }.
+(async () => { util = await import('./util.mjs'); })();
 
 // File-scoped variable to keep track of current working opponent name, given from previous bulk upload and accessed by fieldData
 var opponentMatch;
@@ -60,16 +65,15 @@ exports.login = async (event, credentials) => {
  * Given context of previous file import and form response data, fills missing gaps in import data
  * @param {Electron.IpcMainEvent} event Electron IPC event
  * @param {Array} responses             Container for all responses
- * @return {Promise<any>}               Promise containing data or error
+ * @return {Boolean}                    True if success, false if error
  */
 exports.fieldData = async (responses, window) => {
     window.webContents.send('change-spinner', true);
     async function uploadFieldData() {
-        try {
-            // Loop through the data array
-            for (let i = 0; i < responses.length; i++) {
-                // Construct the SQL query to update the appropriate column
-                const Playersquery = `
+        // Loop through the data array
+        for (let i = 0; i < responses.length; i++) {
+            // Construct the SQL query to update the appropriate column
+            const Playersquery = `
                     SET Context_Info 0x55555
                     UPDATE p
                     SET p.[${responses[i].property}] = @data
@@ -81,7 +85,7 @@ exports.fieldData = async (responses, window) => {
                     AND CONVERT(date, p.[date]) = CONVERT(date, GETDATE())
                     SET Context_Info 0x0
                 `;
-                const goalKeepersquery = `
+            const goalKeepersquery = `
                 SET Context_Info 0x55555
                 UPDATE gk
                 SET gk.[${responses[i].property}] = @data
@@ -93,16 +97,16 @@ exports.fieldData = async (responses, window) => {
                 AND CONVERT(date, gk.[date]) = CONVERT(date, GETDATE())
                 SET Context_Info 0x0
                 `;
-                const propertyMap = {
-                    "started": "games started",
-                    "motm award": "motm awards",
-                    "sportsmanship award": "sportsmanship awards"
-                };
-                  
-                  const originalProperty = responses[i].property;
-                  const property = propertyMap[originalProperty] || originalProperty;
-                  
-                const playersTotalquery = `
+            const propertyMap = {
+                "started": "games started",
+                "motm award": "motm awards",
+                "sportsmanship award": "sportsmanship awards"
+            };
+
+            const originalProperty = responses[i].property;
+            const property = propertyMap[originalProperty] || originalProperty;
+
+            const playersTotalquery = `
                     SET Context_Info 0x55555;
                     UPDATE pt
                     SET pt.[${property}] = ISNULL(pt.[${property}], 0) + CAST(@data AS INT)
@@ -113,7 +117,7 @@ exports.fieldData = async (responses, window) => {
                         AND pt.season = YEAR(GETDATE());
                     SET Context_Info 0x0;
                 `;
-                const goalkeepersTotalquery = `
+            const goalkeepersTotalquery = `
                 SET Context_Info 0x55555
                 UPDATE gkt
                 SET gkt.[${property}] = ISNULL(gkt.[${property}], 0) + CAST(@data AS INT)
@@ -125,13 +129,12 @@ exports.fieldData = async (responses, window) => {
                 gkt.season = YEAR(GETDATE())
                 SET Context_Info 0x0
                 `;
-                const isCard = ['reds', 'yellows'].includes(responses[i].property);
-                const teamRecordquery = `
+            const isCard = ['reds', 'yellows'].includes(responses[i].property);
+            const teamRecordquery = `
                 SET Context_Info 0x55555;
                 
                 UPDATE tr
-                SET tr.[${responses[i].property}] = ${
-                  isCard
+                SET tr.[${responses[i].property}] = ${isCard
                     ? `ISNULL(tr.[${responses[i].property}], 0) + CAST(@data AS INT)`
                     : `@data`
                 }
@@ -142,81 +145,87 @@ exports.fieldData = async (responses, window) => {
                 
                 SET Context_Info 0x0;
                 `;
-                let sqlType = sql.NVarChar
-                switch (typeof(responses[i].data)) {
-                    case "boolean": sqlType = sql.Bit;
-                    case "number": sqlType = sql.Int;
-                }
+            let sqlType = sql.NVarChar
+            switch (typeof (responses[i].data)) {
+                case "boolean": sqlType = sql.Bit;
+                case "number": sqlType = sql.Int;
+            }
 
-                // Run the query with parameterized values
-                //Updates Players
+            // Run the query with parameterized values
+            //Updates Players
+            await poolPromise.request()
+                .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                .input('lastName', sql.NVarChar, responses[i].lastName)
+                .input('oppM', sql.NVarChar, opponentMatch[1])
+                .query(Playersquery);
+            console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+            //Updates Goalkeepers
+            if (responses[i].property != "shots on goal") {
                 await poolPromise.request()
                     .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
                     .input('lastName', sql.NVarChar, responses[i].lastName)
                     .input('oppM', sql.NVarChar, opponentMatch[1])
-                    .query(Playersquery);
+                    .query(goalKeepersquery);
                 console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-                //Updates Goalkeepers
-                if(responses[i].property != "shots on goal")
-                {
-                    await poolPromise.request()
-                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
-                        .input('lastName', sql.NVarChar, responses[i].lastName)
-                        .input('oppM', sql.NVarChar, opponentMatch[1])
-                        .query(goalKeepersquery);
-                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-                }
-                //Updates PlayersTotal
-                if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent")
-                {
-                    await poolPromise.request()
-                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
-                        .input('lastName', sql.NVarChar, responses[i].lastName)
-                        .input('oppM', sql.NVarChar, opponentMatch[1])
-                        .query(playersTotalquery);
-                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-                }
-                //Updates goalkeepersTotal
-                if(responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent" && responses[i].property != "shots on goal")
-                {
-                    await poolPromise.request()
-                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
-                        .input('lastName', sql.NVarChar, responses[i].lastName)
-                        .input('oppM', sql.NVarChar, opponentMatch[1])
-                        .query(goalkeepersTotalquery);
-                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-                }
-                //Updates teamRecord
-                if(responses[i].property != "shots on goal" && responses[i].property != "motm award" && responses[i].property != "sportsmanship award" && responses[i].property != "started")
-                {
-                    await poolPromise.request()
-                        .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
-                        .input('lastName', sql.NVarChar, responses[i].lastName)
-                        .input('oppM', sql.NVarChar, opponentMatch[1])
-                        .query(teamRecordquery);
-                    console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
-                }
             }
-        
-
-            window.webContents.send('change-spinner', false);
-            dialog.showMessageBox(window, {
-                'type': 'info',
-                'detail': `Search "${opponentMatch[1]}" in Opponent to see details for this match.`,
-                'title': 'Bulk Upload',
-                'message': 'Bulk upload complete',
-            })
-        } catch (err) {
-            console.error('Error updating database:', err);
+            //Updates PlayersTotal
+            if (responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent") {
+                await poolPromise.request()
+                    .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                    .input('lastName', sql.NVarChar, responses[i].lastName)
+                    .input('oppM', sql.NVarChar, opponentMatch[1])
+                    .query(playersTotalquery);
+                console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+            }
+            //Updates goalkeepersTotal
+            if (responses[i].property != "field" && responses[i].property != "half score" && responses[i].property != "half score opponent" && responses[i].property != "shots on goal") {
+                await poolPromise.request()
+                    .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                    .input('lastName', sql.NVarChar, responses[i].lastName)
+                    .input('oppM', sql.NVarChar, opponentMatch[1])
+                    .query(goalkeepersTotalquery);
+                console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+            }
+            //Updates teamRecord
+            if (responses[i].property != "shots on goal" && responses[i].property != "motm award" && responses[i].property != "sportsmanship award" && responses[i].property != "started") {
+                await poolPromise.request()
+                    .input('data', sqlType, responses[i].data)   // Use appropriate SQL data type
+                    .input('lastName', sql.NVarChar, responses[i].lastName)
+                    .input('oppM', sql.NVarChar, opponentMatch[1])
+                    .query(teamRecordquery);
+                console.log(`Updated ${responses[i].property} for ${responses[i].lastName} with value: ${responses[i].data}`);
+            }
         }
+
+
+        window.webContents.send('change-spinner', false);
+        dialog.showMessageBox(window, {
+            'type': 'info',
+            'detail': `Search "${opponentMatch[1]}" in Opponent to see details for this match.`,
+            'title': 'Bulk Upload',
+            'message': 'Bulk upload complete',
+        })
     }
     // Execute the function
-    return await uploadFieldData().catch((err) => {
-        console.error('Error:', err);
-        throw err;
-    }).then(() => {
-        window.webContents.send('change-spinner', false);
-    });
+    return await uploadFieldData().then(
+        // Success
+        () => {
+            window.webContents.send('change-spinner', false);
+            return true;
+        },
+        // Failure
+        (err) => {
+            console.error('Error:', err);
+            dialog.showMessageBox(null, {
+                type: 'error',
+                detail: util.makeErrorReadable(err.toString()),
+                title: 'SQL Error',
+                message: 'Query failed: An internal server error occurred.'
+            });
+            window.webContents.send('change-spinner', false);
+            return false;
+        }
+    );
 }
 
 /**
@@ -254,9 +263,10 @@ exports.update = async (event, tableName, rowsList) => {
         }
         return true;
     } catch (err) {
+        console.error('Error:', err);
         dialog.showMessageBox(null, {
             'type': 'error',
-            'detail': err.toString(),
+            'detail': util.makeErrorReadable(err.toString()),
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
         });
@@ -291,9 +301,10 @@ exports.insert = async (event, tableName, rowsList) => {
         }
         return true;
     } catch (err) {
+        console.error('Error:', err);
         dialog.showMessageBox(null, {
             'type': 'error',
-            'detail': err.toString(),
+            'detail': util.makeErrorReadable(err.toString()),
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
         });
@@ -342,9 +353,10 @@ exports.fetch = async (event, tableName, args) => {
         const result = await poolPromise.request().query(query);
         return result;
     } catch (err) {
+        console.error('Error:', err);
         dialog.showMessageBox(null, {
             'type': 'error',
-            'detail': err.toString(),
+            'detail': util.makeErrorReadable(err.toString()),
             'title': 'SQL Error',
             'message': 'Query failed: An internal server error occured.'
         });
@@ -355,6 +367,7 @@ exports.fetch = async (event, tableName, args) => {
 /**
  * Requests the user to select |-delimited CSV files and imports the data to the database.
  * @param {BrowserWindow} window    Window for sending IPC messages
+ * @return {Boolean}                True if success, false if error
  */
 exports.bulkUpload = async (window) => {
     // Get all selected files
@@ -415,22 +428,22 @@ exports.bulkUpload = async (window) => {
                     Played = 0;
                 }
             }
-            try {
-                await poolPromise.request()
-                    .input('Jersey', sql.Int, Jersey)
-                    .input('Goals', sql.Int, Goals)
-                    .input('Assists', sql.Int, Assists)
-                    .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
-                    .input('Points', sql.Int, Points)
-                    .input('Played', sql.Int, Played)
-                    .input('MarkerScore', sql.Int, MarkerScore)
-                    .input('OpponentMatch', sql.VarChar, opponentMatch[1])
-                    .input('MarkerOutcome', sql.Char, markerOutcome)
-                    .input('GoalsAgainst', sql.Int, GoalsAgainst)
-                    .input('Saves', sql.Int, Saves)
-                    .input('ShutOuts', sql.Int, ShutOuts)
-                    .query(`
+
+            await poolPromise.request()
+                .input('Jersey', sql.Int, Jersey)
+                .input('Goals', sql.Int, Goals)
+                .input('Assists', sql.Int, Assists)
+                .input('Shots', sql.Int, Shots)
+                .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                .input('Points', sql.Int, Points)
+                .input('Played', sql.Int, Played)
+                .input('MarkerScore', sql.Int, MarkerScore)
+                .input('OpponentMatch', sql.VarChar, opponentMatch[1])
+                .input('MarkerOutcome', sql.Char, markerOutcome)
+                .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                .input('Saves', sql.Int, Saves)
+                .input('ShutOuts', sql.Int, ShutOuts)
+                .query(`
                     -- Insert into goalkeepers if position is 'g'
                     WITH PositionData AS (
                         SELECT position
@@ -453,29 +466,22 @@ exports.bulkUpload = async (window) => {
                     FROM PositionData
                     WHERE position <> 'g';
                 `);
-                console.log(`Inserted: Jersey #${Jersey}`);
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occured.'
-                });
-            }
+            console.log(`Inserted: Jersey #${Jersey}`);
+
             //updates playersTotal table
-            try {
-                await poolPromise.request()
-                    .input('Jersey', sql.Int, Jersey)
-                    .input('Goals', sql.Int, Goals)
-                    .input('Assists', sql.Int, Assists)
-                    .input('Shots', sql.Int, Shots)
-                    .input('MinutesPlayed', sql.Int, MinutesPlayed)
-                    .input('Points', sql.Int, Points)
-                    .input('Played', sql.Int, Played)
-                    .input('GoalsAgainst', sql.Int, GoalsAgainst)
-                    .input('Saves', sql.Int, Saves)
-                    .input('ShutOuts', sql.Int, ShutOuts)
-                    .query(`
+
+            await poolPromise.request()
+                .input('Jersey', sql.Int, Jersey)
+                .input('Goals', sql.Int, Goals)
+                .input('Assists', sql.Int, Assists)
+                .input('Shots', sql.Int, Shots)
+                .input('MinutesPlayed', sql.Int, MinutesPlayed)
+                .input('Points', sql.Int, Points)
+                .input('Played', sql.Int, Played)
+                .input('GoalsAgainst', sql.Int, GoalsAgainst)
+                .input('Saves', sql.Int, Saves)
+                .input('ShutOuts', sql.Int, ShutOuts)
+                .query(`
                     -- First, check the player's position
                     DECLARE @Position VARCHAR(10);
             
@@ -534,15 +540,7 @@ exports.bulkUpload = async (window) => {
                     END
                 `);
 
-                console.log(`Inserted/Updated: Jersey #${Jersey}`);
-            } catch (err) {
-                dialog.showMessageBox(null, {
-                    'type': 'error',
-                    'detail': err.toString(),
-                    'title': 'SQL Error',
-                    'message': 'Query failed: An internal server error occurred.'
-                });
-            }
+            console.log(`Inserted/Updated: Jersey #${Jersey}`);
 
         }
         if (finalScore < finalScoreOpp) {
@@ -554,139 +552,96 @@ exports.bulkUpload = async (window) => {
         else {
             finalOutcome = 'T';
         }
-        // these try statements might be able to be combind.
-        try {
-            await poolPromise.request()
-                .input('FinalScore', sql.Int, finalScore)
-                .query(`
-                        SET Context_Info 0x55555
-                        UPDATE Players
-                        SET "final score" = @FinalScore WHERE "final score" = 9999;
-                        SET Context_Info 0x0
-                    `);
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        try {
-            await poolPromise.request()
-                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
-                .query(`
+
+        await poolPromise.request()
+            .input('FinalScore', sql.Int, finalScore)
+            .query(`
+                    SET Context_Info 0x55555
+                    UPDATE Players
+                    SET "final score" = @FinalScore WHERE "final score" = 9999;
+                    SET Context_Info 0x0
+                `);
+
+        await poolPromise.request()
+            .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+            .query(`
                     SET Context_Info 0x55555
                     UPDATE Players
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     SET Context_Info 0x0
-                    `)
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        try {
-            await poolPromise.request()
-                .input('FinalOutcome', sql.Char, finalOutcome)
-                .query(`
+                `)
+
+        await poolPromise.request()
+            .input('FinalOutcome', sql.Char, finalOutcome)
+            .query(`
                     SET Context_Info 0x55555
                     UPDATE Players
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     SET Context_Info 0x0
-                    `)
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        try {
-            await poolPromise.request()
-                .input('FinalScore', sql.Int, finalScore)
-                .query(`
-                        SET Context_Info 0x55555
-                        UPDATE goalkeepers
-                        SET "final score" = @FinalScore WHERE "final score" = 9999;
-                        SET Context_Info 0x0
-                    `);
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        try {
-            await poolPromise.request()
-                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
-                .query(`
+                `)
+
+        await poolPromise.request()
+            .input('FinalScore', sql.Int, finalScore)
+            .query(`
+                    SET Context_Info 0x55555
+                    UPDATE goalkeepers
+                    SET "final score" = @FinalScore WHERE "final score" = 9999;
+                    SET Context_Info 0x0
+                `);
+
+        await poolPromise.request()
+            .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+            .query(`
                     SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "final score opponent" = @FinalScoreOpp WHERE "final score opponent" = 9999;
                     SET Context_Info 0x0
-                    `)
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        try {
-            await poolPromise.request()
-                .input('FinalOutcome', sql.Char, finalOutcome)
-                .query(`
+                `)
+
+        await poolPromise.request()
+            .input('FinalOutcome', sql.Char, finalOutcome)
+            .query(`
                     SET Context_Info 0x55555
                     UPDATE goalkeepers
                     SET "outcome" = @FinalOutcome WHERE "outcome" = 'M';
                     SET Context_Info 0x0
-                    `)
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
-        //update teamRecord
-        try {
-            await poolPromise.request()
-                .input('FinalScore', sql.Int, finalScore)
-                .input('FinalScoreOpp', sql.Int, finalScoreOpp)
-                .input('FinalOutcome', sql.Char, finalOutcome)
-                .input('OpponentMatch', sql.VarChar, opponentMatch[1])
-                .input('TotalShots', sql.Int, totalShots)
-                .input('TotalShotsOpp', sql.Int, totalShotsOpp)
-                .query(`
-                        INSERT INTO teamRecord (opponent, outcome, "final score", "final score opponent", "shots for", date, "shots against")
-                        VALUES (@OpponentMatch, @FinalOutcome, @FinalScore, @FinalScoreOpp,@TotalShots, GETDATE(), @TotalShotsOpp)
-                    `);
-        } catch (err) {
-            dialog.showMessageBox(null, {
-                'type': 'error',
-                'detail': err.toString(),
-                'title': 'SQL Error',
-                'message': 'Query failed: An internal server error occured.'
-            });
-        }
+                `)
+
+        // Update TeamRecord
+
+        await poolPromise.request()
+            .input('FinalScore', sql.Int, finalScore)
+            .input('FinalScoreOpp', sql.Int, finalScoreOpp)
+            .input('FinalOutcome', sql.Char, finalOutcome)
+            .input('OpponentMatch', sql.VarChar, opponentMatch[1])
+            .input('TotalShots', sql.Int, totalShots)
+            .input('TotalShotsOpp', sql.Int, totalShotsOpp)
+            .query(`
+                    INSERT INTO teamRecord (opponent, outcome, "final score", "final score opponent", "shots for", date, "shots against")
+                    VALUES (@OpponentMatch, @FinalOutcome, @FinalScore, @FinalScoreOpp,@TotalShots, GETDATE(), @TotalShotsOpp)
+                `);
 
         console.log('Upload complete.');
     }
 
     // Execute the function
-    return await uploadData().catch((err) => {
-        console.error('Error:', err);
-        throw err;
-    }).then(() => {
-        window.webContents.send('change-spinner', false);
-    });
+    return await uploadData().then(
+        // Success
+        () => {
+            window.webContents.send('change-spinner', false);
+            return true;
+        },
+        // Failure
+        (err) => {
+            console.error('Error:', err);
+            dialog.showMessageBox(null, {
+                type: 'error',
+                detail: util.makeErrorReadable(err.toString()),
+                title: 'SQL Error',
+                message: 'Query failed: An internal server error occurred.'
+            });
+            window.webContents.send('change-spinner', false);
+            return false;
+        }
+    );
 };

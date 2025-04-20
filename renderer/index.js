@@ -1,4 +1,5 @@
 import { fieldForm, halfScoreForm, startedForm, motmForm, sportsmanForm, shotsGoalForm, yellowsForm, redsForm } from "./forms.js";
+import { makeErrorReadable } from "../util.mjs";
 const pageInfo = {
     login: {html: "./login.html", func: makeLoginConnections},
     main: {html: "./main.html", func: makeMainConnections}
@@ -161,22 +162,6 @@ async function connect() {
     } else {
         document.getElementById("errorText").innerHTML = makeErrorReadable(successOrError);
     }
-}
-
-/**
- * Takes a error message and attempts to make it more human readable
- * @param {String} err  String containing the error
- * @return {String}     String containing reworded error
- */
-function makeErrorReadable(err) {
-    if (err.match("ConnectionError: Failed to connect to")) {
-        return "Failed to connect. Check your internet connection or server credentials and try again.";
-    } else if (err.match("ConnectionError: Login failed for user")) {
-        return "Incorrect password for selected user.";
-    } else if (err.match("getaddrinfo ENOTFOUND")) {
-        return "Invalid server name.";
-    }
-    return err;
 }
 
 /**
@@ -818,15 +803,16 @@ window.electronAPI.onShowHelp(() => {
         "Switch Table:  Displays a popup where you can choose a different table to display. Options are:\n" +
         "• Players  (stats about offensive & defensive players in a single game)\n" +
         "• Goalkeepers  (stats about goalkeepers in a single game)\n" +
-        "• Players Total  (totals stats for offensive & defensive players in a season)\n" +
-        "• Goalkeepers  Total (totals stats for goalkeepers in a season)\n" +
+        "• Players Total  (total stats for offensive & defensive players in a season)\n" +
+        "• Goalkeepers Total (total stats for goalkeepers in a season)\n" +
         "• Team Record  (general details regarding each game played [score, outcome, etc.])\n" +
+        "• Association  (list that maps jersey number and season to names)\n" +
         "————————————————————————————————————\n" +
         "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
         "————————————————————————————————————\n" +
         "File Options (Top-left menu):\n" +
         "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
-        "• Export Selection  (takes the current selection and exports as PDF or |-delimited CSV)\n",
+        "• Export Selection  (takes the current selection and exports as PDF or CSV)\n",
         "Help"
     );
 });

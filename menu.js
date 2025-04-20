@@ -31,12 +31,9 @@ exports.buildMenu = (window, upload, saveThemeData) => {
                     label: 'Import Files',
                     id: "import-option",
                     click: async () => {
-                        try {
-                            await upload();
-                            window.webContents.send('get-inputs');
-                        } catch (error) {
-                            console.log(error.toString());
-                        }
+                        let success = await upload();
+                        if (!success) { return; }
+                        window.webContents.send('get-inputs');
                     },
                 },
                 {

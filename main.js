@@ -95,7 +95,7 @@ ipcMain.handle("upload-file", async (event) => {
 });
 
 ipcMain.on('set-user-role', (event, role) => {
-    Menu.setApplicationMenu(buildMenu(mainWindow, async()=>{await bulkUpload(mainWindow)}, saveThemeData));
+    Menu.setApplicationMenu(buildMenu(mainWindow, async()=>{return await bulkUpload(mainWindow)}, saveThemeData));
 
     // Set the menu selector theme if it's been changed (for dark mode)
     try {

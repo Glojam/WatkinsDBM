@@ -68,7 +68,7 @@ app.whenReady().then(() => {
     ipcMain.handle('update-data', update);
     ipcMain.handle('insert-data', insert);
     ipcMain.handle('login', login);
-    ipcMain.on('field-data', async(responses)=>{fieldData(responses, mainWindow)});
+    ipcMain.on('field-data', async(event, responses)=>{fieldData(responses, mainWindow)});
 
     ipcMain.on('logout', () => {
         Menu.setApplicationMenu(null); 

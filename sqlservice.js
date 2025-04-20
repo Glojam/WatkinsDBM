@@ -63,7 +63,6 @@ exports.login = async (event, credentials) => {
  * @return {Promise<any>}               Promise containing data or error
  */
 exports.fieldData = async (responses, window) => {
-    console.log(opponentMatch);
     window.webContents.send('change-spinner', true);
     async function uploadFieldData() {
         try {

@@ -378,6 +378,8 @@ exports.bulkUpload = async (window) => {
         properties: ['openFile', 'multiSelections'],
     });
 
+    if (fileOutputs.length == 0) { return false; }
+
     window.webContents.send('change-spinner', true);
 
     // Function to parse and upload data

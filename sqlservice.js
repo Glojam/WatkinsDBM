@@ -375,7 +375,7 @@ exports.bulkUpload = async (window) => {
         title: 'Import Files',
         buttonLabel: 'Import',
         filters: [{ name: 'Text Files', extensions: ['txt'] }],
-        properties: ['openFile', 'multiSelections'],
+        properties: ['openFile'],
     });
 
     if (fileOutputs.length == 0) { return false; }

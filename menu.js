@@ -27,8 +27,8 @@ exports.buildMenu = (window, upload, saveThemeData) => {
             label: 'File',
             submenu: [
                 {
-                    role: 'Import Files',
-                    label: 'Import Files',
+                    role: 'Import File',
+                    label: 'Import File',
                     id: "import-option",
                     click: async () => {
                         let success = await upload();

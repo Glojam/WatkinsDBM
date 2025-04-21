@@ -8,7 +8,7 @@
         "join_jersey": true,
         "readonly_cols": ["jersey","date", "opponent", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "played", "points"],
         "addable": true,
-        "non_searchable": ["division"]
+        "non_searchable": ["division", "position"]
     },
     "goalkeepers": {
         "name": "Goalkeepers",
@@ -19,7 +19,7 @@
         "join_jersey": true,
         "readonly_cols": ["date", "opponent", "field", "outcome", "half score", "half score opponent", "final score", "final score opponent", "jersey", "played"],
         "addable": true,
-        "non_searchable": ["division"]
+        "non_searchable": ["division", "position"]
     },
     "playersTotal": {
         "name": "Players Total",

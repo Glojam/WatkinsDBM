@@ -43,7 +43,6 @@ async function makeLoginConnections(extras) {
  * This is necessary when the page is rewritten
  */
 async function makeMainConnections(extras) {
-    console.log("Make main connections!");
     currentWorkingTable = "players";
 
     document.getElementById("modeTag").innerHTML = (isAdmin ? "Admin" : "Guest") + " Mode" + `<div id="viewingText">Viewing: <br>Players</div>`;
@@ -819,7 +818,7 @@ window.electronAPI.onShowHelp(() => {
         "Publish Changes:  Compiles all changes made to the current selection and updates those rows in the database.\n" +
         "————————————————————————————————————\n" +
         "File Options (Top-left menu):\n" +
-        "• Import Files  (used to select |-delimited CSV file(s) whose data values will be added into the database)\n" +
+        "• Import File  (used to select |-delimited CSV file whose data values will be added into the database)\n" +
         "• Export Selection  (takes the current selection and exports as PDF or CSV)\n",
         "Help"
     );

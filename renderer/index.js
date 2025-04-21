@@ -43,6 +43,7 @@ async function makeLoginConnections(extras) {
  * This is necessary when the page is rewritten
  */
 async function makeMainConnections(extras) {
+    console.log("Make main connections!");
     currentWorkingTable = "players";
 
     document.getElementById("modeTag").innerHTML = (isAdmin ? "Admin" : "Guest") + " Mode" + `<div id="viewingText">Viewing: <br>Players</div>`;
@@ -99,6 +100,19 @@ async function makeMainConnections(extras) {
         switchPage("login");
     });
 
+    document.getElementById("changeMeter").style.display = isAdmin ? "block" : "none";
+    document.getElementById("updateButton").style.display = isAdmin ? "block" : "none";
+
+    addColumns();
+    addBufferRow();
+    showSearchableFields();
+}
+
+/**
+ * Hooks up connections to persistent DOM elements that never get cleared
+ * Should only be called once
+ */
+async function makeUniversalConnections() {
     // Handle form submission on step 1
     document.getElementById("fieldForm").addEventListener('submit', async (event) => { await fieldForm(event); });
     // Handle form submission on step 2
@@ -115,12 +129,6 @@ async function makeMainConnections(extras) {
     document.getElementById("yellowsForm").addEventListener('submit', async (event) => { await yellowsForm(event); });
     // Handle form submission on step 8
     document.getElementById("redsForm").addEventListener('submit', async (event) => { await redsForm(event); });
-    document.getElementById("changeMeter").style.display = isAdmin ? "block" : "none";
-    document.getElementById("updateButton").style.display = isAdmin ? "block" : "none";
-
-    addColumns();
-    addBufferRow();
-    showSearchableFields();
 }
 
 /**
@@ -844,5 +852,6 @@ window.electronAPI.onGetIsDev((serverIsDev) => { isDev = serverIsDev; })
 window.electronAPI.onGetColumns((data) => {
     columnAssociations = data;
     switchPage("login");
+    makeUniversalConnections();
     runInactivityLoop();
 })

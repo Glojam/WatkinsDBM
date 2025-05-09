@@ -26,7 +26,7 @@ WatkinsDBM is a dekstop application designed to interface with a Microsoft SQL d
 > 
 > If you have concerns about this, talk to your database host or IT administrator.
 
-To install Watkins Database Manager, navigate to the Releases panel on this page and download the latest version for your respective platform (Windows/Mac/Linux).
+To install Watkins Database Manager, navigate to the Releases panel on this page and download the latest version for your respective platform (Windows/Mac).
 
 ## Notes
 WatkinsDBM is not generalizable for any arbitrary MSSQL database and requires a tailored instance.
